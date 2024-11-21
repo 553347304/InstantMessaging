@@ -1,0 +1,2 @@
+system:
+  mysql: root:baiyin@tcp(159.75.103.16:33060)/fim_dbs?charset=utf8mb4&parseTime=True&loc=Local

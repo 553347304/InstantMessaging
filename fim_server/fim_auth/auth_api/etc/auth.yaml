@@ -1,0 +1,7 @@
+Name: auth
+Host: 0.0.0.0
+Port: 20021
+Log:
+  Encoding: plain
+  TimeFormat: 2006-01-02 15:04:05
+  Stat: false
