@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fim_server/core"
-	"fim_server/flags"
+	"fim_server/global/core"
+	"fim_server/global/flags"
 	"fmt"
 )
 

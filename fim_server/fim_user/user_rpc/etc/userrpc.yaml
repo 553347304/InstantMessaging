@@ -1,6 +1,9 @@
-Name: auth
-Host: 0.0.0.0
-Port: 20021
+Name: userrpc.rpc
+ListenOn: 0.0.0.0:8080
+Etcd:
+  Hosts:
+  - 127.0.0.1:2379
+  Key: userrpc.rpc
 system:
   mysql: root:baiyin@tcp(159.75.103.16:33060)/fim_db?charset=utf8mb4&parseTime=True&loc=Local
   redis: 159.75.103.16:63790 baiyin 1
@@ -8,7 +11,3 @@ Log:
   Encoding: plain
   TimeFormat: 2006-01-02 15:04:05
   Stat: false
-OpenLoginList:
-  - name: QQ登录
-    icon:
-    href:

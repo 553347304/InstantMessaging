@@ -11,7 +11,9 @@ import (
 func authenticationHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		l := logic.NewAuthenticationLogic(r.Context(), svcCtx)
-		resp, err := l.Authentication()
+
+		resp, err := l.Authentication(r)
+
 		response.Response(r, w, resp, err)
 	}
 }

@@ -3,7 +3,7 @@ package flags
 import (
 	"fim_server/fim_chat/chat_models"
 	"fim_server/fim_group/group_models"
-	"fim_server/fimg_user/user_models"
+	"fim_server/fim_user/user_models"
 	"fim_server/global"
 	"fmt"
 )
@@ -20,7 +20,6 @@ func MigrationTable() {
 			&user_models.UserConfig{},
 
 			&chat_models.Chat{},
-
 			&group_models.Group{},
 			&group_models.GroupMember{},
 			&group_models.GroupMessage{},

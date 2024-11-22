@@ -11,5 +11,6 @@ const (
 
 func Init() {
 	global.Config = Yaml()
-	global.DB = Mysql()
+	global.DB = Mysql(global.Config.System.Mysql)
+	global.Redis = Redis(global.Config.System.Redis)
 }

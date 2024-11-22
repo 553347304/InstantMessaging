@@ -2,6 +2,9 @@ package logic
 
 import (
 	"context"
+	"fim_server/utils/jwts"
+	"fmt"
+	"time"
 
 	"fim_server/fim_auth/auth_api/internal/svc"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -21,8 +24,17 @@ func NewLogoutLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LogoutLogi
 	}
 }
 
-func (l *LogoutLogic) Logout() (resp string, err error) {
+func (l *LogoutLogic) Logout(token string) (resp string, err error) {
 	// todo: add your logic here and delete this line
 
+	claims := jwts.ParseToken(token)
+	if claims == nil {
+		return
+	}
+	now := time.Now()
+	expiration := claims.ExpiresAt.Time.Sub(now)
+
+	l.svcCtx.Redis.SetNX(fmt.Sprintf("logout_%d", claims.UserId), "", expiration)
+	resp = "注销成功"
 	return
 }

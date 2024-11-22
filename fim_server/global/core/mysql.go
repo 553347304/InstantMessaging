@@ -1,7 +1,6 @@
 package core
 
 import (
-	"fim_server/global"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -9,14 +8,13 @@ import (
 	"time"
 )
 
-func Mysql() *gorm.DB {
-	var dsn = global.Config.System.Mysql
+func Mysql(config string) *gorm.DB {
 	var mysqlLogger = logger.Default.LogMode(logger.Error) // 日志等级
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+	db, err := gorm.Open(mysql.Open(config), &gorm.Config{
 		Logger: mysqlLogger,
 	})
 	if err != nil {
-		log.Fatal("MySQL连接失败: " + dsn)
+		log.Fatalln("MySQL连接失败", config)
 		return db
 	}
 	sqlDB, _ := db.DB()

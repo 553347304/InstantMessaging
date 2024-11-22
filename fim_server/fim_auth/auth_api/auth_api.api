@@ -7,17 +7,23 @@ type LoginResponse {
 	Token string `json:"token"`
 }
 
+type OpenLoginInfoRequest {
+	Code string `json:"code"`
+	Flag string `json:"flag"`
+}
+
 type OpenLoginInfoResponse {
 	Name string `json:"name"`
 	Icon string `json:"icon"`
 	Href string `json:"href"` // 跳转地址
 }
 
+// cd F:\demo\fim\fim_server\fim_auth\auth_api
 // goctl api go -api auth_api.api -dir . --home ../../template
 // go run auth.go
 service auth {
-	@handler login
-	post /api/auth/login (LoginRequest) returns (LoginResponse) // 登录接口
+	@handler open_login
+	post /api/auth/open_login (LoginRequest) returns (LoginResponse) // 登录接口
 
 	@handler authentication
 	post /api/auth/authentication returns (string) // 认证接口
@@ -29,6 +35,6 @@ service auth {
 	get /api/auth/open_login returns ([]OpenLoginInfoResponse) // 第三方登录的信息
 
 	@handler open_login
-	post /api/auth/open_login returns (LoginResponse) // 第三方登录
+	post /api/auth/open_login (OpenLoginInfoRequest) returns (LoginResponse) // 第三方登录
 }
 

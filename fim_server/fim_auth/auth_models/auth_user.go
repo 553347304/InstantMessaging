@@ -1,8 +1,6 @@
-package models
+package auth_models
 
-import (
-	"fim_server/common/models"
-)
+import "fim_server/common/models"
 
 // User 用户表
 type User struct {
@@ -13,4 +11,6 @@ type User struct {
 	Avatar   string `gorm:"size:256" json:"avatar"`  // 头像
 	IP       string `gorm:"size:32" json:"ip"`       // IP
 	Addr     string `gorm:"size:64" json:"addr"`     // 地址
+	Role     int8   `json:"role"`                    // 权限
+	OpenId   string `gorm:"size:64" json:"openId"`   // 第三方登录
 }

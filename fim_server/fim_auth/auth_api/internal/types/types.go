@@ -12,6 +12,11 @@ type LoginResponse struct {
 	Token string `json:"token"`
 }
 
+type OpenLoginInfoRequest struct {
+	Code string `json:"code"`
+	Flag string `json:"flag"`
+}
+
 type OpenLoginInfoResponse struct {
 	Name string `json:"name"`
 	Icon string `json:"icon"`

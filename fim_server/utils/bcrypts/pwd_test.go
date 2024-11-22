@@ -1,4 +1,4 @@
-package pwd
+package bcrypts
 
 import (
 	"fmt"
