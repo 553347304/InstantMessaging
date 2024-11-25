@@ -9,12 +9,14 @@ message UserCreateRequest {
   int32 role = 3;
   string avatar = 4;
   string open_id = 5;
+  string register_source = 6;
 }
 
 message UserCreateResponse {
   int32 user_id = 1;
 }
 
+// cd fim_user/user_rpc
 // goctl rpc protoc user_rpc.proto --go_out=./types --go-grpc_out=./types --zrpc_out=.
 // go run userrpc.go
 service Users {

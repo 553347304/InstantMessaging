@@ -18,13 +18,12 @@ type ServiceContext struct {
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	var DB = core.Mysql(c.System.Mysql)
-	var Redis = core.Redis(c.System.Redis)
-
+	var db = core.Mysql(c.System.Mysql)
+	var red = core.Redis(c.System.Redis)
 	return &ServiceContext{
 		Config:  c,
-		DB:      DB,
-		Redis:   Redis,
+		DB:      db,
+		Redis:   red,
 		UserRpc: users.NewUsers(zrpc.MustNewClient(c.UserRpc)),
 	}
 }

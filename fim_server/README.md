@@ -49,7 +49,13 @@ go get -u golang.org/x/crypto/bcrypt
 go get github.com/golang-jwt/jwt/v4
 ```
 
-
+###初始化
+```
+go mod init main
+go clean -modcache  # 清理缓存
+go mod tidy         # 重新加载依赖
+go mod graph        # 查看依赖关系
+```
 
 ### 环境
 ```

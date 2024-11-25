@@ -34,10 +34,11 @@ func (l *UserCreateLogic) UserCreate(in *user_rpc.UserCreateRequest) (*user_rpc.
 		return nil, errors.New("用户已经存在")
 	}
 	user = user_models.User{
-		Name:   in.Name,
-		Avatar: in.Avatar,
-		Role:   int8(in.Role),
-		OpenId: in.OpenId,
+		Name:           in.Name,
+		Avatar:         in.Avatar,
+		Role:           int8(in.Role),
+		OpenId:         in.OpenId,
+		RegisterSource: in.RegisterSource,
 	}
 
 	err = l.svcCtx.DB.Create(&user).Error

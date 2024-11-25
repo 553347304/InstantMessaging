@@ -18,7 +18,7 @@ type OpenLoginInfoResponse {
 	Href string `json:"href"` // 跳转地址
 }
 
-// cd F:\demo\fim\fim_server\fim_auth\auth_api
+// cd fim_auth/auth_api
 // goctl api go -api auth_api.api -dir . --home ../../template
 // go run auth.go
 service auth {
