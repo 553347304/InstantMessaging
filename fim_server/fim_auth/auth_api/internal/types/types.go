@@ -3,6 +3,16 @@
 
 package types
 
+type AuthenticationRequest struct {
+	Token     string `header:"Token,optional"`
+	VaildPath string `header:"VaildPath,optional"`
+}
+
+type AuthenticationResponse struct {
+	UserId uint `json:"userId"`
+	Role   int  `json:"role"`
+}
+
 type LoginRequest struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -12,13 +22,13 @@ type LoginResponse struct {
 	Token string `json:"token"`
 }
 
-type OpenLoginInfoRequest struct {
-	Code string `json:"code"`
-	Flag string `json:"flag"`
-}
-
 type OpenLoginInfoResponse struct {
 	Name string `json:"name"`
 	Icon string `json:"icon"`
 	Href string `json:"href"` // 跳转地址
+}
+
+type OpenLoginRequest struct {
+	Code string `json:"code"`
+	Flag string `json:"flag"`
 }

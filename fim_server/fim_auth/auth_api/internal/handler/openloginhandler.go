@@ -12,10 +12,8 @@ import (
 
 func open_loginHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-
-		var req types.OpenLoginInfoRequest
-		err := httpx.Parse(r, &req)
-		if err != nil {
+		var req types.OpenLoginRequest
+		if err := httpx.Parse(r, &req); err != nil {
 			response.Response(r, w, nil, err)
 			return
 		}

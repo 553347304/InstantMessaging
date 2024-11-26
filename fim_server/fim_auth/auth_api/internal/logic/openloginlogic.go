@@ -9,6 +9,7 @@ import (
 	"fim_server/fim_user/user_rpc/types/user_rpc"
 	"fim_server/utils/jwts"
 	"fim_server/utils/open_login"
+	"fim_server/utils/stores/logs"
 	"fmt"
 
 	"github.com/zeromicro/go-zero/core/logx"
@@ -28,7 +29,7 @@ func NewOpen_loginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Open_l
 	}
 }
 
-func (l *Open_loginLogic) Open_login(req *types.OpenLoginInfoRequest) (resp *types.LoginResponse, err error) {
+func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.LoginResponse, err error) {
 	// todo: add your logic here and delete this line
 
 	type OpenInfo struct {
@@ -53,7 +54,7 @@ func (l *Open_loginLogic) Open_login(req *types.OpenLoginInfoRequest) (resp *typ
 	}
 
 	if err != nil {
-		logx.Error(err)
+		logs.Error("登录失败", err)
 		return nil, errors.New("登录失败")
 	}
 	var user auth_models.User

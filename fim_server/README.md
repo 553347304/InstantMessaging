@@ -28,6 +28,9 @@ go get gorm.io/driver/mysql
 ```redis
 github.com/go-redis/redis
 ```
+```etcd
+go get go.etcd.io/etcd/client/v3
+```
 ```zero rpc
 go get -u github.com/zeromicro/go-zero
 go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.31.0

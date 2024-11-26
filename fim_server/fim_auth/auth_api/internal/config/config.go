@@ -16,5 +16,7 @@ type Config struct {
 		Mysql string
 		Redis string
 	}
-	UserRpc zrpc.RpcClientConf
+	UserRpc   zrpc.RpcClientConf
+	Etcd      string
+	WhiteList []string // 白名单
 }

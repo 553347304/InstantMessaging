@@ -1,8 +1,8 @@
 package jwts
 
 import (
+	"fim_server/utils/stores/logs"
 	"github.com/golang-jwt/jwt/v4"
-	"log"
 	"time"
 )
 
@@ -20,7 +20,7 @@ func GenToken(payload PayLoad) (string, error) {
 // ParseToken 解析 Token
 func ParseToken(tokenStr string) *Claims {
 	if tokenStr == "" {
-		log.Println("未携带token")
+		logs.Error("token为空")
 		return nil
 	}
 
@@ -35,6 +35,6 @@ func ParseToken(tokenStr string) *Claims {
 			return claims
 		}
 	}
-	log.Println("无效token")
+	logs.Error("无效token")
 	return nil
 }

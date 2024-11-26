@@ -2,9 +2,9 @@ package core
 
 import (
 	"context"
-	"fim_server/utils/convert"
 	"github.com/go-redis/redis"
 	"log"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -19,11 +19,12 @@ func split(s string, params []string) []string {
 
 func Redis(c string) *redis.Client {
 	opt := split(c, []string{"", "", "0", ""})
+	db, _ := strconv.Atoi(opt[2])
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     opt[0],
-		Password: opt[1],              // no password set
-		DB:       convert.Int(opt[2]), // use default DB
-		PoolSize: 100,                 // 连接池大小
+		Password: opt[1], // no password set
+		DB:       db,     // use default DB
+		PoolSize: 100,    // 连接池大小
 	})
 
 	_, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)

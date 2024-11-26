@@ -7,7 +7,7 @@ type LoginResponse {
 	Token string `json:"token"`
 }
 
-type OpenLoginInfoRequest {
+type OpenLoginRequest {
 	Code string `json:"code"`
 	Flag string `json:"flag"`
 }
@@ -18,15 +18,25 @@ type OpenLoginInfoResponse {
 	Href string `json:"href"` // 跳转地址
 }
 
+type AuthenticationRequest {
+	Token     string `header:"Token,optional"`
+	VaildPath string `header:"VaildPath,optional"`
+}
+
+type AuthenticationResponse {
+	UserId uint `json:"userId"`
+	Role   int  `json:"role"`
+}
+
 // cd fim_auth/auth_api
 // goctl api go -api auth_api.api -dir . --home ../../template
 // go run auth.go
 service auth {
-	@handler open_login
-	post /api/auth/open_login (LoginRequest) returns (LoginResponse) // 登录接口
+	@handler login
+	post /api/auth/login (LoginRequest) returns (LoginResponse) // 登录接口
 
 	@handler authentication
-	post /api/auth/authentication returns (string) // 认证接口
+	post /api/auth/authentication (AuthenticationRequest) returns (AuthenticationResponse) // 认证接口
 
 	@handler logout
 	post /api/auth/logout returns (string) // 注销
@@ -35,6 +45,6 @@ service auth {
 	get /api/auth/open_login returns ([]OpenLoginInfoResponse) // 第三方登录的信息
 
 	@handler open_login
-	post /api/auth/open_login (OpenLoginInfoRequest) returns (LoginResponse) // 第三方登录
+	post /api/auth/open_login (OpenLoginRequest) returns (LoginResponse) // 第三方登录
 }
 
