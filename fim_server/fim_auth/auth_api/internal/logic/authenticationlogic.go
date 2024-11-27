@@ -3,13 +3,12 @@ package logic
 import (
 	"context"
 	"errors"
+	"fim_server/fim_auth/auth_api/internal/svc"
+	"fim_server/fim_auth/auth_api/internal/types"
 	"fim_server/utils/jwts"
 	"fim_server/utils/stores/algorithms"
 	"fim_server/utils/stores/logs"
 	"fmt"
-
-	"fim_server/fim_auth/auth_api/internal/svc"
-	"fim_server/fim_auth/auth_api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -31,25 +30,26 @@ func NewAuthenticationLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Au
 func (l *AuthenticationLogic) Authentication(req *types.AuthenticationRequest) (resp *types.AuthenticationResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	if algorithms.InList(l.svcCtx.Config.WhiteList, req.VaildPath) {
-		logs.Info("白名单", req.VaildPath)
+	if algorithms.InList(l.svcCtx.Config.WhiteList, req.ValidPath) {
+		logs.Info("白名单", req.ValidPath)
 		return nil, nil
 	}
 
 	claims := jwts.ParseToken(req.Token)
 	if claims == nil {
-		err = errors.New("认证失败: " + err.Error())
-		return
-	}
-	_, err = l.svcCtx.Redis.Get(fmt.Sprintf("logout_%s", req.Token)).Result()
-	if err != nil {
-		logs.Error("在黑名单中")
-		err = errors.New("认证失败: " + err.Error())
+		err = errors.New("认证失败: " + req.Token)
 		return
 	}
 
-	return &types.AuthenticationResponse{
+	_, err = l.svcCtx.Redis.Get(fmt.Sprintf("logout_%s", req.Token)).Result()
+	if err == nil {
+		return nil, logs.Error("黑名单", err.Error())
+	}
+
+	resp = &types.AuthenticationResponse{
 		UserId: claims.UserId,
-		Role:   int(claims.Role),
-	}, nil
+		Role:   claims.Role,
+	}
+	logs.Info(resp)
+	return resp, nil
 }

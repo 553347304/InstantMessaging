@@ -2,12 +2,12 @@ package logic
 
 import (
 	"context"
-	"errors"
 	"fim_server/fim_auth/auth_api/internal/svc"
 	"fim_server/fim_auth/auth_api/internal/types"
 	"fim_server/fim_auth/auth_models"
 	"fim_server/utils/bcrypts"
 	"fim_server/utils/jwts"
+	"fim_server/utils/stores/logs"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -29,15 +29,13 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 	// todo: add your logic here and delete this line
 
 	var user auth_models.User
-	err = l.svcCtx.DB.Take(&user, req.Username).Error
+	err = l.svcCtx.DB.Take(&user, "name = ?", req.Name).Error
 	if err != nil {
-		err = errors.New("用户名或密码错误")
-		return
+		return nil, logs.Error("用户名错误")
 	}
 
-	if bcrypts.Check(user.Password, req.Password) {
-		err = errors.New("用户名或密码错误")
-		return
+	if !bcrypts.Check(user.Password, req.Password) {
+		return nil, logs.Error("密码错误")
 	}
 
 	token, err := jwts.GenToken(jwts.PayLoad{
@@ -46,8 +44,7 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 		Role:   user.Role,
 	})
 	if err != nil {
-		logx.Error(err)
-		return nil, err
+		return nil, logs.Error(err.Error())
 	}
 
 	return &types.LoginResponse{Token: token}, nil

@@ -3,9 +3,10 @@ package etcd
 import (
 	"context"
 	"fim_server/global/core"
-	"fim_server/utils/ips"
+	"fim_server/utils/stores/logs"
 	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
+	"github.com/zeromicro/go-zero/core/netx"
 	"strings"
 )
 
@@ -18,7 +19,8 @@ func DeliveryAddress(etcdAddr string, serviceName string, addr string) {
 	}
 	var ip = list[0]
 	if ip == "0.0.0.0" {
-		strings.ReplaceAll(addr, "0.0.0.0", ips.GetAll())
+		ip = netx.InternalIp()
+		strings.ReplaceAll(addr, "0.0.0.0", ip)
 	}
 	client := core.Etcd(etcdAddr)
 	_, err := client.Put(context.Background(), serviceName, addr)
@@ -26,7 +28,7 @@ func DeliveryAddress(etcdAddr string, serviceName string, addr string) {
 		logx.Error("地址上送失败", err)
 		return
 	}
-	logx.Infof("%s:%s", serviceName, addr)
+	logs.Info("地址上送成功   %s:%s -> %s", serviceName, addr, ip)
 }
 
 func GetServiceAddr(etcdAddr string, serviceName string) string {

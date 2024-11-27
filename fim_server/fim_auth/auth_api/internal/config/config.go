@@ -7,16 +7,16 @@ import (
 
 type Config struct {
 	rest.RestConf
+	Etcd   string
+	System struct {
+		Mysql string
+		Redis string
+	}
 	OpenLoginList []struct {
 		Name string `yaml:"name"`
 		Icon string `yaml:"icon"`
 		Href string `yaml:"href"`
 	}
-	System struct {
-		Mysql string
-		Redis string
-	}
 	UserRpc   zrpc.RpcClientConf
-	Etcd      string
 	WhiteList []string // 白名单
 }

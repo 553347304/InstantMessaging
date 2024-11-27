@@ -1,27 +1,34 @@
 package logs
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"time"
 )
 
-func Info(s ...interface{}) {
-	t := logColor("#ffffff", fmt.Sprintf("[%v]", time.Now().Format(times)))
-	fmt.Println(t + getLine(line) + logColor("#80ffff", fmt.Sprint(s...)))
+func Info(s ...interface{}) string {
+	str := isSprintf(s...)
+	t := logColor(fmt.Sprintf("[%v]", time.Now().Format(times)), "#ffffff")
+	fmt.Println(t + getLine(line) + logColor(isFieldColor(str), "#80ffff"))
+	return str
 }
 
-func Error(s ...interface{}) {
-	t := logColor("#ffffff", fmt.Sprintf("[%v]", time.Now().Format(times)))
-	fmt.Println(t + getLine(line) + logColor("#ff0000", fmt.Sprint(s...)))
+func Error(s ...interface{}) error {
+	str := isSprintf(s...)
+	t := logColor(fmt.Sprintf("[%v]", time.Now().Format(times)), "#ffffff")
+	fmt.Println(t + getLine(line) + logColor(isFieldColor(str), "#ff0000"))
+
+	return errors.New(str)
 }
 
 func Structs(s interface{}) {
-	t := logColor("#ffffff", fmt.Sprintf("[%v]", time.Now().Format(times)))
-	fmt.Println(t + getLine(line) + logColor("#ff0000", "结构体"))
+	t := logColor(fmt.Sprintf("[%v]", time.Now().Format(times)), "#ffffff")
+	fmt.Println(t + getLine(line) + logColor("结构体", "#ff0000"))
 	value := reflect.ValueOf(s)
 	subStructSlice(value)
 	subStruct(value)
+
 }
 func subStructSlice(val reflect.Value) bool {
 	if val.Kind() == reflect.Slice {
@@ -44,7 +51,7 @@ func subStruct(val reflect.Value) bool {
 		for i := 0; i < val.NumField(); i++ {
 			field := val.Field(i)
 			fieldName := typ.Field(i).Name
-			fmt.Printf(fmt.Sprintf("%s: %v", logColor("#ff0000", fieldName), logColor("#00ffff", field.Interface())))
+			fmt.Printf(fmt.Sprintf("%s: %v", logColor(fieldName, "#ff0000"), logColor(field.Interface(), "#00ffff")))
 			is1 := subStruct(field)
 			is2 := subStructSlice(field)
 			if is1 || is2 {

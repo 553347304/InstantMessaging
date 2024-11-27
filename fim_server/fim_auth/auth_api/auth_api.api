@@ -1,5 +1,5 @@
 type LoginRequest {
-	Username string `json:"username"`
+	Name string `json:"name"`
 	Password string `json:"password"`
 }
 
@@ -20,12 +20,12 @@ type OpenLoginInfoResponse {
 
 type AuthenticationRequest {
 	Token     string `header:"Token,optional"`
-	VaildPath string `header:"VaildPath,optional"`
+	ValidPath string `header:"ValidPath,optional"`
 }
 
 type AuthenticationResponse {
 	UserId uint `json:"userId"`
-	Role   int  `json:"role"`
+	Role   int8  `json:"role"`
 }
 
 // cd fim_auth/auth_api

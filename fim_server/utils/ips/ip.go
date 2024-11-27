@@ -1,43 +1,23 @@
 package ips
 
 import (
-	"fim_server/utils/stores/logs"
-	"fmt"
-	"net"
+	"regexp"
+	"strings"
 )
 
-func GetAll() string {
-	var ipv4 []string
-	// 获取所有网络接口
-	interfaces, err := net.Interfaces()
-	if err != nil {
-		fmt.Println("获取网卡信息错误", err)
-		return ""
+// netx.InternalIp()  获取内网IP
+
+// IsIP 提取字符串中的所有IP地址和端口
+func IsIP(input string) []string {
+	// 定义正则表达式：匹配IP地址和可选的端口
+	// 匹配 IPv4 地址：x.x.x.x 格式
+	// 可选的端口号格式：:端口号
+	re := regexp.MustCompile(`(\d{1,3}\.){3}\d{1,3}(:\d+)?`)
+	matches := re.FindAllString(input, -1)
+
+	var result []string
+	for _, match := range matches {
+		result = append(result, strings.TrimSpace(match)) // 清理掉多余的空格并返回结果
 	}
-
-	// 遍历所有网络接口
-	for _, inter := range interfaces {
-		addrs, errs := inter.Addrs()
-		if errs != nil {
-			fmt.Println("获取IP错误", errs)
-			continue
-		}
-
-		// 遍历接口的地址
-		for _, addr := range addrs {
-			// 判断地址类型，IPv4或IPv6
-			ipNet, ok := addr.(*net.IPNet)
-			if ok && !ipNet.IP.IsLoopback() {
-				if ipNet.IP.To4() != nil {
-					ipv4 = append(ipv4, ipNet.IP.String()+"\n")
-
-				} else {
-					// fmt.Println("IPv6:", ipNet.IP.String())
-				}
-			}
-		}
-	}
-	logs.Info("IPv4:", ipv4)
-
-	return ipv4[0]
+	return result
 }

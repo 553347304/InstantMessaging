@@ -5,16 +5,16 @@ package types
 
 type AuthenticationRequest struct {
 	Token     string `header:"Token,optional"`
-	VaildPath string `header:"VaildPath,optional"`
+	ValidPath string `header:"ValidPath,optional"`
 }
 
 type AuthenticationResponse struct {
 	UserId uint `json:"userId"`
-	Role   int  `json:"role"`
+	Role   int8  `json:"role"`
 }
 
 type LoginRequest struct {
-	Username string `json:"username"`
+	Name     string `json:"name"`
 	Password string `json:"password"`
 }
 
