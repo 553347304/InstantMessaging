@@ -28,7 +28,7 @@ type Data struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Data    *struct {
-		UserId uint `json:"userId"`
+		UserId uint `json:"user_id"`
 		Role   int  `json:"role"`
 	} `json:"data"`
 }
@@ -88,10 +88,12 @@ func proxy(url string, body io.Reader, res http.ResponseWriter, req *http.Reques
 	}
 
 	logs.Info(ser, proxyReq.Header)
+
 	return nil
 }
 
 func gateway(res http.ResponseWriter, req *http.Request) {
+
 	newBody := io.NopCloser(req.Body)     // 防止req.Body被读取两次
 	reqByteData, _ := io.ReadAll(newBody) // 读取请求体
 	body := bytes.NewBuffer(reqByteData)  // 将请求体重新写入
@@ -135,8 +137,6 @@ func gateway(res http.ResponseWriter, req *http.Request) {
 
 }
 
-// cd fim_gateway
-// go run gateway.go
 func main() {
 	flag.Parse()
 

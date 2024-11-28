@@ -29,16 +29,12 @@ func NewUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserInfo
 func (l *UserInfoLogic) UserInfo(in *user_rpc.UserInfoRequest) (*user_rpc.UserInfoResponse, error) {
 	// todo: add your logic here and delete this line
 
-	logs.Info(in)
-
 	var user user_models.User
 	err := l.svcCtx.DB.Preload("UserConfig").Take(&user, in.UserId).Error
 	if err != nil {
 		return nil, logs.Error("用户不存在", in.UserId)
 	}
 	byteData, _ := json.Marshal(user)
-
-	logs.Info(byteData)
 
 	return &user_rpc.UserInfoResponse{Data: byteData}, nil
 }

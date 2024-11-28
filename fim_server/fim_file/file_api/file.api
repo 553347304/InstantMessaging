@@ -1,0 +1,19 @@
+type ImageRequest {}
+
+type ImageResponse {
+	Url string `json:"url"`
+}
+
+type ImageShowRequest {
+	imageType string `path:"image_type"`
+	imageName string `path:"image_name"`
+}
+
+service file {
+	@handler Image
+	post /api/file/image (ImageRequest) returns (ImageResponse) // 图片上传
+
+	@handler ImageShow
+	get /api/file/file/:imageType/imageName (ImageShowRequest)
+}
+

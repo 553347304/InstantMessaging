@@ -1,10 +1,10 @@
 Name: auth
 Host: 0.0.0.0
 Port: 20021
-Etcd: 127.0.0.1:2379
 System:
   Mysql: root:baiyin@tcp(159.75.103.16:33060)/fim_db?charset=utf8mb4&parseTime=True&loc=Local
   Redis: 159.75.103.16:63790 baiyin 1
+  Etcd: 127.0.0.1:2379
 Log:
   Encoding: plain
   TimeFormat: 2006-01-02 15:04:05

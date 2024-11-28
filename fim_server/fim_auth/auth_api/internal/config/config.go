@@ -7,10 +7,10 @@ import (
 
 type Config struct {
 	rest.RestConf
-	Etcd   string
 	System struct {
 		Mysql string
 		Redis string
+		Etcd  string
 	}
 	OpenLoginList []struct {
 		Name string `yaml:"name"`

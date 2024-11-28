@@ -15,6 +15,6 @@ type User struct {
 	Addr           string      `gorm:"size:64" json:"addr"`    // 地址
 	Role           int8        `json:"role"`                   // 角色 1管理员 2普通用户
 	OpenId         string      `gorm:"size:64" json:"-"`
-	RegisterSource string      `gorm:"size:16" json:"registerSource"` // 注册来源 1手机号 2邮箱 3第三方
-	UserConfig     *UserConfig `gorm:"foreignKey:UserId" json:"UserConfig"`
+	RegisterSource string      `gorm:"size:16" json:"register_source"` // 注册来源 1手机号 2邮箱 3第三方
+	UserConfig     *UserConfig `gorm:"foreignKey:UserId" json:"user_config"`
 }

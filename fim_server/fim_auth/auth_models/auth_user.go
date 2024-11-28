@@ -12,5 +12,5 @@ type User struct {
 	IP       string `gorm:"size:32" json:"ip"`       // IP
 	Addr     string `gorm:"size:64" json:"addr"`     // 地址
 	Role     int8   `json:"role"`                    // 权限
-	OpenId   string `gorm:"size:64" json:"openId"`   // 第三方登录
+	OpenId   string `gorm:"size:64" json:"open_id"`  // 第三方登录
 }

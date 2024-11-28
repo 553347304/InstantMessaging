@@ -50,6 +50,6 @@ func (l *AuthenticationLogic) Authentication(req *types.AuthenticationRequest) (
 		UserId: claims.UserId,
 		Role:   claims.Role,
 	}
-	logs.Info(resp)
+	logs.Info("认证成功", resp)
 	return resp, nil
 }

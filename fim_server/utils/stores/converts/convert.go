@@ -1,14 +1,14 @@
 package converts
 
 import (
-	"log"
+	"fim_server/utils/stores/logs"
 	"strconv"
 )
 
 func Int(s string) int {
 	number, err := strconv.Atoi(s)
 	if err != nil {
-		log.Println("转换错误: " + err.Error())
+		logs.Error("转换错误: ", err)
 		return -1
 	}
 	return number

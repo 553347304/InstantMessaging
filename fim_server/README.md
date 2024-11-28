@@ -3,65 +3,70 @@
 ## 即时通讯后端
 
 ### 命令行参数
-```command
+``` shell
 go run main.go -db # 迁移表结构
 ```
 
 ### server
-```zero
-goctl template init --home template     # 指定模版文件
-goctl api go -api main.api -dir .
-```
-
-
-
-
-
-### 模块
 ``` yaml
-go get gopkg.in/yaml.v3
+# 网关
+cd fim_gateway
+go run gateway.go
+
+# 用户 RPC
+goctl rpc protoc user_rpc.proto --go_out=./types --go-grpc_out=./types --zrpc_out=.
+cd fim_user/user_rpc
+go run userrpc.go
+
+# 校验 API
+goctl api go -api auth_api.api -dir . --home ../../template
+cd fim_auth/auth_api
+go run auth.go
+
+# 用户 API
+goctl api go -api user.api -dir . --home ../../template
+cd fim_user/user_api
+go run user.go
+
+# 文件 API
+goctl api go -api file.api -dir . --home ../../template
+cd fim_file/file_api
+go run file.go
 ```
-```gorm mysql
-go get gorm.io/gorm
-go get gorm.io/driver/mysql
-```
-```redis
-github.com/go-redis/redis
-```
-```etcd
-go get go.etcd.io/etcd/client/v3
-```
-```zero rpc
-go get -u github.com/zeromicro/go-zero
-go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.31.0
-go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0
+
+## 模块
+``` yaml
+go get gopkg.in/yaml.v3                                             # yaml
+go get gorm.io/gorm                                                 # gorm
+go get gorm.io/driver/mysql                                         # mysql
+github.com/go-redis/redis                                           # redis
+go get go.etcd.io/etcd/client/v3                                    # etcd
+go get -u github.com/zeromicro/go-zero                              # go-zero
+go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.31.0     # protoc-gen-go
+go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.3.0     # protoc-gen-go-grpc
+# go-zero protoc
 curl -o "$env:USERPROFILE\go\protoc.zip" https://github.com/protocolbuffers/protobuf/releases/download/v3.9.0/protoc-3.9.0-win64.zip
 7z x "$env:USERPROFILE\go\protoc.zip" -o"$env:USERPROFILE\go\" -y
 rm "$env:USERPROFILE\go\protoc.zip"
 protoc --version
+# go-zero goctl
+goctl template init --home template     # 指定模版文件
+goctl api go -api main.api -dir .       # 生成api文件
+goctl rpc protoc main.proto --go_out=./types --go-grpc_out=./types --zrpc_out=.     # 生成rpc文件
 ```
 
-
-
-
-### utils
-```bcrypt
-go get -u golang.org/x/crypto/bcrypt
-```
-```jwt
-go get github.com/golang-jwt/jwt/v4
+## utils
+``` yaml
+go get -u golang.org/x/crypto/bcrypt    # bcrypt
+go get github.com/golang-jwt/jwt/v4     # jwt
 ```
 
-###初始化
-```
-go mod init main
-go clean -modcache  # 清理缓存
+### 初始化
+``` yaml
+go mod init main    # 初始化模块
+go clean -modcache  # 清理模块缓存
 go mod tidy         # 重新加载依赖
 go mod graph        # 查看依赖关系
-```
-
-### 环境
-```
-go env -w GOPROXY=https://goproxy.cn,direct
+go env -w GOPROXY=https://goproxy.cn,direct # 环境
 go env GOPROXY
 ```

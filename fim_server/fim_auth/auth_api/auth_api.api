@@ -1,5 +1,5 @@
 type LoginRequest {
-	Name string `json:"name"`
+	Name     string `json:"name"`
 	Password string `json:"password"`
 }
 
@@ -24,13 +24,10 @@ type AuthenticationRequest {
 }
 
 type AuthenticationResponse {
-	UserId uint `json:"userId"`
-	Role   int8  `json:"role"`
+	UserId uint `json:"user_id"`
+	Role   int8 `json:"role"`
 }
 
-// cd fim_auth/auth_api
-// goctl api go -api auth_api.api -dir . --home ../../template
-// go run auth.go
 service auth {
 	@handler login
 	post /api/auth/login (LoginRequest) returns (LoginResponse) // 登录接口

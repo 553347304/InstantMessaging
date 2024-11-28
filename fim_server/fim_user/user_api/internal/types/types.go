@@ -4,12 +4,26 @@
 package types
 
 type AuthQuestion struct {
-	Problem1 *string `json:"problem1"`
-	Problem2 *string `json:"problem2"`
-	Problem3 *string `json:"problem3"`
-	Answer1  *string `json:"answer1"`
-	Answer2  *string `json:"answer2"`
-	Answer3  *string `json:"answer3"`
+	Problem1 *string `json:"problem1,optional"`
+	Problem2 *string `json:"problem2,optional"`
+	Problem3 *string `json:"problem3,optional"`
+	Answer1  *string `json:"answer1,optional"`
+	Answer2  *string `json:"answer2,optional"`
+	Answer3  *string `json:"answer3,optional"`
+}
+
+type FriendInfoRequest struct {
+	UserId   uint `header:"User-Id"`
+	Role     int8 `header:"Role"`
+	FriendId uint `form:"friend_id"` // 好友ID
+}
+
+type FriendInfoResponse struct {
+	UserId uint   `json:"user_id"`
+	Name   string `json:"name"`
+	Sign   string `json:"sign"`
+	Avatar string `json:"avatar"`
+	Notice string `json:"notice"` // 备注
 }
 
 type UserInfoRequest struct {
@@ -18,33 +32,33 @@ type UserInfoRequest struct {
 }
 
 type UserInfoResponse struct {
-	UserId        uint          `json:"userId"`
+	UserId        uint          `json:"user_id"`
 	Name          string        `json:"name"`
 	Sign          string        `json:"sign"`
 	Avatar        string        `json:"avatar"`
-	RecallMessage *string       `gorm:"size:32" json:"recallMessage"` // 撤回消息内容
-	FriendOnline  bool          `json:"friendOnline"`                 // 好友上线
-	Sound         bool          `json:"sound"`                        // 好友上线声音
-	SecureLink    bool          `json:"secureLink"`                   // 安全链接
-	SavePassword  bool          `json:"savePassword"`                 // 保存密码
-	SearchUser    int8          `json:"searchUser"`                   // 别人查找到你的方式
-	Auth          int8          `json:"auth"`                         // 好友验证
-	AuthQuestion  *AuthQuestion `json:"authQuestion"`                 // 验证问题
+	RecallMessage *string       `gorm:"size:32" json:"recall_message"` // 撤回消息内容
+	FriendOnline  bool          `json:"friend_online"`                 // 好友上线
+	Sound         bool          `json:"sound"`                         // 好友上线声音
+	SecureLink    bool          `json:"secure_link"`                   // 安全链接
+	SavePassword  bool          `json:"save_password"`                 // 保存密码
+	SearchUser    int8          `json:"search_user"`                   // 别人查找到你的方式
+	Auth          int8          `json:"auth"`                          // 好友验证
+	AuthQuestion  *AuthQuestion `json:"auth_question"`                 // 验证问题
 }
 
 type UserUpdateRequest struct {
-	UserId        uint          `json:"userId"`
+	UserId        uint          `json:"user_id"`
 	Name          *string       `json:"name,optional"`
 	Sign          *string       `json:"sign,optional"`
 	Avatar        *string       `json:"avatar,optional"`
-	RecallMessage *string       `gorm:"size:32" json:"recallMessage,optional"` // 撤回消息内容
-	FriendOnline  *bool         `json:"friendOnline,optional"`                 // 好友上线
-	Sound         *bool         `json:"sound,optional"`                        // 好友上线声音
-	SecureLink    *bool         `json:"secureLink,optional"`                   // 安全链接
-	SavePassword  *bool         `json:"savePassword,optional"`                 // 保存密码
-	SearchUser    *int8         `json:"searchUser,optional"`                   // 别人查找到你的方式
-	Auth          *int8         `json:"auth,optional"`                         // 好友验证
-	AuthQuestion  *AuthQuestion `json:"authQuestion,optional"`                 // 验证问题
+	RecallMessage *string       `gorm:"size:32" json:"recall_message,optional"` // 撤回消息内容
+	FriendOnline  *bool         `json:"friend_online,optional"`                 // 好友上线
+	Sound         *bool         `json:"sound,optional"`                         // 好友上线声音
+	SecureLink    *bool         `json:"secure_link,optional"`                   // 安全链接
+	SavePassword  *bool         `json:"save_password,optional"`                 // 保存密码
+	SearchUser    *int8         `json:"search_user,optional"`                   // 别人查找到你的方式
+	Auth          *int8         `json:"auth,optional"`                          // 好友验证
+	AuthQuestion  *AuthQuestion `json:"auth_question,optional"`                 // 验证问题
 }
 
 type UserUpdateResponse struct {

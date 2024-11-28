@@ -8,6 +8,7 @@
       <sourceFolder url="file://$MODULE_DIR$/utils" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/stores" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/fim_file/file_api/file" type="java-resource" />
       <excludeFolder url="file://$MODULE_DIR$/test" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
