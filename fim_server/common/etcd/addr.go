@@ -35,6 +35,5 @@ func GetServiceAddr(etcdAddr string, serviceName string) string {
 		logs.Error("地址获取失败", serviceName, etcdAddr, err)
 		return ""
 	}
-	logs.Info("地址获取成功   %s:%s", serviceName, string(result.Kvs[0].Value))
 	return string(result.Kvs[0].Value)
 }

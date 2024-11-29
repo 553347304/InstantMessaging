@@ -7,4 +7,9 @@ type Config struct {
 	System struct {
 		Etcd string
 	}
+	File struct {
+		Path     string
+		MaxSize  float64
+		WhiteEXT []string
+	}
 }

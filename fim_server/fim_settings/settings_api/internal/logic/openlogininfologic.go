@@ -3,8 +3,8 @@ package logic
 import (
 	"context"
 
-	"fim_server/fim_auth/auth_api/internal/svc"
-	"fim_server/fim_auth/auth_api/internal/types"
+	"fim_server/fim_settings/settings_api/internal/svc"
+	"fim_server/fim_settings/settings_api/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -33,5 +33,6 @@ func (l *Open_login_infoLogic) Open_login_info() (resp []types.OpenLoginInfoResp
 			Href: s.Href,
 		})
 	}
+
 	return
 }

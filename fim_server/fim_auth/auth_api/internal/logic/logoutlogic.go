@@ -2,7 +2,7 @@ package logic
 
 import (
 	"context"
-	"fim_server/utils/jwts"
+	"fim_server/utils/encryption_and_decryptio/jwts"
 	"fmt"
 	"time"
 

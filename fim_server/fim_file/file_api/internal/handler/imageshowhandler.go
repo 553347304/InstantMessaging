@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"fim_server/utils/stores/logs"
 	"net/http"
 	"os"
 	"path"
@@ -21,6 +22,7 @@ func ImageShowHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 
 		filePath := path.Join("file", req.ImageType, req.ImageName)
+		logs.Info(filePath)
 		byteData, err := os.ReadFile(filePath)
 		if err != nil {
 			response.Response(r, w, nil, err)

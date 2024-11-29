@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"fim_server/common/response"
-	"fim_server/fim_auth/auth_api/internal/logic"
-	"fim_server/fim_auth/auth_api/internal/svc"
+	"fim_server/fim_settings/settings_api/internal/logic"
+	"fim_server/fim_settings/settings_api/internal/svc"
 )
 
 func open_login_infoHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {

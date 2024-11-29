@@ -14,24 +14,25 @@ cd fim_gateway
 go run gateway.go
 
 # 用户 RPC
-goctl rpc protoc user_rpc.proto --go_out=./types --go-grpc_out=./types --zrpc_out=.
 cd fim_user/user_rpc
-go run userrpc.go
-
-# 校验 API
-goctl api go -api auth_api.api -dir . --home ../../template
-cd fim_auth/auth_api
-go run auth.go
+goctl rpc protoc user_rpc.proto --go_out=./types --go-grpc_out=./types --zrpc_out=.
 
 # 用户 API
-goctl api go -api user.api -dir . --home ../../template
 cd fim_user/user_api
-go run user.go
+goctl api go -api user.api -dir . --home ../../template
+
+# 校验 API
+cd fim_auth/auth_api
+goctl api go -api auth_api.api -dir . --home ../../template
 
 # 文件 API
-goctl api go -api file.api -dir . --home ../../template
 cd fim_file/file_api
-go run file.go
+goctl api go -api file.api -dir . --home ../../template
+
+
+# 系统 API
+cd fim_settings/settings_api
+goctl api go -api settings.api -dir . --home ../../template
 ```
 
 ## 模块

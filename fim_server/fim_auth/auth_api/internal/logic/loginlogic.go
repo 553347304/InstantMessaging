@@ -5,8 +5,8 @@ import (
 	"fim_server/fim_auth/auth_api/internal/svc"
 	"fim_server/fim_auth/auth_api/internal/types"
 	"fim_server/fim_auth/auth_models"
-	"fim_server/utils/bcrypts"
-	"fim_server/utils/jwts"
+	"fim_server/utils/encryption_and_decryptio/bcrypts"
+	"fim_server/utils/encryption_and_decryptio/jwts"
 	"fim_server/utils/stores/logs"
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -38,7 +38,6 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 		return nil, logs.Error("密码错误")
 	}
 
-	logs.Info(user.ID)
 	token, err := jwts.GenToken(jwts.PayLoad{
 		UserId: user.ID,
 		Name:   user.Name,

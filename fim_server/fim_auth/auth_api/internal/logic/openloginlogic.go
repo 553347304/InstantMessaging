@@ -7,7 +7,7 @@ import (
 	"fim_server/fim_auth/auth_api/internal/types"
 	"fim_server/fim_auth/auth_models"
 	"fim_server/fim_user/user_rpc/types/user_rpc"
-	"fim_server/utils/jwts"
+	"fim_server/utils/encryption_and_decryptio/jwts"
 	"fim_server/utils/open_login"
 	"fim_server/utils/stores/logs"
 	"fmt"

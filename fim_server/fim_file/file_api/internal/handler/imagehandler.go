@@ -1,16 +1,14 @@
 package handler
 
 import (
-	"fim_server/utils/stores/logs"
-	"io"
-	"net/http"
-	"os"
-	"path"
-
 	"fim_server/fim_file/file_api/internal/logic"
 	"fim_server/fim_file/file_api/internal/svc"
 	"fim_server/fim_file/file_api/internal/types"
+	"fim_server/utils/stores/files"
+	"fim_server/utils/stores/logs"
 	"github.com/zeromicro/go-zero/rest/httpx"
+	"net/http"
+	"path"
 
 	"fim_server/common/response"
 )
@@ -23,29 +21,25 @@ func ImageHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 
-		file, fileHead, err := r.FormFile("image")
-		if err != nil {
-			response.Response(r, w, nil, err)
-			return
-		}
+		// 图片类型
 		imageType := r.FormValue("image_type")
 		if imageType == "" {
 			response.Response(r, w, nil, logs.Error("image_type为空"))
 			return
 		}
-		byteData, _ := io.ReadAll(file)
-		fileName := fileHead.Filename
-		filePath := path.Join("file", imageType, fileName)
-		err = os.WriteFile(filePath, byteData, 0666)
-		if err != nil {
-			response.Response(r, w, nil, err)
+
+		// 读取文件
+		file := files.FormFile(files.File{R: r, Key: "image",
+			MaxSize: &svcCtx.Config.File.MaxSize, WhiteEXT: &svcCtx.Config.File.WhiteEXT})
+		if file.Error != nil {
+			response.Response(r, w, nil, logs.Error(file.Error))
 			return
 		}
 
 		l := logic.NewImageLogic(r.Context(), svcCtx)
 		resp, err := l.Image(&req)
 
-		resp.Url = "/" + filePath
+		resp.Url = files.WriteFile(path.Join(svcCtx.Config.File.Path, imageType, file.Name), file.Byte)
 
 		response.Response(r, w, resp, err)
 	}

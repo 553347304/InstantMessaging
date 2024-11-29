@@ -17,7 +17,7 @@ type UserInfoResponse {
 	Name          string  `json:"name"`
 	Sign          string  `json:"sign"`
 	Avatar        string  `json:"avatar"`
-	RecallMessage *string `gorm:"size:32" json:"recall_message"` // 撤回消息内容
+	RecallMessage *string `json:"recall_message"` // 撤回消息内容
 	FriendOnline  bool    `json:"friend_online"` // 好友上线
 	Sound         bool    `json:"sound"` // 好友上线声音
 	SecureLink    bool    `json:"secure_link"` // 安全链接
@@ -33,7 +33,7 @@ type UserUpdateRequest {
 	Name          *string `json:"name,optional"`
 	Sign          *string `json:"sign,optional"`
 	Avatar        *string `json:"avatar,optional"`
-	RecallMessage *string `gorm:"size:32" json:"recall_message,optional"` // 撤回消息内容
+	RecallMessage *string `json:"recall_message,optional"` // 撤回消息内容
 	FriendOnline  *bool   `json:"friend_online,optional"` // 好友上线
 	Sound         *bool   `json:"sound,optional"` // 好友上线声音
 	SecureLink    *bool   `json:"secure_link,optional"` // 安全链接
@@ -60,6 +60,18 @@ type FriendInfoResponse {
 	Notice string `json:"notice"` // 备注
 }
 
+type FriendListRequest {
+	UserId uint `header:"User-Id"`
+	Role   int8 `header:"Role"`
+	Page   int  `form:"page"`
+	Limit  int  `form:"limit,optional"`
+}
+
+type FriendListResponse {
+	List  []FriendInfoResponse `json:"list"`
+	Count int                  `json:"total"`
+}
+
 service user {
 	@handler UserInfo
 	get /api/user/user_info (UserInfoRequest) returns (UserInfoResponse) // 用户信息
@@ -69,5 +81,8 @@ service user {
 
 	@handler FriendInfo
 	get /api/user/friend_info (FriendInfoRequest) returns (FriendInfoResponse) // 好友信息接口
+
+	@handler FriendList
+	get /api/user/friend (FriendListRequest) returns (FriendListResponse) // 好友信息接口
 }
 

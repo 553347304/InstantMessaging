@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fim_server/fim_auth/auth_api/internal/svc"
 	"fim_server/fim_auth/auth_api/internal/types"
-	"fim_server/utils/jwts"
+	"fim_server/utils/encryption_and_decryptio/jwts"
 	"fim_server/utils/stores/algorithms"
 	"fim_server/utils/stores/logs"
 	"fmt"
@@ -30,7 +30,7 @@ func NewAuthenticationLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Au
 func (l *AuthenticationLogic) Authentication(req *types.AuthenticationRequest) (resp *types.AuthenticationResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	if algorithms.InList(l.svcCtx.Config.WhiteList, req.ValidPath) {
+	if algorithms.InListRegex(l.svcCtx.Config.WhiteList, req.ValidPath) {
 		logs.Info("白名单", req.ValidPath)
 		return nil, nil
 	}

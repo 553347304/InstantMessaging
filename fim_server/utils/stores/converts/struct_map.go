@@ -1,10 +1,21 @@
 package converts
 
 import (
+	"encoding/json"
 	"fim_server/utils/stores/logs"
 	"reflect"
 	"strings"
 )
+
+func StructJsonMap[T map[string]interface{} | []map[string]interface{}](m interface{}) T {
+	var maps T
+	jsonData, _ := json.Marshal(m)
+	err := json.Unmarshal(jsonData, &maps)
+	if err != nil {
+		logs.Error(err)
+	}
+	return maps
+}
 
 // StructMap 结构体转Map
 func StructMap(data interface{}, _tag string) map[string]interface{} {
@@ -18,21 +29,22 @@ func StructMap(data interface{}, _tag string) map[string]interface{} {
 			v := values.Field(i)                // 字段值
 			tag := types.Field(i).Tag.Get(_tag) // 字段Tag
 
-			// 空值返回结构体字段
-			if _tag == "" {
-				tag = name
-			}
-			if tag == "*" {
-				tag = types.Field(i).Tag.Get("json")
-			}
-
 			// 只提取一个json字段
 			if strings.Contains(tag, ",") {
 				tag = strings.Split(tag, ",")[0]
 			}
 
+			// 空值返回结构体字段
+			if _tag == "" {
+				tag = name
+			}
+
+			if tag == "*" {
+				tag = types.Field(i).Tag.Get("json")
+			}
+
 			// 空值
-			if v.IsZero() || tag == "" {
+			if v.IsZero() || tag == "" || tag == "-" {
 				if isLog {
 					logs.Error(tag, v)
 				}
