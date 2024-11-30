@@ -4,7 +4,7 @@ import (
 	"fim_server/common/models"
 )
 
-type Group struct {
+type GroupModel struct {
 	models.Model
 	Name               string               `gorm:"size:32" json:"name"`         // 群名
 	Sign               string               `gorm:"size:128" json:"sign"`        // 简介

@@ -30,7 +30,7 @@ func NewFriendInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Friend
 func (l *FriendInfoLogic) FriendInfo(req *types.FriendInfoRequest) (resp *types.FriendInfoResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	var friend user_models.Friend
+	var friend user_models.FriendModel
 	if !friend.IsFriend(l.svcCtx.DB, req.UserId, req.FriendId) {
 		return nil, logs.Error("他不是你的好友")
 	}
@@ -42,7 +42,7 @@ func (l *FriendInfoLogic) FriendInfo(req *types.FriendInfoRequest) (resp *types.
 	if err != nil {
 		return nil, logs.Error(err)
 	}
-	var friendUser user_models.User
+	var friendUser user_models.UserModel
 	err = json.Unmarshal(result.Data, &friendUser)
 	if err != nil {
 		return nil, logs.Error("绑定失败", err)

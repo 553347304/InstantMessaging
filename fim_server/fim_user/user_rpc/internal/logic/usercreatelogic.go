@@ -28,12 +28,12 @@ func NewUserCreateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserCr
 func (l *UserCreateLogic) UserCreate(in *user_rpc.UserCreateRequest) (*user_rpc.UserCreateResponse, error) {
 	// todo: add your logic here and delete this line
 
-	var user user_models.User
+	var user user_models.UserModel
 	err := l.svcCtx.DB.Take(&user, "open_id = ?", in.OpenId).Error
 	if err == nil {
 		return nil, errors.New("用户已经存在")
 	}
-	user = user_models.User{
+	user = user_models.UserModel{
 		Name:           in.Name,
 		Avatar:         in.Avatar,
 		Role:           int8(in.Role),
@@ -48,7 +48,7 @@ func (l *UserCreateLogic) UserCreate(in *user_rpc.UserCreateRequest) (*user_rpc.
 	}
 
 	// 创建用户配置
-	l.svcCtx.DB.Create(&user_models.UserConfig{
+	l.svcCtx.DB.Create(&user_models.UserConfigModel{
 		UserId:        user.ID,
 		RecallMessage: nil,
 		FriendOnline:  false,

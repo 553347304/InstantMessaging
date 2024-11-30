@@ -36,12 +36,12 @@ func (l *UserInfoLogic) UserInfo(req *types.UserInfoRequest) (resp *types.UserIn
 	if err != nil {
 		return nil, logs.Error(err.Error())
 	}
-	var user user_models.User
+	var user user_models.UserModel
 	err = json.Unmarshal(result.Data, &user)
 	if err != nil {
 		return nil, errors.New("数据错误")
 	}
-	if user.UserConfig == nil {
+	if user.UserConfigModel == nil {
 		return nil, logs.Error("当前用户ID没有配置", user.ID)
 	}
 
@@ -50,22 +50,22 @@ func (l *UserInfoLogic) UserInfo(req *types.UserInfoRequest) (resp *types.UserIn
 		Name:          user.Name,
 		Sign:          user.Sign,
 		Avatar:        user.Avatar,
-		RecallMessage: user.UserConfig.RecallMessage,
-		FriendOnline:  user.UserConfig.FriendOnline,
-		Sound:         user.UserConfig.Sound,
-		SecureLink:    user.UserConfig.SecureLink,
-		SavePassword:  user.UserConfig.SavePassword,
-		SearchUser:    user.UserConfig.SearchUser,
-		Auth:          user.UserConfig.Auth,
+		RecallMessage: user.UserConfigModel.RecallMessage,
+		FriendOnline:  user.UserConfigModel.FriendOnline,
+		Sound:         user.UserConfigModel.Sound,
+		SecureLink:    user.UserConfigModel.SecureLink,
+		SavePassword:  user.UserConfigModel.SavePassword,
+		SearchUser:    user.UserConfigModel.SearchUser,
+		Auth:          user.UserConfigModel.Auth,
 	}
-	if user.UserConfig.AuthQuestion != nil {
+	if user.UserConfigModel.AuthQuestion != nil {
 		resp.AuthQuestion = &types.AuthQuestion{
-			Problem1: user.UserConfig.AuthQuestion.Problem1,
-			Problem2: user.UserConfig.AuthQuestion.Problem2,
-			Problem3: user.UserConfig.AuthQuestion.Problem3,
-			Answer1:  user.UserConfig.AuthQuestion.Answer1,
-			Answer2:  user.UserConfig.AuthQuestion.Answer2,
-			Answer3:  user.UserConfig.AuthQuestion.Answer3,
+			Problem1: user.UserConfigModel.AuthQuestion.Problem1,
+			Problem2: user.UserConfigModel.AuthQuestion.Problem2,
+			Problem3: user.UserConfigModel.AuthQuestion.Problem3,
+			Answer1:  user.UserConfigModel.AuthQuestion.Answer1,
+			Answer2:  user.UserConfigModel.AuthQuestion.Answer2,
+			Answer3:  user.UserConfigModel.AuthQuestion.Answer3,
 		}
 	}
 	return resp, nil

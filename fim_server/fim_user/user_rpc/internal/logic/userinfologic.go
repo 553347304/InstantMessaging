@@ -29,8 +29,8 @@ func NewUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserInfo
 func (l *UserInfoLogic) UserInfo(in *user_rpc.UserInfoRequest) (*user_rpc.UserInfoResponse, error) {
 	// todo: add your logic here and delete this line
 
-	var user user_models.User
-	err := l.svcCtx.DB.Preload("UserConfig").Take(&user, in.UserId).Error
+	var user user_models.UserModel
+	err := l.svcCtx.DB.Preload("UserConfigModel").Take(&user, in.UserId).Error
 	if err != nil {
 		return nil, logs.Error("用户不存在", in.UserId)
 	}

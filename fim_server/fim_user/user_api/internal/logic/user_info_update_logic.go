@@ -32,7 +32,7 @@ func (l *UserInfoUpdateLogic) UserInfoUpdate(req *types.UserUpdateRequest) (resp
 	userMap := converts.StructMap(*req, "user")
 	logs.Info(userMap)
 	if len(userMap) != 0 {
-		var user user_models.User
+		var user user_models.UserModel
 		err = l.svcCtx.DB.Take(&user, req.UserId).Error
 		if err != nil {
 			return nil, logs.Error("用户不存在", req.UserId)
@@ -50,13 +50,13 @@ func (l *UserInfoUpdateLogic) UserInfoUpdate(req *types.UserUpdateRequest) (resp
 		delete(userConfigMaps, "sign")
 		delete(userConfigMaps, "avatar")
 		delete(userConfigMaps, "auth_question")
-		var userConfig user_models.UserConfig
+		var userConfig user_models.UserConfigModel
 		err = l.svcCtx.DB.Take(&userConfig, "user_id = ?", req.UserId).Error
 		if err != nil {
 			return nil, logs.Error("用户配置不存在")
 		}
 
-		err = l.svcCtx.DB.Model(&userConfig).Updates(&user_models.UserConfig{AuthQuestion: (*models.AuthQuestion)(req.AuthQuestion)}).Error
+		err = l.svcCtx.DB.Model(&userConfig).Updates(&user_models.UserConfigModel{AuthQuestion: (*models.AuthQuestion)(req.AuthQuestion)}).Error
 		if err != nil {
 			return nil, logs.Error("用户配置验证问题更新失败", err)
 		}

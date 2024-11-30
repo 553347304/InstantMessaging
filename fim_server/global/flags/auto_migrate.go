@@ -14,16 +14,16 @@ func MigrationTable() {
 
 	err = global.DB.Set("gorm:table_options", "ENGINE=InnoDB").
 		AutoMigrate(
-			&user_models.User{},
-			&user_models.Friend{},
-			&user_models.FriendAuth{},
-			&user_models.UserConfig{},
+			&user_models.UserModel{},
+			&user_models.FriendModel{},
+			&user_models.FriendAuthModel{},
+			&user_models.UserConfigModel{},
 
-			&chat_models.Chat{},
-			&group_models.Group{},
-			&group_models.GroupMember{},
-			&group_models.GroupMessage{},
-			&group_models.GroupAuth{},
+			&chat_models.ChatModel{},
+			&group_models.GroupModel{},
+			&group_models.GroupMemberModel{},
+			&group_models.GroupMessageModel{},
+			&group_models.GroupAuthModel{},
 		)
 	if err != nil {
 		fmt.Println("[生成数据库表结构失败]")

@@ -2,8 +2,8 @@ package chat_models
 
 import "fim_server/common/models"
 
-// Chat 对话表
-type Chat struct {
+// ChatModel 对话表
+type ChatModel struct {
 	models.Model
 	SendUserId     uint                  `json:"send_user_id"`                   // 发送人
 	ReceiveUserId  uint                  `json:"receive_user_id"`                // 接收人

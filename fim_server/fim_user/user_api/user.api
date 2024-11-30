@@ -63,14 +63,103 @@ type FriendInfoResponse {
 type FriendListRequest {
 	UserId uint `header:"User-Id"`
 	Role   int8 `header:"Role"`
-	Page   int  `form:"page"`
+	Page   int  `form:"page,optional"`
 	Limit  int  `form:"limit,optional"`
 }
 
 type FriendListResponse {
 	List  []FriendInfoResponse `json:"list"`
-	Count int                  `json:"total"`
+	Total int                  `json:"total"`
 }
+
+type FriendNoticeUpdateRequest {
+	UserId   uint   `header:"User-Id"`
+	FriendId uint   `json:"friend_id"` // 好友ID
+	Notice   string `json:"notice"` // 备注
+}
+
+type FriendNoticeUpdateResponse {}
+
+type SearchRequest {
+	UserId uint   `header:"User-Id"`
+	Key    string `form:"key"`
+	Online bool   `form:"online,optional"`
+	Page   int    `form:"page,optional"`
+	Limit  int    `form:"limit,optional"`
+}
+
+type SearchInfo {
+	UserId   uint   `json:"user_id"`
+	Name     string `json:"name"`
+	Sign     string `json:"sign"`
+	Avatar   string `json:"avatar"`
+	IsFriend bool   `json:"is_friend"`
+}
+
+type SearchResponse {
+	List  []SearchInfo `json:"list"`
+	Total int64        `json:"total"`
+}
+
+type UserAuthRequest {
+	UserId   uint `header:"User-Id"`
+	FriendId uint `json:"friend_id"` // 好友ID
+}
+
+type UserAuthResponse {
+	Auth         int8         `json:"auth"` // 好友验证
+	AuthQuestion AuthQuestion `json:"auth_question,optional"` // 验证问题
+}
+
+type AddFriendRequest {
+	UserId       uint          `header:"User-Id"`
+	FriendId     uint          `json:"friend_id"` // 好友ID
+	AuthMessage  string        `json:"auth,optional"` // 验证消息
+	AuthQuestion *AuthQuestion `json:"auth_question,optional"` // 验证问题
+}
+
+type AddFriendResponse {}
+
+type FriendAuthRequest {
+	UserId uint `header:"User-Id"`
+	Page   int  `form:"page,optional"`
+	Limit  int  `form:"limit,optional"`
+}
+
+type FriendAuthInfoResponse {
+	UserId       uint          `json:"user_id"`
+	Name         string        `json:"name"`
+	Avatar       string        `json:"avatar"`
+	AuthMessage  string        `json:"auth,optional"` // 验证消息
+	AuthQuestion *AuthQuestion `json:"auth_question,optional"` // 验证问题
+	Status       int8          `json:"status"`
+	Auth         int8          `json:"auth"` // 好友验证
+	Id           uint          `json:"id"`
+}
+
+type FriendAuthResponse {
+	List  []FriendAuthInfoResponse `json:"list"`
+	Total int64                    `json:"total"`
+}
+
+type FriendAuthInfo {
+	UserId       uint          `json:"user_id"`
+	Name         string        `json:"name"`
+	Avatar       string        `json:"avatar"`
+	AuthMessage  string        `json:"auth,optional"` // 验证消息
+	AuthQuestion *AuthQuestion `json:"auth_question,optional"` // 验证问题
+	Status       int8          `json:"status"`
+	Auth         int8          `json:"auth"` // 好友验证
+	Id           uint          `json:"id"`
+}
+
+type FriendAuthStatusRequest {
+	UserId uint `header:"User-Id"`
+	AuthId uint `json:"auth_id"`
+	Status int8 `json:"status"`
+}
+
+type FriendAuthStatusResponse {}
 
 service user {
 	@handler UserInfo
@@ -83,6 +172,24 @@ service user {
 	get /api/user/friend_info (FriendInfoRequest) returns (FriendInfoResponse) // 好友信息接口
 
 	@handler FriendList
-	get /api/user/friend (FriendListRequest) returns (FriendListResponse) // 好友信息接口
+	get /api/user/friend (FriendListRequest) returns (FriendListResponse) // 好友列表
+
+	@handler FriendNotice
+	put /api/user/friend (FriendNoticeUpdateRequest) returns (FriendNoticeUpdateResponse) // 修改好友备注
+
+	@handler search
+	get /api/user/search (SearchRequest) returns (SearchResponse) // 搜索好友
+
+	@handler userAuth
+	post /api/user/auth (UserAuthRequest) returns (UserAuthResponse) // 好友验证
+
+	@handler AddFriend
+	post /api/user/friend (AddFriendRequest) returns (AddFriendResponse) // 添加好友
+
+	@handler UserAuthList
+	get /api/user/auth (FriendAuthRequest) returns (FriendAuthResponse) // 好友验证列表
+
+	@handler AuthStatus
+	put /api/user/auth_status (FriendAuthStatusRequest) returns (FriendAuthStatusResponse) // 好友验证状态
 }
 

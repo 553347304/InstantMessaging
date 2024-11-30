@@ -20,7 +20,7 @@ func (c *AuthQuestion) Scan(value interface{}) error {
 }
 
 // Value 入库的数据
-func (c AuthQuestion) Value() (driver.Value, error) {
+func (c *AuthQuestion) Value() (driver.Value, error) {
 	b, err := json.Marshal(c)
 	return string(b), err
 }

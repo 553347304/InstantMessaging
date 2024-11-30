@@ -19,7 +19,7 @@ goctl rpc protoc user_rpc.proto --go_out=./types --go-grpc_out=./types --zrpc_ou
 
 # 用户 API
 cd fim_user/user_api
-goctl api go -api user.api -dir . --home ../../template
+goctl api go -api user.api -dir . --home ../../template -style go_zero
 
 # 校验 API
 cd fim_auth/auth_api

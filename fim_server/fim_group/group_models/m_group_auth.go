@@ -4,8 +4,8 @@ import (
 	"fim_server/common/models"
 )
 
-// GroupAuth 群验证表
-type GroupAuth struct {
+// GroupAuthModel 群验证表
+type GroupAuthModel struct {
 	models.Model
 	GroupId      uint                 `json:"group_id"`      // 群ID
 	UserId       uint                 `json:"user_id"`       // 用户加群 退群
