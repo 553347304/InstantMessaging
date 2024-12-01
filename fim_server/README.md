@@ -7,32 +7,15 @@
 go run main.go -db # 迁移表结构
 ```
 
-### server
+### service
 ``` yaml
-# 网关
-cd fim_gateway
-go run gateway.go
+cd go_zero
+$p="rpc/user"; goctl rpc protoc "$p.proto" --go_out=$p --zrpc_out=$p --go-grpc_out=$p -style go_zero    # 用户
 
-# 用户 RPC
-cd fim_user/user_rpc
-goctl rpc protoc user_rpc.proto --go_out=./types --go-grpc_out=./types --zrpc_out=.
-
-# 用户 API
-cd fim_user/user_api
-goctl api go -api user.api -dir . --home ../../template -style go_zero
-
-# 校验 API
-cd fim_auth/auth_api
-goctl api go -api auth_api.api -dir . --home ../../template
-
-# 文件 API
-cd fim_file/file_api
-goctl api go -api file.api -dir . --home ../../template
-
-
-# 系统 API
-cd fim_settings/settings_api
-goctl api go -api settings.api -dir . --home ../../template
+$p="api/user"; goctl api go -api "$p.api" -dir $p -style go_zero --home template           # 用户
+$p="api/auth"; goctl api go -api "$p.api" -dir $p -style go_zero --home template           # 校验
+$p="api/file"; goctl api go -api "$p.api" -dir $p -style go_zero --home template           # 文件
+$p="api/setting"; goctl api go -api "$p.api" -dir $p -style go_zero --home template        # 设置
 ```
 
 ## 模块
