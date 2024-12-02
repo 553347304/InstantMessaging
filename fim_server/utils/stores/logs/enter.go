@@ -86,5 +86,5 @@ func isFieldColor(s string) string {
 	return message
 }
 
-const line = 2
+const line = 3
 const times = "15:04:05"

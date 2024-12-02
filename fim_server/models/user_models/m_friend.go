@@ -24,6 +24,8 @@ type FriendAuthModel struct {
 	ReceiveUserId    uint                  `json:"receive_user_id"` // 接收人
 	ReceiveUserModel UserModel             `gorm:"foreignKey:ReceiveUserId" json:"-"`
 	Status           int8                  `json:"status"`                       // 0 等待验证  1 同意  2 拒绝  3 忽略  4 删除
+	SendStatus       int8                  `json:"send_status"`                  // 发送方状态
+	ReceiveStatus    int8                  `json:"receive_status"`               // 接收方状态
 	AuthMessage      string                `gorm:"size:128" json:"auth_message"` // 验证消息
 	AuthQuestion     *models2.AuthQuestion `json:"auth_question"`                // 验证问题
 }

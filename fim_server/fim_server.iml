@@ -6,13 +6,14 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/stores" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/lib" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/go_zero/api/file/file" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/go_zero/api/auth" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/go_zero/api/file" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/go_zero/api/setting" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/go_zero/api/user" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/go_zero/rpc/user" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/service/api/auth" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/service/api/chat" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/service/api/file" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/service/api/file/file" type="java-resource" />
+      <sourceFolder url="file://$MODULE_DIR$/service/api/setting" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/service/api/user" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/service/rpc/user" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/test" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />

@@ -3,12 +3,12 @@ package main
 import (
 	"fim_server/config/core"
 	"fim_server/config/flags"
-	"fmt"
+	"fim_server/utils/stores/logs"
 )
 
 func main() {
 	core.Init()
 	flags.Command()
-	fmt.Println("初始化成功")
+	logs.Info("初始化成功")
 
 }

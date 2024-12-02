@@ -1,0 +1,28 @@
+syntax = "v2"
+
+type (
+	ChatHistoryRequest {
+		UserId uint `header:"User-Id"`
+		Page   int  `form:"page"`
+		limit  int  `form:"limit"`
+	}
+	ChatHistory {
+		ID            uint    `json:"id"`
+		UserId        uint    `json:"user_id"`
+		Avatar        string  `json:"avatar"`
+		Name          string  `json:"name"`
+		Message       uintptr `json:"message"` 			// 类型 models.Message
+		SystemMessage uintptr `json:"system_message"` 	// 类型 *models.SystemMessage
+		CreatedAt     string  `json:"createdAt"`
+	}
+	ChatHistoryResponse {
+		List  []ChatHistory `json:"list"`
+		Total int           `json:"total"`
+	}
+)
+
+service chat {
+	@handler ChatHistory
+	get /api/chat/histroy (ChatHistoryRequest) returns (ChatHistoryResponse) // 聊天记录
+}
+

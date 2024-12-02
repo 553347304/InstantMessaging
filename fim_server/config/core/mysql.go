@@ -1,10 +1,10 @@
 package core
 
 import (
+	"fim_server/utils/stores/logs"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
-	"log"
 	"time"
 )
 
@@ -14,7 +14,7 @@ func Mysql(config string) *gorm.DB {
 		Logger: mysqlLogger,
 	})
 	if err != nil {
-		log.Fatalln("MySQL连接失败", config)
+		logs.Fatal("MySQL连接失败", config)
 		return db
 	}
 	sqlDB, _ := db.DB()

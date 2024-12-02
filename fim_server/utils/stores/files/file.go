@@ -3,8 +3,8 @@ package files
 import (
 	"errors"
 	"fim_server/utils/encryption_and_decryptio/md5s"
-	"fim_server/utils/stores/algorithms"
 	"fim_server/utils/stores/logs"
+	"fim_server/utils/stores/method"
 	"fim_server/utils/stores/randoms"
 	"fmt"
 	"io"
@@ -48,7 +48,7 @@ func FormFile(f File) FileResponse {
 		fileName := fileHead.Filename
 		fileExt := path.Ext(fileName)
 		lowerStr := strings.ToLower(fileExt)
-		is := algorithms.InList(*f.WhiteEXT, lowerStr)
+		is := method.InList(*f.WhiteEXT, lowerStr)
 		if !is {
 			return FileResponse{Error: errors.New(fmt.Sprintf("不支持此文件类型 %s/%s", lowerStr, *f.WhiteEXT))}
 		}

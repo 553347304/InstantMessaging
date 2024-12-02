@@ -1,7 +1,7 @@
 package core
 
 import (
-	"log"
+	"fim_server/utils/stores/logs"
 	"time"
 
 	clientv3 "go.etcd.io/etcd/client/v3"
@@ -13,7 +13,7 @@ func Etcd(addr string) *clientv3.Client {
 		DialTimeout: 5 * time.Second,
 	})
 	if err != nil {
-		log.Fatal(err)
+		logs.Fatal(err)
 	}
 	return cli
 }

@@ -2,8 +2,8 @@ package core
 
 import (
 	"context"
+	"fim_server/utils/stores/logs"
 	"github.com/go-redis/redis"
-	"log"
 	"strconv"
 	"strings"
 	"time"
@@ -31,7 +31,7 @@ func Redis(c string) *redis.Client {
 	defer cancel()
 	_, err := rdb.Ping().Result()
 	if err != nil {
-		log.Fatalln("Redis连接失败: ", err.Error())
+		logs.Fatal("Redis连接失败: ", err.Error())
 	}
 	return rdb
 }

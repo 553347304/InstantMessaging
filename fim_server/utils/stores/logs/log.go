@@ -3,20 +3,26 @@ package logs
 import (
 	"errors"
 	"fmt"
+	"os"
 	"time"
 )
 
-func Info(s ...interface{}) string {
+func log(color string, s ...interface{}) string {
 	str := isSprintf(s...)
 	t := logColor(fmt.Sprintf("[%v]", time.Now().Format(times)), "#ffffff")
-	fmt.Println(t + getLine(line) + logColor(isFieldColor(str), "#80ffff"))
+	fmt.Println(t + getLine(line) + logColor(isFieldColor(str), color))
 	return str
 }
 
-func Error(s ...interface{}) error {
-	str := isSprintf(s...)
-	t := logColor(fmt.Sprintf("[%v]", time.Now().Format(times)), "#ffffff")
-	fmt.Println(t + getLine(line) + logColor(isFieldColor(str), "#F75464"))
+func Info(s ...interface{}) string {
+	return log("#80ffff", s...)
+}
 
-	return errors.New(str)
+func Error(s ...interface{}) error {
+	return errors.New(log("#F75464", s...))
+}
+
+func Fatal(s ...interface{}) {
+	log("#F75464", s...)
+	os.Exit(1)
 }

@@ -1,7 +1,7 @@
 package core
 
 import (
-	"fim_server/utils/service/src"
+	"fim_server/utils/src"
 )
 
 const (
