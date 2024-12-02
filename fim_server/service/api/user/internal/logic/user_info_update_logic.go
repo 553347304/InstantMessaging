@@ -4,7 +4,7 @@ import (
 	"context"
 	"fim_server/models"
 	"fim_server/models/user_models"
-	"fim_server/utils/stores/converts"
+	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
 
 	"fim_server/service/api/user/internal/svc"
@@ -30,7 +30,7 @@ func NewUserInfoUpdateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Us
 func (l *UserInfoUpdateLogic) UserInfoUpdate(req *types.UserUpdateRequest) (resp *types.UserUpdateResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	userMap := converts.StructMap(*req, "user")
+	userMap := conv.StructMap(*req, "user")
 	logs.Info(userMap)
 	if len(userMap) != 0 {
 		var user user_models.UserModel
@@ -44,7 +44,7 @@ func (l *UserInfoUpdateLogic) UserInfoUpdate(req *types.UserUpdateRequest) (resp
 		}
 	}
 
-	userConfigMaps := converts.StructMap(*req, "json")
+	userConfigMaps := conv.StructMap(*req, "json")
 	logs.Info(userConfigMaps)
 	if len(userConfigMaps) != 0 {
 		delete(userConfigMaps, "name")

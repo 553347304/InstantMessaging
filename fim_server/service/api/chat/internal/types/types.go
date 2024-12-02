@@ -3,31 +3,32 @@
 
 package types
 
-import "fim_server/models"
-
-type UserInfo struct {
-	Name   string `json:"name"`
-	ID     uint   `json:"id"`
-	Avatar string `json:"avatar"`
-}
-
-type ChatHistory struct {
-	ID            uint                  `json:"id"`
-	SendUser      UserInfo              `json:"send_user"`
-	ReceiveUser   UserInfo              `json:"receive_user"`
-	IsMe          bool                  `json:"is_me"` // 是否是我发送的
-	Message       models.Message        `json:"message"`        // 类型 models.Message
-	SystemMessage *models.SystemMessage `json:"system_message"` // 类型 *models.SystemMessage
-	CreatedAt     string                `json:"createdAt"`
-}
-
 type ChatHistoryRequest struct {
 	UserId uint `header:"User-Id"`
-	Page   int  `form:"page"`
-	Limit  int  `form:"limit"`
+	Page   int  `form:"page,optional"`
+	Limit  int  `form:"limit,optional"`
 }
 
 type ChatHistoryResponse struct {
-	List  []ChatHistory `json:"list"`
-	Total int           `json:"total"`
+}
+
+type ChatSession struct {
+	UserId         uint   `header:"User-Id"`
+	Avatar         string `json:"avatar"`
+	Name           string `json:"name"`
+	CreatedAt      string `json:"created_at"`
+	MessagePreview string `json:"message_preview"`
+	IsTop          bool   `json:"is_top"`
+}
+
+type ChatSessionRequest struct {
+	UserId uint `header:"User-Id"`
+	Page   uint `form:"page,optional"`
+	Limit  uint `form:"limit,optional"`
+	Key    uint `form:"key,optional"`
+}
+
+type ChatSessionResponse struct {
+	List  []ChatSession `json:"list"`
+	Total int64         `json:"total"`
 }

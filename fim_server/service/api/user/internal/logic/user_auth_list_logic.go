@@ -3,11 +3,10 @@ package logic
 import (
 	"context"
 	"fim_server/models/user_models"
-	"fim_server/utils/src/sqls"
-	"fim_server/utils/stores"
-
 	"fim_server/service/api/user/internal/svc"
 	"fim_server/service/api/user/internal/types"
+	"fim_server/utils/src"
+	"fim_server/utils/src/sqls"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -32,7 +31,7 @@ func (l *UserAuthListLogic) UserAuthList(req *types.FriendAuthRequest) (resp *ty
 	fvs, total := sqls.GetList(user_models.FriendAuthModel{ReceiveUserId: req.UserId}, sqls.Mysql{
 		DB:      l.svcCtx.DB.Where("send_user_id = ? or receive_user_id = ?", req.UserId, req.UserId),
 		Preload: []string{"ReceiveUserModel.UserConfigModel", "SendUserModel.UserConfigModel"},
-		PageInfo: stores.PageInfo{
+		PageInfo: src.PageInfo{
 			Page:  req.Page,
 			Limit: req.Limit,
 		},

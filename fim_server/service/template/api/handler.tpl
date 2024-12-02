@@ -5,7 +5,7 @@ import (
 
 	"github.com/zeromicro/go-zero/rest/httpx"
 	{{.ImportPackages}}
-	"fim_server/go_zero/server/response"
+	"fim_server/service/server/response"
 )
 
 {{if .HasDoc}}{{.Doc}}{{end}}

@@ -3,8 +3,8 @@ package logic
 import (
 	"context"
 	"fim_server/models/user_models"
+	"fim_server/utils/src"
 	"fim_server/utils/src/sqls"
-	"fim_server/utils/stores"
 	"fmt"
 
 	"fim_server/service/api/user/internal/svc"
@@ -38,7 +38,7 @@ func (l *SearchLogic) Search(req *types.SearchRequest) (resp *types.SearchRespon
 				"(user_config_models.search_user = 2 and (um.id = ? or um.name like ?))",
 				req.Key, req.Key, fmt.Sprintf("%%%s%%", req.Key)),
 		Preload: []string{"UserModel"},
-		PageInfo: stores.PageInfo{
+		PageInfo: src.PageInfo{
 			Page:  req.Page,
 			Limit: req.Limit,
 		},

@@ -13,4 +13,5 @@ type Config struct {
 		Etcd  string
 	}
 	UserRpc zrpc.RpcClientConf
+	ChatRpc zrpc.RpcClientConf
 }

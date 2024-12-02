@@ -1,4 +1,4 @@
-package converts
+package conv
 
 import (
 	"fim_server/utils/stores/logs"

@@ -4,10 +4,9 @@ import (
 	"context"
 	"fim_server/models"
 	"fim_server/models/user_models"
-	"fim_server/utils/stores/logs"
-
 	"fim_server/service/api/user/internal/svc"
 	"fim_server/service/api/user/internal/types"
+	"fim_server/utils/stores/logs"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -45,13 +44,15 @@ func (l *AddFriendLogic) AddFriend(req *types.AddFriendRequest) (resp *types.Add
 		ReceiveUserId: req.FriendId,
 		AuthMessage:   req.AuthMessage,
 	}
-	switch userConfig.SearchUser {
+	logs.Info(req.FriendId)
+	logs.Info(userConfig.Auth)
+	switch userConfig.Auth {
 	case 0:
 		return nil, logs.Error("不允许任何人添加")
 	case 1:
 		// 允许任何人添加
 		authModel.ReceiveStatus = 1
-		return nil, logs.Error("已添加为好友")
+		break
 	case 2:
 	// 需要验证
 	case 3:
@@ -94,16 +95,16 @@ func (l *AddFriendLogic) AddFriend(req *types.AddFriendRequest) (resp *types.Add
 			// 直接加好友
 			authModel.ReceiveStatus = 1
 			authModel.AuthQuestion = userConfig.AuthQuestion
-			// 加好友
-			var userFriend = user_models.FriendModel{
-				SendUserId:    req.UserId,
-				ReceiveUserId: req.FriendId,
-			}
-			l.svcCtx.DB.Create(&userFriend)
+
 		}
 	}
 
-	err = l.svcCtx.DB.Create(&authModel).Error
+	// 加好友
+	var userFriend = user_models.FriendModel{
+		SendUserId:    req.UserId,
+		ReceiveUserId: req.FriendId,
+	}
+	err = l.svcCtx.DB.Create(&userFriend).Error
 	if err != nil {
 		return nil, logs.Error("添加好友失败")
 	}

@@ -1,3 +1,3 @@
-package converts
+package conv
 
 const isLog = false

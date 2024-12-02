@@ -4,7 +4,6 @@ import (
 	"fim_server/utils/src"
 	"fim_server/utils/stores/logs"
 	"fmt"
-	"strings"
 )
 
 func (m *Mysql) isFieldExist(model interface{}, fieldName string) bool {
@@ -19,26 +18,19 @@ func (m *Mysql) isFieldExist(model interface{}, fieldName string) bool {
 	return is
 }
 
-func (m *Mysql) Param(model interface{}) bool {
+func (m *Mysql) Param(model any) {
 	// 默认数据库
 	if m.DB == nil {
 		m.DB = src.DB
 	}
 
-	is1 := m.isFieldExist(model, m.PageInfo.Search)
-	is2 := m.isFieldExist(model, strings.Split(m.PageInfo.Sort, " ")[0])
-	if !is1 || !is2 {
-		return false
-	}
-
+	m.PageInfo.Param()
 	m.DB = m.DB.Where(model) // 查结构体自身条件
 
 	// 预加载
 	for _, preload := range m.Preload {
 		m.DB = m.DB.Preload(preload)
 	}
-
-	return true
 }
 
 // // Where 匹配

@@ -3,11 +3,10 @@ package logic
 import (
 	"context"
 	"fim_server/models/user_models"
-	"fim_server/utils/src/sqls"
-	"fim_server/utils/stores"
-
 	"fim_server/service/api/user/internal/svc"
 	"fim_server/service/api/user/internal/types"
+	"fim_server/utils/src"
+	"fim_server/utils/src/sqls"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -35,7 +34,7 @@ func (l *FriendListLogic) FriendList(req *types.FriendListRequest) (resp *types.
 	friends, total := sqls.GetList(user_models.FriendModel{}, sqls.Mysql{
 		DB:      l.svcCtx.DB,
 		Preload: []string{"SendUserModel", "ReceiveUserModel"},
-		PageInfo: stores.PageInfo{
+		PageInfo: src.PageInfo{
 			Page:  req.Page,
 			Limit: req.Limit,
 		},

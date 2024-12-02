@@ -11,11 +11,12 @@ go run main.go -db # 迁移表结构
 ``` yaml
 cd go_zero
 $p="rpc/user"; goctl rpc protoc "$p.proto" --go_out=$p --zrpc_out=$p --go-grpc_out=$p -style go_zero    # 用户
+$p="rpc/chat"; goctl rpc protoc "$p.proto" --go_out=$p --zrpc_out=$p --go-grpc_out=$p -style go_zero    # 消息
 
 $p="api/user"; goctl api go -api "$p.api" -dir $p -style go_zero --home template           # 用户
+$p="api/chat"; goctl api go -api "$p.api" -dir $p -style go_zero --home template           # 消息
 $p="api/auth"; goctl api go -api "$p.api" -dir $p -style go_zero --home template           # 校验
 $p="api/file"; goctl api go -api "$p.api" -dir $p -style go_zero --home template           # 文件
-$p="api/chat"; goctl api go -api "$p.api" -dir $p -style go_zero --home template           # 消息
 $p="api/setting"; goctl api go -api "$p.api" -dir $p -style go_zero --home template        # 设置
 ```
 

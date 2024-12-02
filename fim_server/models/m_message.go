@@ -10,6 +10,7 @@ import (
 type Message struct {
 	Type      int8       `json:"type"`      // 消息类型 MessageType
 	Content   *string    `json:"content"`   // 为1的时候使用
+	Text      *Text      `json:"text"`      // 文本消息
 	Image     *Image     `json:"image"`     // 图片消息
 	Video     *Video     `json:"video"`     // 视频消息
 	File      *File      `json:"file"`      // 文件消息
@@ -33,6 +34,9 @@ func (c Message) Value() (driver.Value, error) {
 	return string(b), err
 }
 
+type Text struct {
+	Content string `json:"content"`
+}
 type Image struct {
 	Title string `json:"title"`
 	Src   string `json:"src"`

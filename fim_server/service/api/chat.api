@@ -3,26 +3,38 @@ syntax = "v2"
 type (
 	ChatHistoryRequest {
 		UserId uint `header:"User-Id"`
-		Page   int  `form:"page"`
-		limit  int  `form:"limit"`
+		Page   int  `form:"page,optional"`
+		limit  int  `form:"limit,optional"`
 	}
-	ChatHistory {
-		ID            uint    `json:"id"`
-		UserId        uint    `json:"user_id"`
-		Avatar        string  `json:"avatar"`
-		Name          string  `json:"name"`
-		Message       uintptr `json:"message"` 			// 类型 models.Message
-		SystemMessage uintptr `json:"system_message"` 	// 类型 *models.SystemMessage
-		CreatedAt     string  `json:"createdAt"`
+	ChatHistoryResponse  {}
+)
+
+type (
+	ChatSessionRequest {
+		UserId uint `header:"User-Id"`
+		Page   uint `form:"page,optional"`
+		Limit  uint `form:"limit,optional"`
+		Key    uint `form:"key,optional"`
 	}
-	ChatHistoryResponse {
-		List  []ChatHistory `json:"list"`
-		Total int           `json:"total"`
+	ChatSession {
+		UserId         uint   `header:"User-Id"`
+		Avatar         string `json:"avatar"`
+		Name           string `json:"name"`
+		CreatedAt      string `json:"created_at"`
+		MessagePreview string `json:"message_preview"`
+		IsTop          bool   `json:"is_top"`
+	}
+	ChatSessionResponse {
+		List  []ChatSession `json:"list"`
+		Total int64         `json:"total"`
 	}
 )
 
 service chat {
 	@handler ChatHistory
-	get /api/chat/histroy (ChatHistoryRequest) returns (ChatHistoryResponse) // 聊天记录
+	get /api/chat/history (ChatHistoryRequest) returns (ChatHistoryResponse) // 聊天记录
+
+	@handler ChatSession
+	get /api/chat/session (ChatSessionRequest) returns (ChatSessionResponse) // 最近会话列表
 }
 

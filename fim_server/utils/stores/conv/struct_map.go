@@ -1,4 +1,4 @@
-package converts
+package conv
 
 import (
 	"encoding/json"

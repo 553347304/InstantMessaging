@@ -1,12 +1,13 @@
 package main
 
 import (
-	"fim_server/service/rpc/user/internal/config"
-	"fim_server/service/rpc/user/internal/server"
-	"fim_server/service/rpc/user/internal/svc"
-	"fim_server/service/rpc/user/user_rpc"
-	"fim_server/utils/stores/logs"
 	"flag"
+	"fmt"
+
+	"fim_server/service/rpc/chat/chat_rpc"
+	"fim_server/service/rpc/chat/internal/config"
+	"fim_server/service/rpc/chat/internal/server"
+	"fim_server/service/rpc/chat/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
@@ -15,7 +16,7 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
-var configFile = flag.String("f", "etc/user.yaml", "the config file")
+var configFile = flag.String("f", "etc/chat.yaml", "the config file")
 
 func main() {
 	flag.Parse()
@@ -25,7 +26,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		user_rpc.RegisterUserServer(grpcServer, server.NewUserServer(ctx))
+		chat_rpc.RegisterChatServer(grpcServer, server.NewChatServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)
@@ -33,6 +34,6 @@ func main() {
 	})
 	defer s.Stop()
 
-	logs.Info("Starting rpc server at %s...\n", c.ListenOn)
+	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()
 }
