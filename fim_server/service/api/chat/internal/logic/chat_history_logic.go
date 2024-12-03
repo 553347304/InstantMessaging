@@ -37,27 +37,36 @@ type UserInfo struct {
 }
 type ChatHistory struct {
 	ID            uint                  `json:"id"`
-	SendUser      UserInfo              `json:"sendUser"`
-	ReceiveUser   UserInfo              `json:"receive_user"`
-	IsMe          bool                  `json:"isMe"`       // 哪条消息是我发的
+	IsMe          bool                  `json:"is_me"`      // 哪条消息是我发的
 	CreatedAt     string                `json:"created_at"` // 消息时间
 	Message       models.Message        `json:"message"`
 	SystemMessage *models.SystemMessage `json:"system_message"`
 }
 
 type ChatHistoryResponse struct {
-	List  []ChatHistory `json:"list"`
-	Total int           `json:"total"`
+	Total       int           `json:"total"`
+	SendUser    UserInfo      `json:"sendUser"`
+	ReceiveUser UserInfo      `json:"receive_user"`
+	List        []ChatHistory `json:"list"`
 }
 
 func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *ChatHistoryResponse, err error) {
 	// todo: add your logic here and delete this line
 
+	_, err = l.svcCtx.UserRpc.IsFriend(context.Background(), &user_rpc.IsFriendRequest{User1: uint32(req.UserId), User2: uint32(req.FriendId)})
+	if err != nil {
+		return nil, logs.Error("不是好友")
+	}
+
 	chatList, total := sqls.GetList(chat_models.ChatModel{}, sqls.Mysql{
-		DB: l.svcCtx.DB.Where("send_user_id = ? or receive_user_id = ?", req.UserId, req.UserId),
+		DB: l.svcCtx.DB.Where("(send_user_id = ? and receive_user_id = ?) or "+
+			"(send_user_id = ? and receive_user_id = ?) and id not in "+
+			"(select chat_id from user_chat_delete_models where user_id = ?)",
+			req.UserId, req.FriendId, req.FriendId, req.UserId, req.UserId),
 		PageInfo: src.PageInfo{
 			Page:  req.Page,
 			Limit: req.Limit,
+			Sort:  "created_at desc",
 		},
 	})
 
@@ -76,17 +85,20 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 	}
 
 	var list = make([]ChatHistory, 0)
-	for _, model := range chatList {
+	var sendUser, receiveUser UserInfo
+	for i, model := range chatList {
 
-		sendUser := UserInfo{
-			ID:     model.SendUserId,
-			Name:   response.UserInfo[uint32(model.SendUserId)].Name,
-			Avatar: response.UserInfo[uint32(model.SendUserId)].Avatar,
-		}
-		receiveUser := UserInfo{
-			ID:     model.ReceiveUserId,
-			Name:   response.UserInfo[uint32(model.ReceiveUserId)].Name,
-			Avatar: response.UserInfo[uint32(model.ReceiveUserId)].Avatar,
+		if i == 0 {
+			sendUser = UserInfo{
+				ID:     model.SendUserId,
+				Name:   response.UserInfo[uint32(model.SendUserId)].Name,
+				Avatar: response.UserInfo[uint32(model.SendUserId)].Avatar,
+			}
+			receiveUser = UserInfo{
+				ID:     model.ReceiveUserId,
+				Name:   response.UserInfo[uint32(model.ReceiveUserId)].Name,
+				Avatar: response.UserInfo[uint32(model.ReceiveUserId)].Avatar,
+			}
 		}
 
 		info := ChatHistory{
@@ -94,16 +106,19 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 			CreatedAt:     model.CreatedAt.String(),
 			Message:       model.Message,
 			SystemMessage: model.SystemMessage,
-			SendUser:      sendUser,
-			ReceiveUser:   receiveUser,
 		}
-		if info.SendUser.ID == req.UserId {
+		if model.SendUserId == req.UserId {
 			info.IsMe = true
 		}
 		list = append(list, info)
 
 	}
-	resp = &ChatHistoryResponse{List: list, Total: int(total)}
+	resp = &ChatHistoryResponse{
+		Total:       int(total),
+		SendUser:    sendUser,
+		ReceiveUser: receiveUser,
+		List:        list,
+	}
 
 	return
 }

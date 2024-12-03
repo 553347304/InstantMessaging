@@ -3,13 +3,29 @@
 
 package types
 
+type ChatDeleteRequest struct {
+	UserId uint   `header:"User-Id"`
+	IdList []uint `json:"id_list"`
+}
+
+type ChatDeleteResponse struct {
+}
+
 type ChatHistoryRequest struct {
-	UserId uint `header:"User-Id"`
-	Page   int  `form:"page,optional"`
-	Limit  int  `form:"limit,optional"`
+	UserId   uint `header:"User-Id"`
+	Page     int  `form:"page,optional"`
+	Limit    int  `form:"limit,optional"`
+	FriendId uint `form:"friend_id"`
 }
 
 type ChatHistoryResponse struct {
+}
+
+type ChatRequest struct {
+	UserId uint `header:"User-Id"`
+}
+
+type ChatResponse struct {
 }
 
 type ChatSession struct {
@@ -22,13 +38,21 @@ type ChatSession struct {
 }
 
 type ChatSessionRequest struct {
-	UserId uint `header:"User-Id"`
-	Page   uint `form:"page,optional"`
-	Limit  uint `form:"limit,optional"`
-	Key    uint `form:"key,optional"`
+	UserId uint   `header:"User-Id"`
+	Page   int    `form:"page,optional"`
+	Limit  int    `form:"limit,optional"`
+	Key    string `form:"key,optional"`
 }
 
 type ChatSessionResponse struct {
 	List  []ChatSession `json:"list"`
 	Total int64         `json:"total"`
+}
+
+type UserTopRequest struct {
+	UserId   uint `header:"User-Id"`
+	FriendId uint `json:"friend_id"`
+}
+
+type UserTopResponse struct {
 }

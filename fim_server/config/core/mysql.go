@@ -9,9 +9,8 @@ import (
 )
 
 func Mysql(config string) *gorm.DB {
-	var mysqlLogger = logger.Default.LogMode(logger.Error) // 日志等级
 	db, err := gorm.Open(mysql.Open(config), &gorm.Config{
-		Logger: mysqlLogger,
+		Logger: logger.Default.LogMode(logger.Error), // 日志等级
 	})
 	if err != nil {
 		logs.Fatal("MySQL连接失败", config)

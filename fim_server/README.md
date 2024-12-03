@@ -25,7 +25,8 @@ $p="api/setting"; goctl api go -api "$p.api" -dir $p -style go_zero --home templ
 go get gopkg.in/yaml.v3                                             # yaml
 go get gorm.io/gorm                                                 # gorm
 go get gorm.io/driver/mysql                                         # mysql
-github.com/go-redis/redis                                           # redis
+go get github.com/go-redis/redis                                    # redis
+go get github.com/gorilla/websocket                                 # websocket
 go get go.etcd.io/etcd/client/v3                                    # etcd
 go get -u github.com/zeromicro/go-zero                              # go-zero
 go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.31.0     # protoc-gen-go

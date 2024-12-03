@@ -2,19 +2,20 @@ syntax = "v2"
 
 type (
 	ChatHistoryRequest {
-		UserId uint `header:"User-Id"`
-		Page   int  `form:"page,optional"`
-		limit  int  `form:"limit,optional"`
+		UserId   uint `header:"User-Id"`
+		Page     int  `form:"page,optional"`
+		limit    int  `form:"limit,optional"`
+		FriendId uint `form:"friend_id"`
 	}
 	ChatHistoryResponse  {}
 )
 
 type (
 	ChatSessionRequest {
-		UserId uint `header:"User-Id"`
-		Page   uint `form:"page,optional"`
-		Limit  uint `form:"limit,optional"`
-		Key    uint `form:"key,optional"`
+		UserId uint   `header:"User-Id"`
+		Page   int    `form:"page,optional"`
+		Limit  int    `form:"limit,optional"`
+		Key    string `form:"key,optional"`
 	}
 	ChatSession {
 		UserId         uint   `header:"User-Id"`
@@ -30,11 +31,43 @@ type (
 	}
 )
 
+type (
+	UserTopRequest {
+		UserId   uint `header:"User-Id"`
+		FriendId uint `json:"friend_id"`
+	}
+	UserTopResponse  {}
+)
+
+type (
+	ChatDeleteRequest {
+		UserId uint   `header:"User-Id"`
+		IdList []uint `json:"id_list"`
+	}
+	ChatDeleteResponse  {}
+)
+
+type (
+	ChatRequest {
+		UserId uint `header:"User-Id"`
+	}
+	ChatResponse  {}
+)
+
 service chat {
 	@handler ChatHistory
 	get /api/chat/history (ChatHistoryRequest) returns (ChatHistoryResponse) // 聊天记录
 
 	@handler ChatSession
 	get /api/chat/session (ChatSessionRequest) returns (ChatSessionResponse) // 最近会话列表
+
+	@handler UserTop
+	post /api/chat/user_top (UserTopRequest) returns (UserTopResponse) // 好友置顶
+
+	@handler ChatDelete
+	delete /api/chat/chat (ChatDeleteRequest) returns (ChatDeleteResponse) // 删除聊天记录
+
+	@handler ChatWebsocket
+	get /api/chat/ws/chat (ChatRequest) returns (ChatResponse) // 删除聊天记录
 }
 

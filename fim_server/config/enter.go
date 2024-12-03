@@ -1,5 +1,5 @@
 package config
 
 type Config struct {
-	System System `yaml:"system"`
+	System System `yaml:"System"`
 }

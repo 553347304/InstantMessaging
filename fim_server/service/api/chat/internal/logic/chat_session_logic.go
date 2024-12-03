@@ -2,12 +2,14 @@ package logic
 
 import (
 	"context"
+	"fim_server/models/chat_models"
 	"fim_server/service/api/chat/internal/svc"
 	"fim_server/service/api/chat/internal/types"
 	"fim_server/service/rpc/user/user_rpc"
+	"fim_server/utils/src"
+	"fim_server/utils/src/sqls"
 	"fim_server/utils/stores/logs"
 	"fim_server/utils/stores/method"
-
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -37,42 +39,30 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 	}
 
 	var chatList []Data
-
-	l.svcCtx.DB.Raw(`select *
-from (select least(send_user_id, receive_user_id)    as s_u,
-             greatest(send_user_id, receive_user_id) as r_u,
-             count(id)                           as ct,
-             max(created_at)                     as max_date,
-             (select message_preview
-              from chat_models
-              where (send_user_id = s_u and receive_user_id = r_u)
-                 or (send_user_id = r_u and receive_user_id = s_u)
-              order by created_at desc limit 1)  as max_preview,
-             if((select 1 from top_user_models where user_id = 1 and (top_user_id = s_u or top_user_id = r_u)), 1, 0) as is_top
-      from chat_models
-      where send_user_id = 1 or receive_user_id = 1
-      group by least(send_user_id, receive_user_id), greatest(send_user_id, receive_user_id)) as subquery
-order by is_top desc, max_date desc limit 10 offset 0;`).Find(&chatList)
-	// total := sqls.GetListGroup(chat_models.ChatModel{}, &chatList, sqls.Mysql{
-	// 	DB: l.svcCtx.DB.
-	// 		Select("least(send_user_id, receive_user_id) as s_u").
-	// 		Select("greatest(send_user_id, receive_user_id) as r_u").
-	// 		Select("max(created_at) as max_date").
-	// 		Select("(select message_preview").
-	// 		Select("from chat_models").
-	// 		Select("where (send_user_id = s_u and receive_user_id = r_u)").
-	// 		Select("or (send_user_id = r_u and receive_user_id = s_u)").
-	// 		Select("order by created_at desc limit 1)").
-	// 		Select("if((select 1 from top_user_models where user_id = 1 and (op_user_id = s_u or top_user_id = r_u)), 1, 0) as isTop").
-	// 		Where("send_user_id = ? or receive_user_id = ?", 1, req.UserId).
-	// 		Group("least(send_user_id, receive_user_id)").
-	// 		Group("greatest(send_user_id, receive_user_id)"),
-	// 	PageInfo: src.PageInfo{
-	// 		Sort:  "max_date desc",
-	// 		Page:  req.Page,
-	// 		Limit: req.Limit,
-	// 	},
-	// })
+	total := sqls.GetListGroup(chat_models.ChatModel{}, &chatList, sqls.Mysql{
+		DB: l.svcCtx.DB.
+			Select("least(send_user_id, receive_user_id) as s_u,"+
+				"greatest(send_user_id, receive_user_id) as r_u,"+
+				"count(id) as ct,"+
+				"max(created_at) as max_date,"+
+				"(select message_preview from chat_models "+
+				"where (send_user_id = s_u and receive_user_id = r_u)"+
+				"or (send_user_id = r_u and receive_user_id = s_u)"+
+				"and id not in (select chat_id from user_chat_delete_models where user_id = ?)"+
+				"order by created_at desc limit 1) as max_preview,"+
+				"if((select 1 from top_user_models where user_id = ? "+
+				"and (top_user_id = s_u or top_user_id = r_u)), 1, 0) as is_top",
+				req.UserId, req.UserId).
+			Where("send_user_id = ? or receive_user_id = ? and id not in (select chat_id from user_chat_delete_models where user_id = ?)",
+				req.UserId, req.UserId, req.UserId).
+			Group("least(send_user_id, receive_user_id)").
+			Group("greatest(send_user_id, receive_user_id)"),
+		PageInfo: src.PageInfo{
+			Sort:  "is_top desc, max_date desc",
+			Page:  req.Page,
+			Limit: req.Limit,
+		},
+	})
 
 	var userIdList []uint32
 	for _, data := range chatList {
@@ -109,5 +99,5 @@ order by is_top desc, max_date desc limit 10 offset 0;`).Find(&chatList)
 		s.Name = response.UserInfo[uint32(s.UserId)].Name
 		list = append(list, s)
 	}
-	return &types.ChatSessionResponse{List: list, Total: int64(len(list))}, nil
+	return &types.ChatSessionResponse{List: list, Total: total}, nil
 }

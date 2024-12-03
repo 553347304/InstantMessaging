@@ -15,6 +15,11 @@ func RegisterHandlers(src *rest.Server, serverCtx *svc.ServiceContext) {
 	src.AddRoutes(
 		[]rest.Route{
 			{
+				Method:  http.MethodDelete,
+				Path:    "/api/chat/chat",
+				Handler: ChatDeleteHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodGet,
 				Path:    "/api/chat/history",
 				Handler: ChatHistoryHandler(serverCtx),
@@ -23,6 +28,16 @@ func RegisterHandlers(src *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodGet,
 				Path:    "/api/chat/session",
 				Handler: ChatSessionHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/api/chat/user_top",
+				Handler: UserTopHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/api/chat/ws/chat",
+				Handler: ChatWebsocketHandler(serverCtx),
 			},
 		},
 	)
