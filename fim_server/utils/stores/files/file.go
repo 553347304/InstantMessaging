@@ -1,67 +1,86 @@
 package files
 
 import (
-	"errors"
-	"fim_server/utils/encryption_and_decryptio/md5s"
 	"fim_server/utils/stores/logs"
 	"fim_server/utils/stores/method"
-	"fim_server/utils/stores/randoms"
 	"fmt"
 	"io"
-	"net/http"
+	"mime/multipart"
 	"os"
 	"path"
 	"strings"
 )
 
+const (
+	White = "white"
+	Black = "black"
+)
+
 type File struct {
-	R        *http.Request
-	Key      string
-	MaxSize  *float64 // MB
-	WhiteEXT *[]string
+	MaxSize  float64 // MB
+	WhiteEXT []string
+	BlackEXT []string
 }
 
 type FileResponse struct {
 	Name  string
+	Ext   string
 	Size  float64
 	Byte  []byte
-	Error error
+	Error string
+}
+
+// inRoster 判断文件是否在黑白名单中
+func inRoster(f File, ext string) string {
+	if len(f.WhiteEXT) != 0 {
+		if !method.InList(f.WhiteEXT, ext) {
+			return fmt.Sprintf("不支持此文件类型 %s/%s", ext, f.WhiteEXT)
+		}
+
+	}
+	if len(f.BlackEXT) != 0 {
+		if method.InList(f.BlackEXT, ext) {
+			return fmt.Sprintf("不支持此文件类型 %s/%s", ext, f.BlackEXT)
+		}
+	}
+	return ""
 }
 
 // FormFile 上传文件 form-data
-func FormFile(f File) FileResponse {
-	file, fileHead, err := f.R.FormFile(f.Key)
+func (f File) FormFile(file multipart.File, fileHeader *multipart.FileHeader, err error) FileResponse {
 	if err != nil {
-		return FileResponse{Error: err}
+		return FileResponse{Error: "FormFile: " + err.Error()}
 	}
+
+	fileName := fileHeader.Filename
+	fileExt := strings.ToLower(path.Ext(fileName)) // 文件小写扩展名
+	sizeMB := float64(fileHeader.Size) / float64(1024*1024)
 
 	// 限制文件大小
-	sizeMB := float64(fileHead.Size) / float64(1024*1024)
-	if f.MaxSize != nil {
-		if sizeMB > *f.MaxSize {
-			return FileResponse{Error: errors.New(fmt.Sprintf("文件超出限制大小 %0.2f/%0.2fMB", sizeMB, *f.MaxSize))}
+	if f.MaxSize != 0 {
+		if sizeMB > f.MaxSize {
+			return FileResponse{Error: fmt.Sprintf("文件超出限制大小 %0.2f/%0.2fMB", sizeMB, f.MaxSize)}
 		}
 	}
 
-	// 限制文件类型
-	if f.WhiteEXT != nil {
-		fileName := fileHead.Filename
-		fileExt := path.Ext(fileName)
-		lowerStr := strings.ToLower(fileExt)
-		is := method.InList(*f.WhiteEXT, lowerStr)
-		if !is {
-			return FileResponse{Error: errors.New(fmt.Sprintf("不支持此文件类型 %s/%s", lowerStr, *f.WhiteEXT))}
-		}
+	// 文件类型黑白名单
+	in := inRoster(f, fileExt)
+	if in != "" {
+		return FileResponse{Error: in}
 	}
+
+	// 读取文件
 	byteData, err := io.ReadAll(file)
 	if err != nil {
-		return FileResponse{Error: errors.New("io.ReadAll: " + err.Error())}
+		return FileResponse{Error: "io.ReadAll: " + err.Error()}
 	}
+
 	return FileResponse{
-		Name:  fileHead.Filename,
+		Name:  fileName,
+		Ext:   fileExt,
 		Size:  sizeMB,
 		Byte:  byteData,
-		Error: nil,
+		Error: "",
 	}
 }
 
@@ -78,21 +97,4 @@ func IsFileExist(filePath string) bool {
 	f, err := os.Open(filePath)
 	defer f.Close()
 	return err == nil
-}
-
-func WriteFile(filePath string, byte []byte) string {
-	if IsFileExist(filePath) {
-		if md5s.Check(byte, ReadFile(filePath)) {
-			ext := path.Ext(filePath)
-			filePath = strings.Replace(filePath, ext, randoms.String(1)+ext, -1)
-			logs.Info("图片已存在 随机名字", filePath)
-			return WriteFile(filePath, byte)
-		}
-	}
-	err := os.WriteFile(filePath, byte, 0666)
-	if err != nil {
-		logs.Error("WriteFile: " + err.Error())
-		return ""
-	}
-	return "/" + filePath
 }

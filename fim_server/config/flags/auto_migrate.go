@@ -2,6 +2,7 @@ package flags
 
 import (
 	"fim_server/models/chat_models"
+	"fim_server/models/file_models"
 	"fim_server/models/group_models"
 	"fim_server/models/user_models"
 	"fim_server/utils/src"
@@ -25,5 +26,7 @@ func MigrationTable() error {
 			&group_models.GroupMemberModel{},
 			&group_models.GroupMessageModel{},
 			&group_models.GroupAuthModel{},
+
+			&file_models.FileModel{},
 		)
 }

@@ -7,6 +7,25 @@ import (
 	"strings"
 )
 
+// func StructRemoveEmpty[T any](m T) T {
+// 	var result T
+// 	values := reflect.ValueOf(m)
+// 	resultVal := reflect.ValueOf(&result).Elem()
+//
+// 	if values.Kind() == reflect.Struct {
+// 		for i := 0; i < values.NumField(); i++ {
+// 			field := values.Field(i)
+// 			logs.Info(field, field.IsZero())
+// 			if !field.IsZero() {
+// 				resultVal.Field(i).Set(field)
+// 			}
+// 		}
+// 	}
+//
+// 	logs.Info(result)
+// 	return result
+// }
+
 func StructJsonMap[T map[string]interface{} | []map[string]interface{}](m interface{}) T {
 	var maps T
 	jsonData, _ := json.Marshal(m)

@@ -17,7 +17,7 @@ type PageInfo struct {
 func (o *PageInfo) Param() {
 	// 默认条数
 	if o.Limit == 0 {
-		o.Limit = 100
+		o.Limit = -1
 	}
 	// 默认页数
 	if o.Page != 0 {

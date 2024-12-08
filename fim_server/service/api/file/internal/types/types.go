@@ -3,14 +3,18 @@
 
 package types
 
-type ImageRequest struct {
+type FileRequest struct {
+	UserId uint `header:"User-Id"`
 }
 
-type ImageResponse struct {
+type FileResponse struct {
+	Src string `json:"src"`
+}
+
+type ShowRequest struct {
+	Name string `path:"name"`
+}
+
+type ShowResponse struct {
 	Url string `json:"url"`
-}
-
-type ImageShowRequest struct {
-	ImageType string `path:"image_type"`
-	ImageName string `path:"image_name"`
 }

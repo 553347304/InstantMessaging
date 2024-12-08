@@ -75,10 +75,11 @@ func isFieldColor(s string) string {
 	// 是否为IP地址
 	isIP := regexp.MustCompile(`.(\d{1,3}\.){3}\d{1,3}(:\d+)?`).FindAllString(s, -1)
 	for _, match := range isIP {
-		if strings.Contains(match, "/") {
+		if match[:1] == "/" {
 			continue
 		}
-		ip := strings.TrimSpace(match)
+		regex := regexp.MustCompile(`(\d{1,3}\.){3}\d{1,3}(:\d+)?`).FindAllString(match, -1)
+		ip := strings.Join(regex, "")
 		color := logColor(ip, "#FFFFFF", "#288F6A", "斜体")
 		message = strings.ReplaceAll(message, ip, color)
 	}

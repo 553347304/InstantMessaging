@@ -1,4 +1,4 @@
-package models
+package mtype
 
 import (
 	"database/sql/driver"
@@ -15,7 +15,7 @@ func (c *SystemMessage) Scan(value interface{}) error {
 }
 
 // Value 入库的数据
-func (c SystemMessage) Value() (driver.Value, error) {
+func (c *SystemMessage) Value() (driver.Value, error) {
 	b, err := json.Marshal(c)
 	return string(b), err
 }

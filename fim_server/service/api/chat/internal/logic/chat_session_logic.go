@@ -72,6 +72,10 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 		if data.SU != req.UserId {
 			userIdList = append(userIdList, uint32(data.SU))
 		}
+		// 自己和自己聊
+		if data.SU == req.UserId && req.UserId == data.RU {
+			userIdList = append(userIdList, uint32(req.UserId))
+		}
 	}
 	userIdList = method.Deduplication(userIdList) // 去重
 	// 调用户服务
@@ -93,6 +97,9 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 			s.UserId = data.RU
 		}
 		if data.SU != req.UserId {
+			s.UserId = data.SU
+		}
+		if data.SU == req.UserId && req.UserId == data.RU {
 			s.UserId = data.SU
 		}
 		s.Avatar = response.UserInfo[uint32(s.UserId)].Avatar

@@ -1,6 +1,7 @@
 package method
 
 import (
+	"fim_server/utils/stores/logs"
 	"regexp"
 )
 
@@ -17,7 +18,11 @@ func InList(arr []string, key string) bool {
 // InListRegex Key 是否在列表中 支持正则表达式
 func InListRegex(arr []string, key string) bool {
 	for _, s := range arr {
-		regex, _ := regexp.Compile(s)
+		logs.Info(s)
+		regex, err := regexp.Compile(s)
+		if err != nil {
+			logs.Info("正则表达式编译失败:", err)
+		}
 		if regex.MatchString(key) {
 			return true
 		}

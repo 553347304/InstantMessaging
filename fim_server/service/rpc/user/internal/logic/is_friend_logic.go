@@ -27,6 +27,11 @@ func NewIsFriendLogic(ctx context.Context, svcCtx *svc.ServiceContext) *IsFriend
 func (l *IsFriendLogic) IsFriend(in *user_rpc.IsFriendRequest) (*user_rpc.IsFriendResponse, error) {
 	// todo: add your logic here and delete this line
 
+	if in.User1 == in.User2 {
+		logs.Info("好友是自己")
+		return nil, nil
+	}
+
 	var friend user_models.FriendModel
 	err := l.svcCtx.DB.Take(&friend, "(send_user_id = ? and receive_user_id = ?) or (send_user_id = ? and receive_user_id = ?)",
 		in.User1, in.User2, in.User2, in.User1).Error

@@ -1,19 +1,23 @@
-type ImageRequest {}
-
-type ImageResponse {
-	Url string `json:"url"`
-}
-
-type ImageShowRequest {
-	imageType string `path:"image_type"`
-	imageName string `path:"image_name"`
-}
+type (
+	ShowRequest {
+		Name string `path:"name"`
+	}
+	ShowResponse {
+		Url string `json:"url"`
+	}
+	FileRequest {
+		UserId uint `header:"User-Id"`
+	}
+	FileResponse {
+		Src string `json:"src"`
+	}
+)
 
 service file {
-	@handler Image
-	post /api/file/image (ImageRequest) returns (ImageResponse) // 图片上传
+	@handler Show
+	get /api/file/:name (ShowRequest) returns (ShowResponse) // 图片预览
 
-	@handler ImageShow
-	get /api/file/:image_type/:image_name (ImageShowRequest)
+	@handler File
+	post /api/file/upload (FileRequest) returns (FileResponse) // 文件上传
 }
 

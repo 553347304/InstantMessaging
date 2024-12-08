@@ -2,7 +2,7 @@ package logic
 
 import (
 	"context"
-	"fim_server/models"
+	"fim_server/models/mtype"
 	"fim_server/models/user_models"
 	"fim_server/service/rpc/chat/chat"
 	"fim_server/utils/stores/conv"
@@ -51,9 +51,9 @@ func (l *AuthStatusLogic) AuthStatus(req *types.FriendAuthStatusRequest) (resp *
 			ReceiveUserId: friendAuth.ReceiveUserId,
 		})
 
-		message := models.Message{
-			Type: 1,
-			Text: &models.Text{
+		message := mtype.Message{
+			MessageType: 1,
+			MessageText: &mtype.MessageText{
 				Content: "已添加你为好友",
 			},
 		}

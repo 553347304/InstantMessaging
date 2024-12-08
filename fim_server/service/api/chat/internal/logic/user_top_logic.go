@@ -31,8 +31,9 @@ func (l *UserTopLogic) UserTop(req *types.UserTopRequest) (resp *types.UserTopRe
 	if err != nil {
 		return nil, logs.Error("不是好友")
 	}
+
 	var topUser chat_models.TopUserModel
-	err1 := l.svcCtx.DB.Take(&topUser, "user_id = ? and top_user_id = ?", req.UserId, req.FriendId).Error
+	err1 := l.svcCtx.DB.Take(&topUser, "user_id = ? and top_user_id = ? or user_id = top_user_id", req.UserId, req.FriendId).Error
 	if err1 != nil {
 		// 没有置顶
 		l.svcCtx.DB.Create(&chat_models.TopUserModel{
@@ -41,6 +42,7 @@ func (l *UserTopLogic) UserTop(req *types.UserTopRequest) (resp *types.UserTopRe
 		})
 		return
 	}
-	l.svcCtx.DB.Model(chat_models.TopUserModel{}).Delete("user_id = ? and top_user_id = ?", req.UserId, req.FriendId)
+	logs.Info(topUser)
+	l.svcCtx.DB.Delete(&topUser)
 	return
 }

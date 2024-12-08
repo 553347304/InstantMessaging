@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package user_rpc;
+option go_package = "./file_rpc";
+
+message FileInfoRequest {
+  string file_id = 1;
+}
+
+message FileInfoResponse {
+  string name = 1;
+  string hash = 2;
+  string size = 3;
+  string ext = 4;
+  string path = 5;
+}
+
+
+service User {
+  rpc FileInfo(FileInfoRequest) returns(FileInfoResponse);  // 文件信息
+}

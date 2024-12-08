@@ -2,18 +2,19 @@ package chat_models
 
 import (
 	"fim_server/models"
+	"fim_server/models/mtype"
 	"fmt"
 )
 
 // ChatModel 对话表
 type ChatModel struct {
 	models.Model
-	SendUserId     uint                  `json:"send_user_id"`                   // 发送人
-	ReceiveUserId  uint                  `json:"receive_user_id"`                // 接收人
-	MessageType    int8                  `json:"message_type"`                   // 1 文本 2 图片 3 视频 4 文件 5 语音 6 语音通话 7 视频通话 8 撤回 9 回复 10 引用
-	MessagePreview string                `gorm:"size:64" json:"message_preview"` // 消息预览
-	Message        models.Message        `json:"message"`                        // 消息内容
-	SystemMessage  *models.SystemMessage `json:"system_message"`                 // 系统消息
+	SendUserId     uint                 `json:"send_user_id"`                   // 发送人
+	ReceiveUserId  uint                 `json:"receive_user_id"`                // 接收人
+	MessageType    mtype.MessageType    `json:"message_type"`                   // 1 文本 2 图片 3 视频 4 文件 5 语音 6 语音通话 7 视频通话 8 撤回 9 回复 10 引用
+	MessagePreview string               `gorm:"size:64" json:"message_preview"` // 消息预览
+	Message        mtype.Message        `json:"message"`                        // 消息内容
+	SystemMessage  *mtype.SystemMessage `json:"system_message"`                 // 系统消息
 }
 
 func (chat ChatModel) MessagePreviewMethod() string {
@@ -26,19 +27,19 @@ func (chat ChatModel) MessagePreviewMethod() string {
 		}
 		return fmt.Sprintf("系统消息 - 该消息%s, 已被系统拦截", Map[chat.SystemMessage.Type])
 	}
-
 	messageMap := map[int8]string{
-		1:  *chat.Message.Content,
-		2:  "图片消息" + chat.Message.Image.Title,
-		3:  "视频消息" + chat.Message.Image.Title,
-		4:  "文件消息" + chat.Message.File.Title,
+		1:  chat.Message.MessageText.Content,
+		2:  "图片消息" + chat.Message.MessageImage.Title,
+		3:  "视频消息" + chat.Message.MessageImage.Title,
+		4:  "文件消息" + chat.Message.MessageFile.Title,
 		5:  "语音消息",
 		6:  "语音通话",
 		7:  "视频通话",
-		8:  "撤回消息" + chat.Message.Withdraw.Content,
-		9:  "回复消息" + chat.Message.Reply.Content,
-		10: "引用消息" + chat.Message.Quote.Content,
-		11: "@消息" + chat.Message.At.Content,
+		8:  "撤回消息" + chat.Message.MessageWithdraw.Content,
+		9:  "回复消息" + chat.Message.MessageReply.Content,
+		10: "引用消息" + chat.Message.MessageQuote.Content,
+		11: "@消息" + chat.Message.MessageAt.Content,
 	}
-	return messageMap[chat.Message.Type]
+
+	return messageMap[int8(chat.Message.MessageType)]
 }

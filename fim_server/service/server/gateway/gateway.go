@@ -1,9 +1,7 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
-	"errors"
 	"fim_server/utils/src/etcd"
 	"fim_server/utils/stores/logs"
 	"flag"
@@ -11,18 +9,12 @@ import (
 	"github.com/zeromicro/go-zero/core/conf"
 	"io"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"regexp"
-	"strings"
 )
 
-var configFile = flag.String("f", "gateway.yaml", "the config file")
-
-type Config struct {
-	Addr string
-	Etcd string
-}
-
-var config Config
+type Proxy struct{}
 
 type Data struct {
 	Code    int    `json:"code"`
@@ -33,17 +25,28 @@ type Data struct {
 	} `json:"data"`
 }
 
-func Json(res http.ResponseWriter, data Data) {
-	logs.Error(data.Message)
-	byteData, _ := json.Marshal(data)
+func WriteJson(res http.ResponseWriter, message string) {
+	byteData, _ := json.Marshal(Data{
+		Code:    7,
+		Message: message,
+	})
 	res.Write(byteData)
 }
 
 func auth(req *http.Request) error {
 	authAddr := etcd.GetServiceAddr(config.Etcd, "auth_api")
 	authUrl := fmt.Sprintf("http://%s/api/auth/authentication", authAddr)
+
+	// 认证请求
 	authRequest, _ := http.NewRequest("POST", authUrl, nil)
 	authRequest.Header = req.Header
+
+	// 获取查询参数token
+	token := req.URL.Query().Get("token")
+	if token != "" {
+		authRequest.Header.Set("Token", token)
+	}
+
 	authRequest.Header.Set("ValidPath", req.URL.Path)
 	authResult, err := http.DefaultClient.Do(authRequest)
 	if err != nil {
@@ -54,12 +57,13 @@ func auth(req *http.Request) error {
 	byteData, _ := io.ReadAll(authResult.Body)
 	err = json.Unmarshal(byteData, &authResponse)
 	if err != nil {
-		return logs.Error("解析失败" + err.Error())
+		return logs.Error("json.Unmarshal" + err.Error())
 	}
-	if authResponse.Code != 0 { // 认证失败
-		return logs.Error("认证失败")
+	if authResponse.Code != 0 {
+		return logs.Error("认证不通过", string(byteData))
 	}
 
+	// 设置请求头
 	if authResponse.Data != nil {
 		req.Header.Set("User-Id", fmt.Sprint(authResponse.Data.UserId))
 		req.Header.Set("Role", fmt.Sprint(authResponse.Data.Role))
@@ -68,84 +72,51 @@ func auth(req *http.Request) error {
 	return nil
 }
 
-func proxy(url string, body io.Reader, res http.ResponseWriter, req *http.Request, ser string) error {
+func (Proxy) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 
-	proxyReq, err := http.NewRequest(req.Method, url, body)
-	if err != nil {
-		return errors.New(err.Error())
-	}
-
-	proxyReq.Header = req.Header
-	proxyReq.Header.Del("ValidPath")
-
-	proxyResponse, err := http.DefaultClient.Do(proxyReq)
-	if err != nil {
-		return errors.New("服务异常" + err.Error())
-	}
-	_, err = io.Copy(res, proxyResponse.Body)
-	if err != nil {
-		return errors.New("io copy 失败" + err.Error())
-	}
-
-	logs.Info(ser, proxyReq.Header)
-
-	return nil
-}
-
-func gateway(res http.ResponseWriter, req *http.Request) {
-
-	newBody := io.NopCloser(req.Body)     // 防止req.Body被读取两次
-	reqByteData, _ := io.ReadAll(newBody) // 读取请求体
-	body := bytes.NewBuffer(reqByteData)  // 将请求体重新写入
-
+	// 匹配请求前缀  /api/user/xx
 	regex, _ := regexp.Compile(`/api/(.*?)/`)
 	addrList := regex.FindStringSubmatch(req.URL.Path)
 	if len(addrList) != 2 {
-		Json(res, Data{Code: 7, Message: "服务错误"})
+		res.Write([]byte("err"))
 		return
 	}
-	var service = addrList[1]
+	service := addrList[1]
 
 	addr := etcd.GetServiceAddr(config.Etcd, service+"_api")
 	if addr == "" {
-		Json(res, Data{Code: 7, Message: "不匹配的服务:" + service})
+		WriteJson(res, logs.Error("不匹配的服务", service).Error())
 		return
 	}
 
-	remoteAddr := strings.Split(req.RemoteAddr, ":")
-	if len(remoteAddr) != 2 {
-		Json(res, Data{Code: 7, Message: "服务错误"})
-		return
-	}
-
-	url := fmt.Sprintf("http://%s%s", addr, req.URL.String())
-	ser := fmt.Sprintf("%s %s -> %s ", remoteAddr[0], service, url)
+	proxyUrl := fmt.Sprintf("http://%s", addr) // 请求认证服务地址
+	logs.Info(fmt.Sprintf("%s %s -> %s%s ", req.RemoteAddr, service, proxyUrl, req.URL.String()))
 
 	// 请求认证服务地址
 	err := auth(req)
 	if err != nil {
-		Json(res, Data{Code: 7, Message: err.Error()})
+		WriteJson(res, err.Error())
 		return
 	}
 
-	// 转发到实际服务上
-	err = proxy(url, body, res, req, ser)
-	if err != nil {
-		Json(res, Data{Code: 7, Message: err.Error()})
-		return
-	}
-
+	// 反向代理
+	remote, _ := url.Parse(proxyUrl)
+	reverseProxy := httputil.NewSingleHostReverseProxy(remote)
+	reverseProxy.ServeHTTP(res, req)
 }
+
+var configFile = flag.String("f", "gateway.yaml", "the config file")
+
+type Config struct {
+	Addr string
+	Etcd string
+}
+
+var config Config
 
 func main() {
 	flag.Parse()
-
 	conf.MustLoad(*configFile, &config)
-
-	http.HandleFunc("/", gateway)
-
-	fmt.Printf("gateway running http://%s\n", config.Addr)
-
-	http.ListenAndServe(config.Addr, nil)
-
+	logs.Info("gateway running", config.Addr)
+	http.ListenAndServe(config.Addr, Proxy{})
 }

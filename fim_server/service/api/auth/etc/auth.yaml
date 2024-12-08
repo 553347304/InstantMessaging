@@ -7,7 +7,7 @@ Log:
   Stat: false
 System:
   Mysql: root:baiyin@tcp(127.0.0.1:3306)/fim_db?charset=utf8mb4&parseTime=True&loc=Local
-  Redis: 159.75.103.16:63790 baiyin 1
+  Redis: 127.0.0.1:6379 baiyin 1
   Etcd: 127.0.0.1:2379
 OpenLoginList:
   - name: QQ登录
@@ -21,7 +21,6 @@ UserRpc:
 WhiteList:
   - /api/auth/authentication
   - /api/auth/login
-  - /api/auth/logout
   - /api/auth/open_login
   - /api/settings/open_login
-  - /api/file/.*?/.*?
+  - /api/file/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$

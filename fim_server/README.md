@@ -9,7 +9,6 @@ go run main.go -db # 迁移表结构
 
 ### service
 ``` yaml
-cd go_zero
 $p="rpc/user"; goctl rpc protoc "$p.proto" --go_out=$p --zrpc_out=$p --go-grpc_out=$p -style go_zero    # 用户
 $p="rpc/chat"; goctl rpc protoc "$p.proto" --go_out=$p --zrpc_out=$p --go-grpc_out=$p -style go_zero    # 消息
 

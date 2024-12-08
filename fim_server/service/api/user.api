@@ -53,11 +53,12 @@ type FriendInfoRequest {
 }
 
 type FriendInfoResponse {
-	UserId uint   `json:"user_id"`
-	Name   string `json:"name"`
-	Sign   string `json:"sign"`
-	Avatar string `json:"avatar"`
-	Notice string `json:"notice"` // 备注
+	UserId   uint   `json:"user_id"`
+	Name     string `json:"name"`
+	Sign     string `json:"sign"`
+	Avatar   string `json:"avatar"`
+	Notice   string `json:"notice"` // 备注
+	IsOnline bool   `json:"is_online"` // 是否在线
 }
 
 type FriendListRequest {

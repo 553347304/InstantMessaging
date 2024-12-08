@@ -7,6 +7,8 @@ import (
 	"fim_server/service/api/user/internal/types"
 	"fim_server/utils/src"
 	"fim_server/utils/src/sqls"
+	"fim_server/utils/stores/logs"
+	"strconv"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,39 +29,52 @@ func NewFriendListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Friend
 
 func (l *FriendListLogic) FriendList(req *types.FriendListRequest) (resp *types.FriendListResponse, err error) {
 	// todo: add your logic here and delete this line
-	// l.svcCtx.DB.Preload("SendUserModel").Preload("ReceiveUserModel").Model(user_models.Friend{}).
-	// 	Where("send_user_id = ? or receive_user_id = ?", req.UserId, req.UserId).Count(&total).
-	// 	Find(&friends)
 
+	// 获取好友列表
 	friends, total := sqls.GetList(user_models.FriendModel{}, sqls.Mysql{
-		DB:      l.svcCtx.DB,
+		DB:      l.svcCtx.DB.Where("send_user_id = ? or receive_user_id = ?", req.UserId, req.UserId),
 		Preload: []string{"SendUserModel", "ReceiveUserModel"},
 		PageInfo: src.PageInfo{
 			Page:  req.Page,
 			Limit: req.Limit,
 		},
 	})
+
+	// 查在线用户
+	onlineMap := l.svcCtx.Redis.HGetAll("online").Val()
+	var onlineUserMap = map[uint]bool{}
+	for key, _ := range onlineMap {
+		value, err := strconv.Atoi(key)
+		if err != nil {
+			logs.Error("转换失败", err.Error())
+			continue
+		}
+		onlineUserMap[uint(value)] = true
+	}
+
 	var list []types.FriendInfoResponse
 	for _, fv := range friends {
 		// 发起方
 		info := types.FriendInfoResponse{}
 		if fv.SendUserId == req.UserId {
 			info = types.FriendInfoResponse{
-				UserId: fv.SendUserId,
-				Name:   fv.SendUserModel.Name,
-				Sign:   fv.SendUserModel.Sign,
-				Avatar: fv.SendUserModel.Avatar,
-				Notice: fv.SendUserNotice,
+				UserId:   fv.ReceiveUserId,
+				Name:     fv.ReceiveUserModel.Name,
+				Sign:     fv.ReceiveUserModel.Sign,
+				Avatar:   fv.ReceiveUserModel.Avatar,
+				Notice:   fv.SendUserNotice,
+				IsOnline: onlineUserMap[fv.ReceiveUserId],
 			}
 		}
 		// 接收方
-		if fv.SendUserId == req.UserId {
+		if fv.ReceiveUserId == req.UserId {
 			info = types.FriendInfoResponse{
-				UserId: fv.ReceiveUserId,
-				Name:   fv.ReceiveUserModel.Name,
-				Sign:   fv.ReceiveUserModel.Sign,
-				Avatar: fv.ReceiveUserModel.Avatar,
-				Notice: fv.ReceiveUserNotice,
+				UserId:   fv.SendUserId,
+				Name:     fv.SendUserModel.Name,
+				Sign:     fv.SendUserModel.Sign,
+				Avatar:   fv.SendUserModel.Avatar,
+				Notice:   fv.ReceiveUserNotice,
+				IsOnline: onlineUserMap[fv.SendUserId],
 			}
 		}
 		list = append(list, info)

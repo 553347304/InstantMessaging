@@ -4,6 +4,7 @@ import (
 	"context"
 	"fim_server/models"
 	"fim_server/models/chat_models"
+	"fim_server/models/mtype"
 	"fim_server/service/rpc/user/user_rpc"
 	"fim_server/utils/src"
 	"fim_server/utils/src/sqls"
@@ -30,24 +31,19 @@ func NewChatHistoryLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ChatH
 	}
 }
 
-type UserInfo struct {
-	ID     uint   `json:"id"`
-	Name   string `json:"name"`
-	Avatar string `json:"avatar"`
-}
 type ChatHistory struct {
-	ID            uint                  `json:"id"`
-	IsMe          bool                  `json:"is_me"`      // 哪条消息是我发的
-	CreatedAt     string                `json:"created_at"` // 消息时间
-	Message       models.Message        `json:"message"`
-	SystemMessage *models.SystemMessage `json:"system_message"`
+	ID            uint                 `json:"id"`
+	IsMe          bool                 `json:"is_me"`      // 哪条消息是我发的
+	CreatedAt     string               `json:"created_at"` // 消息时间
+	Message       mtype.Message        `json:"message"`
+	SystemMessage *mtype.SystemMessage `json:"system_message"`
 }
 
 type ChatHistoryResponse struct {
-	Total       int           `json:"total"`
-	SendUser    UserInfo      `json:"sendUser"`
-	ReceiveUser UserInfo      `json:"receive_user"`
-	List        []ChatHistory `json:"list"`
+	Total       int             `json:"total"`
+	SendUser    models.UserInfo `json:"sendUser"`
+	ReceiveUser models.UserInfo `json:"receive_user"`
+	List        []ChatHistory   `json:"list"`
 }
 
 func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *ChatHistoryResponse, err error) {
@@ -85,16 +81,16 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 	}
 
 	var list = make([]ChatHistory, 0)
-	var sendUser, receiveUser UserInfo
+	var sendUser, receiveUser models.UserInfo
 	for i, model := range chatList {
 
 		if i == 0 {
-			sendUser = UserInfo{
+			sendUser = models.UserInfo{
 				ID:     model.SendUserId,
 				Name:   response.UserInfo[uint32(model.SendUserId)].Name,
 				Avatar: response.UserInfo[uint32(model.SendUserId)].Avatar,
 			}
-			receiveUser = UserInfo{
+			receiveUser = models.UserInfo{
 				ID:     model.ReceiveUserId,
 				Name:   response.UserInfo[uint32(model.ReceiveUserId)].Name,
 				Avatar: response.UserInfo[uint32(model.ReceiveUserId)].Avatar,

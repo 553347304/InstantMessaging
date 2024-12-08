@@ -2,8 +2,8 @@ package logic
 
 import (
 	"context"
-	"fim_server/models"
 	"fim_server/models/chat_models"
+	"fim_server/models/mtype"
 	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
 
@@ -30,14 +30,14 @@ func NewUserChatLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserChat
 func (l *UserChatLogic) UserChat(in *chat_rpc.UserChatRequest) (*chat_rpc.UserChatResponse, error) {
 	// todo: add your logic here and delete this line
 
-	var message models.Message
+	var message mtype.Message
 	conv.Unmarshal(in.Message, &message)
-	var systemMessage *models.SystemMessage
+	var systemMessage *mtype.SystemMessage
 	conv.Unmarshal(in.Message, &systemMessage)
 	chat := chat_models.ChatModel{
 		SendUserId:     uint(in.SendUserId),
 		ReceiveUserId:  uint(in.ReceiveUserId),
-		MessageType:    message.Type,
+		MessageType:    message.MessageType,
 		MessagePreview: "",
 		Message:        message,
 		SystemMessage:  systemMessage,
