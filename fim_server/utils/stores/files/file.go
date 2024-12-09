@@ -25,7 +25,7 @@ type File struct {
 type FileResponse struct {
 	Name  string
 	Ext   string
-	Size  float64
+	Size  int64
 	Byte  []byte
 	Error string
 }
@@ -78,7 +78,7 @@ func (f File) FormFile(file multipart.File, fileHeader *multipart.FileHeader, er
 	return FileResponse{
 		Name:  fileName,
 		Ext:   fileExt,
-		Size:  sizeMB,
+		Size:  fileHeader.Size,
 		Byte:  byteData,
 		Error: "",
 	}

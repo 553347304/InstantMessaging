@@ -10,12 +10,11 @@ message FileInfoRequest {
 message FileInfoResponse {
   string name = 1;
   string hash = 2;
-  string size = 3;
+  int64 size = 3; // 单位为MB
   string ext = 4;
-  string path = 5;
 }
 
 
-service User {
+service File {
   rpc FileInfo(FileInfoRequest) returns(FileInfoResponse);  // 文件信息
 }

@@ -14,3 +14,8 @@ UserRpc:
     Hosts:
       - 127.0.0.1:2379
     Key: user.rpc
+FileRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: file.rpc
