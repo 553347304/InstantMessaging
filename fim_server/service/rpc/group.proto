@@ -1,0 +1,15 @@
+syntax = "proto3";
+
+package user_rpc;
+option go_package = "./group_rpc";
+
+message IsInGroupMemberRequest {
+  uint32 user_id = 1;
+  uint32 group_id = 2;
+}
+
+message IsInGroupMemberResponse {}
+
+service Group {
+  rpc IsInGroupMember(IsInGroupMemberRequest) returns(IsInGroupMemberResponse);  // 是否在群里
+}

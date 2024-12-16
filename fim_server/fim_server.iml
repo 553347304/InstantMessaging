@@ -16,6 +16,9 @@
       <sourceFolder url="file://$MODULE_DIR$/service/rpc/user" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/service/rpc/chat" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/service/rpc/file" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/service/api/group" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/service/rpc/group" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/service/template" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
   </component>

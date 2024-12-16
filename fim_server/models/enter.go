@@ -10,13 +10,7 @@ type Model struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-type UserInfo struct {
-	ID     uint   `json:"id"`
-	Name   string `json:"name"`
-	Avatar string `json:"avatar"`
-}
-
-type StringArr []string
+// type StringArr []string
 
 // // 实现 driver.Valuer 接口
 // func (s *StringArr) Value() (driver.Value, error) {

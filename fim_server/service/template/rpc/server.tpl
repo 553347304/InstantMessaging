@@ -1,6 +1,6 @@
 {{.head}}
 
-package src
+package server
 
 import (
 	{{if .notStream}}"context"{{end}}
@@ -8,13 +8,13 @@ import (
 	{{.imports}}
 )
 
-type {{.src}}Server struct {
+type {{.server}}Server struct {
 	svcCtx *svc.ServiceContext
 	{{.unimplementedServer}}
 }
 
-func New{{.src}}Server(svcCtx *svc.ServiceContext) *{{.src}}Server {
-	return &{{.src}}Server{
+func New{{.server}}Server(svcCtx *svc.ServiceContext) *{{.server}}Server {
+	return &{{.server}}Server{
 		svcCtx: svcCtx,
 	}
 }

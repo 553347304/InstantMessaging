@@ -52,3 +52,8 @@ func (s *UserServer) FriendList(ctx context.Context, in *user_rpc.FriendListRequ
 	l := logic.NewFriendListLogic(ctx, s.svcCtx)
 	return l.FriendList(in)
 }
+
+func (s *UserServer) UserOnlineList(ctx context.Context, in *user_rpc.UserOnlineListRequest) (*user_rpc.UserOnlineListResponse, error) {
+	l := logic.NewUserOnlineListLogic(ctx, s.svcCtx)
+	return l.UserOnlineList(in)
+}

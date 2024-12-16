@@ -1,0 +1,91 @@
+syntax = "v1"
+
+info (
+	title:   "type title here"
+	desc:    "type desc here"
+	author:  "type author here"
+	email:   "type email here"
+	version: "type version here"
+)
+
+type (
+	GroupCreateRequest {
+		UserId     uint   `header:"User-Id"`
+		Mode       int8   `json:"mode,optional"` // 模式 1 直接创建   2 创建模式
+		Name       string `json:"name,optional"`
+		IsSearch   bool   `json:"is_search,optional"`
+		Size       int    `json:"size,optional"`
+		UserIdList []uint `json:"user_id_list,optional"`
+	}
+	GroupCreateResponse  {}
+)
+
+type (
+	GroupInfoRequest {
+		UserId uint `header:"User-Id"`
+		Id     int8 `path:"id"`
+	}
+	UserInfo {
+		UserId uint   `json:"user_id"`
+		Name   string `json:"name"`
+		Avatar string `json:"avatar"`
+	}
+	GroupInfoResponse {
+		GroupId          uint       `json:"group_id"`
+		Name             string     `json:"name"`
+		Sign             string     `json:"sign"`
+		Avatar           string     `json:"avatar"`
+		MemberCount      int        `json:"member_count"`
+		MemberOnlinCount int        `json:"member_onlin_count"`
+		Leader           UserInfo   `json:"leader"` // 群主
+		AdminList        []UserInfo `json:"admin_list"`
+	}
+)
+
+type (
+	AuthQuestion {
+		Problem1 *string `json:"problem1"`
+		Problem2 *string `json:"problem2"`
+		Problem3 *string `json:"problem3"`
+		Answer1  *string `json:"answer1"`
+		Answer2  *string `json:"answer2"`
+		Answer3  *string `json:"answer3"`
+	}
+	GroupUpdateRequest {
+		UserId             uint          `header:"User-Id"`
+		Id                 int8          `json:"id"`
+		Name               string        `json:"name,optional" conf:"name"` // 群名
+		Avatar             string        `json:"avatar,optional" conf:"avatar"` // 群头像
+		Sign               string        `json:"sign,optional" conf:"sign"` // 群简介
+		IsSearch           *bool         `json:"is_search,optional" conf:"is_search"` // is搜索
+		IsInvite           *bool         `json:"is_invite,optional" conf:"is_invite"` // is邀请
+		IsTemporarySession *bool         `json:"is_temporary_session,optional" conf:"is_temporary_session"` // is临时会话
+		IsForbiddenSpeech  *bool         `json:"is_forbidden_speech,optional" conf:"is_forbidden_speech"` // is禁言
+		AuthMessage        int8          `json:"auth_message,optional" conf:"auth_message"` // 群验证
+		AuthQuestion       *AuthQuestion `json:"auth_question,optional" conf:"auth_question"` // 群验证问题
+	}
+	GroupUpdateResponse  {}
+)
+
+type (
+	GroupDeleteRequest {
+		UserId uint `header:"User-Id"`
+		Id     int8 `path:"id"`
+	}
+	GroupDeleteResponse  {}
+)
+
+service group {
+	@handler GroupCreate
+	post /api/group/group (GroupCreateRequest) returns (GroupCreateResponse) // 创建群
+
+	@handler GroupInfo
+	get /api/group/group/:id (GroupInfoRequest) returns (GroupInfoResponse) // 创建群
+
+	@handler GroupUpdate
+	put /api/group/group (GroupUpdateRequest) returns (GroupUpdateResponse) // 群更新
+
+	@handler GroupDelete
+	delete /api/group/group/:id (GroupDeleteRequest) returns (GroupDeleteResponse) // 群解散
+}
+

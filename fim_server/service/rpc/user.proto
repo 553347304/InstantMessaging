@@ -64,6 +64,12 @@ message UserBaseInfoResponse {
   string name = 2;
   string avatar = 3;
 }
+
+message UserOnlineListRequest{}
+message UserOnlineListResponse{
+  repeated uint32 user_id_list = 1;
+}
+
 service User {
   rpc UserCreate(UserCreateRequest) returns(UserCreateResponse);  // 创建用户
   rpc UserInfo(UserInfoRequest) returns(UserInfoResponse);  // 用户信息
@@ -71,4 +77,5 @@ service User {
   rpc UserListInfo(UserListInfoRequest) returns(UserListInfoResponse);  // 用户列表信息
   rpc IsFriend(IsFriendRequest) returns(IsFriendResponse);  // 是否是好友
   rpc FriendList(FriendListRequest) returns(FriendListResponse);  // 好友列表
+  rpc UserOnlineList(UserOnlineListRequest) returns(UserOnlineListResponse);  // 在线用户ID列表
 }

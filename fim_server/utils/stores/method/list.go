@@ -45,3 +45,32 @@ func Deduplication[T comparable](slice []T) []T {
 
 	return result
 }
+
+
+// ListIntersect 求切片交集
+func ListIntersect[T comparable](s1, s2 []T) []T {
+	m := make(map[T]bool)
+	for _, v := range s1 { m[v] = true }
+
+	var slice []T
+	for _, v := range s2 {
+		if m[v] {
+			slice = append(slice, v)
+		}
+	}
+	return slice
+}
+
+// ListDifference 求切片差集
+func ListDifference[T comparable](s1, s2 []T) []T {
+	m := make(map[T]bool)
+	for _, v := range s2 { m[v] = true }
+
+	var slice []T
+	for _, v := range s1 {
+		if !m[v] {
+			slice = append(slice, v)
+		}
+	}
+	return slice
+}

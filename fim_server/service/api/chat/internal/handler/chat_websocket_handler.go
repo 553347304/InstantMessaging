@@ -2,7 +2,7 @@ package handler
 
 import (
 	"context"
-	"fim_server/models"
+	"fim_server/common/service/redis_service"
 	"fim_server/models/chat_models"
 	"fim_server/models/mtype"
 	"fim_server/models/user_models"
@@ -23,23 +23,24 @@ import (
 )
 
 type UserWebsocketInfo struct {
-	Conn     *websocket.Conn // 用户ws连接对象
-	UserInfo user_models.UserModel
+	UserInfo           user_models.UserModel      // 用户ws连接对象
+	Conn               *websocket.Conn            // 用户ws连接对象
+	WebsocketClientMap map[string]*websocket.Conn // 用户管理所有客户端
 }
 
-var UserWebsocketMap = make(map[uint]UserWebsocketInfo)
+var UserOnlineWebsocketMap = make(map[uint]*UserWebsocketInfo)
 
 type chatRequest struct {
 	ReceiveId uint          `json:"receive_id"`
 	Message   mtype.Message `json:"message"`
 }
 type chatResponse struct {
-	MessageId     uint            `json:"message_id"`
-	IsMe          bool            `json:"is_me"`
-	SendUserId    models.UserInfo `json:"send_user_id"`
-	ReceiveUserId models.UserInfo `json:"receive_user_id"`
-	Message       mtype.Message   `json:"message"`
-	CreatedAt     time.Time       `json:"created_at"`
+	MessageId     uint           `json:"message_id"`
+	IsMe          bool           `json:"is_me"`
+	SendUserId    mtype.UserInfo `json:"send_user_id"`
+	ReceiveUserId mtype.UserInfo `json:"receive_user_id"`
+	Message       mtype.Message  `json:"message"`
+	CreatedAt     time.Time      `json:"created_at"`
 }
 
 // MessageInsertDatabaseChatModel 消息入库
@@ -60,7 +61,7 @@ func MessageInsertDatabaseChatModel(receiveUserId uint, sendUserId uint, message
 	chatModel.MessagePreview = chatModel.MessagePreviewMethod()
 	err := db.Create(&chatModel).Error
 	if err != nil {
-		sendUser, ok := UserWebsocketMap[sendUserId]
+		sendUser, ok := UserOnlineWebsocketMap[sendUserId]
 		if ok {
 			SendTipErrorMessage(sendUser.Conn, "消息保存失败"+err.Error())
 		}
@@ -71,23 +72,23 @@ func MessageInsertDatabaseChatModel(receiveUserId uint, sendUserId uint, message
 // SendMessageByUser 给谁发消息
 func SendMessageByUser(svcCtx *svc.ServiceContext, receiveUserId uint, sendUserId uint, message mtype.Message, messageId uint) {
 
-	receiveUser, ok1 := UserWebsocketMap[receiveUserId]
-	sendUser, _ := UserWebsocketMap[sendUserId]
+	receiveUser, ok1 := UserOnlineWebsocketMap[receiveUserId]
+	sendUser, _ := UserOnlineWebsocketMap[sendUserId]
 
-	userBaseInfo, err := svcCtx.UserRpc.UserBaseInfo(context.Background(), &user_rpc.UserBaseInfoRequest{UserId: uint32(
-		receiveUserId)})
-	if err != nil {
-		logs.Error(err)
+	// 用户信息
+	userBaseInfo, err5 := redis_service.GetUserInfo(svcCtx.Redis, svcCtx.UserRpc, receiveUserId)
+	if err5 != nil {
+		logs.Error(err5)
 		return
 	}
 
 	resp := chatResponse{
-		ReceiveUserId: models.UserInfo{
+		ReceiveUserId: mtype.UserInfo{
 			ID:     receiveUserId,
 			Name:   userBaseInfo.Name,
 			Avatar: userBaseInfo.Avatar,
 		},
-		SendUserId: models.UserInfo{
+		SendUserId: mtype.UserInfo{
 			ID:     sendUserId,
 			Name:   sendUser.UserInfo.Name,
 			Avatar: sendUser.UserInfo.Avatar,
@@ -121,6 +122,12 @@ func SendTipErrorMessage(conn *websocket.Conn, message string) {
 	conn.WriteMessage(websocket.TextMessage, conv.Marshal(resp))
 }
 
+func sendWsMapMessage(wsMap map[string]*websocket.Conn, data []byte) {
+	for _, conn := range wsMap {
+		conn.WriteMessage(websocket.TextMessage, data)
+	}
+}
+
 func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.ChatRequest
@@ -143,9 +150,7 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 
 		// 获取用户信息
-		res, err := svcCtx.UserRpc.UserInfo(context.Background(), &user_rpc.UserInfoRequest{
-			UserId: uint32(req.UserId),
-		})
+		res, err := svcCtx.UserRpc.UserInfo(context.Background(), &user_rpc.UserInfoRequest{UserId: uint32(req.UserId)})
 		if err != nil {
 			logs.Error("连接失败", err)
 			response.Response(r, w, nil, err)
@@ -158,16 +163,18 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 
 		// 将用户信息存入map
-		var userWebsocketInfo = UserWebsocketInfo{
+		addr := conn.RemoteAddr().String()
+		UserOnlineWebsocketMap[req.UserId] = &UserWebsocketInfo{
 			Conn:     conn,
 			UserInfo: userInfo,
+			WebsocketClientMap: map[string]*websocket.Conn{
+				conn.RemoteAddr().String(): conn,
+			},
 		}
-		UserWebsocketMap[req.UserId] = userWebsocketInfo
-		svcCtx.Redis.HSet("online", fmt.Sprint(req.UserId), req.UserId) // Redis存入在线用户
 
-		friendRes, err := svcCtx.UserRpc.FriendList(context.Background(), &user_rpc.FriendListRequest{
-			UserId: uint32(req.UserId),
-		})
+		svcCtx.Redis.HSet("user_online", fmt.Sprint(req.UserId), req.UserId) // Redis存入在线用户
+
+		friendRes, err := svcCtx.UserRpc.FriendList(context.Background(), &user_rpc.FriendListRequest{UserId: uint32(req.UserId)})
 		if err != nil {
 			response.Response(r, w, nil, logs.Error("获取好友列表失败", err))
 			return
@@ -176,28 +183,21 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		logs.Info("用户上线", req.UserId, userInfo.Name)
 
 		for _, info := range friendRes.FriendList {
-			friend, ok := UserWebsocketMap[uint(info.UserId)]
+			friend, ok := UserOnlineWebsocketMap[uint(info.UserId)]
 			if ok {
 				// 好友上线了
 				if friend.UserInfo.UserConfigModel.FriendOnline {
-					friend.Conn.WriteMessage(websocket.TextMessage,
-						[]byte(UserWebsocketMap[req.UserId].UserInfo.Name+"上线了"))
+					sendWsMapMessage(friend.WebsocketClientMap, []byte(UserOnlineWebsocketMap[req.UserId].UserInfo.Name+"上线了"))
 				}
 			}
 
 		}
 
-		logs.Info(UserWebsocketMap)
+		logs.Info(UserOnlineWebsocketMap)
 		for {
 			// 消息类型，消息，错误
 			_, p, err := conn.ReadMessage()
-			// 用户断开聊天
 			if err != nil {
-				conn.Close()
-				delete(UserWebsocketMap, req.UserId)
-				svcCtx.Redis.HDel("online", fmt.Sprint(req.UserId)) // Redis删除在线用户
-				logs.Error("断开链接")
-				logs.Info(UserWebsocketMap)
 				break
 			}
 
@@ -281,11 +281,10 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 					continue
 				}
 
-				userBaseInfo, err2 := svcCtx.UserRpc.UserBaseInfo(context.Background(),
-					&user_rpc.UserBaseInfoRequest{UserId: uint32(
-						messageModel.SendUserId)})
-				if err2 != nil {
-					logs.Error(err2)
+				// 用户信息
+				userBaseInfo, err5 := redis_service.GetUserInfo(svcCtx.Redis, svcCtx.UserRpc, messageModel.SendUserId)
+				if err5 != nil {
+					logs.Error(err5)
 					continue
 				}
 
@@ -294,6 +293,7 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 					SendTipErrorMessage(conn, "只能回复自己或者对方的消息")
 					continue
 				}
+
 				request.Message.MessageReply.Message = &messageModel.Message
 				request.Message.MessageReply.UserId = messageModel.SendUserId
 				request.Message.MessageReply.Name = userBaseInfo.Name
@@ -315,11 +315,10 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 					continue
 				}
 
-				userBaseInfo, err2 := svcCtx.UserRpc.UserBaseInfo(context.Background(),
-					&user_rpc.UserBaseInfoRequest{UserId: uint32(
-						messageModel.SendUserId)})
-				if err2 != nil {
-					logs.Error(err2)
+				// 用户信息
+				userBaseInfo, err5 := redis_service.GetUserInfo(svcCtx.Redis, svcCtx.UserRpc, messageModel.SendUserId)
+				if err5 != nil {
+					logs.Error(err5)
 					continue
 				}
 
@@ -338,5 +337,17 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			id := MessageInsertDatabaseChatModel(request.ReceiveId, req.UserId, request.Message, svcCtx.DB)
 			SendMessageByUser(svcCtx, request.ReceiveId, req.UserId, request.Message, id)
 		}
+
+		// 用户断开聊天
+		defer func() {
+			logs.Error("断开链接")
+			conn.Close()
+			userWsInfo, ok := UserOnlineWebsocketMap[req.UserId]
+			if ok {
+				delete(userWsInfo.WebsocketClientMap, addr) // 删除退出的ws信息
+			}
+			delete(UserOnlineWebsocketMap, req.UserId)
+			svcCtx.Redis.HDel("user_online", fmt.Sprint(req.UserId)) // Redis删除在线用户
+		}()
 	}
 }

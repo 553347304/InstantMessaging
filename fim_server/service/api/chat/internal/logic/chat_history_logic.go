@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"fim_server/models"
 	"fim_server/models/chat_models"
 	"fim_server/models/mtype"
 	"fim_server/service/rpc/user/user_rpc"
@@ -40,10 +39,10 @@ type ChatHistory struct {
 }
 
 type ChatHistoryResponse struct {
-	Total       int             `json:"total"`
-	SendUser    models.UserInfo `json:"sendUser"`
-	ReceiveUser models.UserInfo `json:"receive_user"`
-	List        []ChatHistory   `json:"list"`
+	Total       int            `json:"total"`
+	SendUser    mtype.UserInfo `json:"sendUser"`
+	ReceiveUser mtype.UserInfo `json:"receive_user"`
+	List        []ChatHistory  `json:"list"`
 }
 
 func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *ChatHistoryResponse, err error) {
@@ -81,16 +80,16 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 	}
 
 	var list = make([]ChatHistory, 0)
-	var sendUser, receiveUser models.UserInfo
+	var sendUser, receiveUser mtype.UserInfo
 	for i, model := range chatList {
 
 		if i == 0 {
-			sendUser = models.UserInfo{
+			sendUser = mtype.UserInfo{
 				ID:     model.SendUserId,
 				Name:   response.UserInfo[uint32(model.SendUserId)].Name,
 				Avatar: response.UserInfo[uint32(model.SendUserId)].Avatar,
 			}
-			receiveUser = models.UserInfo{
+			receiveUser = mtype.UserInfo{
 				ID:     model.ReceiveUserId,
 				Name:   response.UserInfo[uint32(model.ReceiveUserId)].Name,
 				Avatar: response.UserInfo[uint32(model.ReceiveUserId)].Avatar,

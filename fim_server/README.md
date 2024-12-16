@@ -9,15 +9,19 @@ go run main.go -db # 迁移表结构
 
 ### service
 ``` yaml
-$p="rpc/user"; goctl rpc protoc "$p.proto" --go_out=$p --zrpc_out=$p --go-grpc_out=$p -style go_zero    # 用户
-$p="rpc/chat"; goctl rpc protoc "$p.proto" --go_out=$p --zrpc_out=$p --go-grpc_out=$p -style go_zero    # 消息
-$p="rpc/file"; goctl rpc protoc "$p.proto" --go_out=$p --zrpc_out=$p --go-grpc_out=$p -style go_zero    # 文件
+goctl template init --home $pwd/go-zero-template    # 模版文件
 
-$p="api/user"; goctl api go -api "$p.api" -dir $p -style go_zero --home template           # 用户
-$p="api/chat"; goctl api go -api "$p.api" -dir $p -style go_zero --home template           # 消息
-$p="api/auth"; goctl api go -api "$p.api" -dir $p -style go_zero --home template           # 校验
-$p="api/file"; goctl api go -api "$p.api" -dir $p -style go_zero --home template           # 文件
-$p="api/setting"; goctl api go -api "$p.api" -dir $p -style go_zero --home template        # 设置
+cd service
+$t=@("-style", "go_zero", "--home", "template")
+
+$p="user";      # 用户
+$p="chat";      # 消息
+$p="auth";      # 校验
+$p="file";      # 文件
+$p="setting";   # 设置
+$p="group";     # 群聊
+goctl rpc protoc "rpc/$p.proto" --go_out=rpc/$p --zrpc_out=rpc/$p --go-grpc_out=rpc/$p $t   # 生成RPC
+goctl api go -api "api/$p.api" -dir "api/$p" $t                                             # 生成API
 ```
 
 ## 模块

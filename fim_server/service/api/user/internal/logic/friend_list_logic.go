@@ -41,7 +41,7 @@ func (l *FriendListLogic) FriendList(req *types.FriendListRequest) (resp *types.
 	})
 
 	// 查在线用户
-	onlineMap := l.svcCtx.Redis.HGetAll("online").Val()
+	onlineMap := l.svcCtx.Redis.HGetAll("user_online").Val()
 	var onlineUserMap = map[uint]bool{}
 	for key, _ := range onlineMap {
 		value, err := strconv.Atoi(key)
