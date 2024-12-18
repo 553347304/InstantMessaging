@@ -39,7 +39,7 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 	}
 
 	var chatList []Data
-	total := sqls.GetListGroup(chat_models.ChatModel{}, &chatList, sqls.Mysql{
+	chatResponse := sqls.GetListGroup(chat_models.ChatModel{}, sqls.Mysql{
 		DB: l.svcCtx.DB.
 			Select("least(send_user_id, receive_user_id) as s_u,"+
 				"greatest(send_user_id, receive_user_id) as r_u,"+
@@ -62,7 +62,7 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 			Page:  req.Page,
 			Limit: req.Limit,
 		},
-	})
+	},&chatList)
 
 	var userIdList []uint32
 	for _, data := range chatList {
@@ -106,5 +106,5 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 		s.Name = response.UserInfo[uint32(s.UserId)].Name
 		list = append(list, s)
 	}
-	return &types.ChatSessionResponse{List: list, Total: total}, nil
+	return &types.ChatSessionResponse{List: list, Total: chatResponse.Total}, nil
 }

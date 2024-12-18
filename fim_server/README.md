@@ -20,8 +20,9 @@ $p="auth";      # 校验
 $p="file";      # 文件
 $p="setting";   # 设置
 $p="group";     # 群聊
-goctl rpc protoc "rpc/$p.proto" --go_out=rpc/$p --zrpc_out=rpc/$p --go-grpc_out=rpc/$p $t   # 生成RPC
-goctl api go -api "api/$p.api" -dir "api/$p" $t                                             # 生成API
+
+$v="rpc/$p"; goctl rpc protoc "$v.proto" --go_out=$v --zrpc_out=$v --go-grpc_out=$v $t   # 生成RPC
+$v="api/$p"; goctl api go -api "$v.api" -dir "$v" $t                                     # 生成API
 ```
 
 ## 模块

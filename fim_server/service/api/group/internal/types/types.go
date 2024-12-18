@@ -46,6 +46,31 @@ type GroupInfoResponse struct {
 	MemberOnlinCount int        `json:"member_onlin_count"`
 	Leader           UserInfo   `json:"leader"` // 群主
 	AdminList        []UserInfo `json:"admin_list"`
+	Role             int8       `json:"role"` // 角色   1 群主 2 群管理员 3 群成员
+}
+
+type GroupMemberInfo struct {
+	UserId         uint   `json:"user_id"`
+	Name           string `json:"name"`
+	Avatar         string `json:"avatar"`
+	InOnline       bool   `json:"in_online"`
+	Role           int8   `json:"role"`
+	MemberName     string `json:"member_name"`
+	CreatedAt      string `json:"created_at"`
+	NewMessageDate string `json:"new_message_date"`
+}
+
+type GroupMemberRequest struct {
+	UserId uint   `header:"User-Id"`
+	Id     uint   `form:"id"`
+	Page   int    `form:"page,optional"`
+	Limit  int    `form:"limit,optional"`
+	Sort   string `form:"sort,optional"`
+}
+
+type GroupMemberResponse struct {
+	Total int64             `json:"total"`
+	List  []GroupMemberInfo `json:"list"`
 }
 
 type GroupUpdateRequest struct {

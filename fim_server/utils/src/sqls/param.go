@@ -4,9 +4,16 @@ import (
 	"fim_server/utils/src"
 	"fim_server/utils/stores/logs"
 	"fmt"
+	"strings"
 )
 
+type MysqlResponse[R any] struct {
+	Total int64
+	List R
+}
+
 func (m *Mysql) isFieldExist(model interface{}, fieldName string) bool {
+	fieldName = strings.Split(fieldName, " ")[0]	// 只取第一个字符串
 	if fieldName == "" {
 		return true
 	}

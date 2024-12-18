@@ -19,7 +19,7 @@ func main() {
 	}
 
 	var chatList []Data
-	sqls.GetListGroup(chat_models.ChatModel{}, &chatList, sqls.Mysql{
+	sqls.GetListGroup(chat_models.ChatModel{}, sqls.Mysql{
 		DB: src.DB.
 			Select("least(send_user_id, receive_user_id) as s_u",
 				"greatest(send_user_id, receive_user_id) as r_u",
@@ -33,7 +33,7 @@ func main() {
 			Page:  1,
 			Limit: 10,
 		},
-	})
+	},&chatList)
 
 	fmt.Println(chatList)
 }

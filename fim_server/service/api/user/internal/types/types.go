@@ -88,7 +88,7 @@ type FriendListRequest struct {
 
 type FriendListResponse struct {
 	List  []FriendInfoResponse `json:"list"`
-	Total int                  `json:"total"`
+	Total int64                  `json:"total"`
 }
 
 type FriendNoticeUpdateRequest struct {

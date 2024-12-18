@@ -30,14 +30,14 @@ func (l *FriendListLogic) FriendList(in *user_rpc.FriendListRequest) (*user_rpc.
 	// 	Where("send_user_id = ? or receive_user_id = ?", req.UserId, req.UserId).Count(&total).
 	// 	Find(&friends)
 
-	friends, _ := sqls.GetList(user_models.FriendModel{}, sqls.Mysql{
+	friend := sqls.GetList(user_models.FriendModel{}, sqls.Mysql{
 		DB:      l.svcCtx.DB,
 		Preload: []string{"SendUserModel", "ReceiveUserModel"},
 	})
 
 	// 查哪些用户在线
 	var list []*user_rpc.FriendInfo
-	for _, fv := range friends {
+	for _, fv := range friend.List {
 		info := user_rpc.FriendInfo{}
 		// 发起方
 		if fv.SendUserId == uint(in.UserId) {

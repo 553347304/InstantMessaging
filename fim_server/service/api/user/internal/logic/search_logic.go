@@ -30,7 +30,7 @@ func NewSearchLogic(ctx context.Context, svcCtx *svc.ServiceContext) *SearchLogi
 func (l *SearchLogic) Search(req *types.SearchRequest) (resp *types.SearchResponse, err error) {
 	// todo: add your logic here and delete this line
 	// Online: req.Online
-	userConfigs, total := sqls.GetList(user_models.UserConfigModel{}, sqls.Mysql{
+	userConfigs := sqls.GetList(user_models.UserConfigModel{}, sqls.Mysql{
 		DB: l.svcCtx.DB.Joins("left join user_models um on um.id = user_config_models.user_id").
 			Where(""+
 				"(user_config_models.search_user <> 0 or user_config_models.search_user is not null) and "+
@@ -55,7 +55,7 @@ func (l *SearchLogic) Search(req *types.SearchRequest) (resp *types.SearchRespon
 	}
 
 	list := make([]types.SearchInfo, 0)
-	for _, userConfig := range userConfigs {
+	for _, userConfig := range userConfigs.List {
 		list = append(list, types.SearchInfo{
 			UserId:   userConfig.UserId,
 			Name:     userConfig.UserModel.Name,
@@ -64,5 +64,5 @@ func (l *SearchLogic) Search(req *types.SearchRequest) (resp *types.SearchRespon
 			IsFriend: userMap[userConfig.UserId],
 		})
 	}
-	return &types.SearchResponse{List: list, Total: total}, nil
+	return &types.SearchResponse{List: list, Total: userConfigs.Total}, nil
 }

@@ -1,16 +1,25 @@
 package main
 
 import (
-	"fim_server/config/core"
-	"fim_server/models"
-	"fim_server/utils/src"
+	"encoding/json"
+	"fim_server/utils/stores/logs"
+	"fmt"
 )
+type Example struct {
+	Name  string `json:"name,omitempty"`
+	Value int    `json:"value,omitempty"`
+}
 
 func main() {
-	core.Init()
+	example := Example{
+		Name:  "",
+		Value: 1,
+	}
 
-	src.DB.Create(&models.Test{
-		Json: []string{"Reading", "Coding", "Traveling"},
-	})
-
+	jsonData, err := json.Marshal(example)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	logs.Info(string(jsonData))
 }

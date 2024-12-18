@@ -29,7 +29,11 @@ func NewGroupInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GroupIn
 
 func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.GroupInfoResponse, err error) {
 	// todo: add your logic here and delete this line
-
+	var member group_models.GroupMemberModel
+	err = l.svcCtx.DB.Take(&member, "group_id = ? and user_id = ?", req.Id, req.UserId).Error
+	if err != nil {
+		return nil, logs.Error("该用户不是群成员")
+	}
 	_, err = l.svcCtx.GroupRpc.IsInGroupMember(context.Background(), &group_rpc.IsInGroupMemberRequest{
 		UserId:  uint32(req.UserId),
 		GroupId: uint32(req.Id),
@@ -49,6 +53,7 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 		Sign:        groupModel.Sign,
 		MemberCount: len(groupModel.MemberList),
 		Avatar:      groupModel.Avatar,
+		Role:        member.Role,
 	}
 
 	// 查用户列表信息

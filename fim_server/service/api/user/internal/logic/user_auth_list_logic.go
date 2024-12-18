@@ -28,7 +28,7 @@ func NewUserAuthListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *User
 func (l *UserAuthListLogic) UserAuthList(req *types.FriendAuthRequest) (resp *types.FriendAuthResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	fvs, total := sqls.GetList(user_models.FriendAuthModel{ReceiveUserId: req.UserId}, sqls.Mysql{
+	fvs := sqls.GetList(user_models.FriendAuthModel{ReceiveUserId: req.UserId}, sqls.Mysql{
 		DB:      l.svcCtx.DB.Where("send_user_id = ? or receive_user_id = ?", req.UserId, req.UserId),
 		Preload: []string{"ReceiveUserModel.UserConfigModel", "SendUserModel.UserConfigModel"},
 		PageInfo: src.PageInfo{
@@ -38,7 +38,7 @@ func (l *UserAuthListLogic) UserAuthList(req *types.FriendAuthRequest) (resp *ty
 	})
 
 	var list []types.FriendAuthInfo
-	for _, fv := range fvs {
+	for _, fv := range fvs.List {
 		info := types.FriendAuthInfo{
 			AuthMessage:  fv.AuthMessage,
 			AuthQuestion: (*types.AuthQuestion)(fv.AuthQuestion),
@@ -68,5 +68,5 @@ func (l *UserAuthListLogic) UserAuthList(req *types.FriendAuthRequest) (resp *ty
 		list = append(list, info)
 	}
 
-	return &types.FriendAuthResponse{List: list, Total: total}, nil
+	return &types.FriendAuthResponse{List: list, Total: fvs.Total}, nil
 }

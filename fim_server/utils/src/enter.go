@@ -17,16 +17,16 @@ type PageInfo struct {
 func (o *PageInfo) Param() {
 	// 默认条数
 	if o.Limit == 0 {
-		o.Limit = -1
+		o.Limit = -1	// 全部
 	}
 	// 默认页数
 	if o.Page != 0 {
 		o.Page = (o.Page - 1) * o.Limit
 	}
 	// 默认排序
-	if o.Sort == "" {
-		o.Sort = "created_at desc"
-	}
+	// if o.Sort == "" {
+	// 	o.Sort = "created_at desc"
+	// }
 }
 
 var (

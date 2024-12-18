@@ -31,7 +31,7 @@ func (l *FriendListLogic) FriendList(req *types.FriendListRequest) (resp *types.
 	// todo: add your logic here and delete this line
 
 	// 获取好友列表
-	friends, total := sqls.GetList(user_models.FriendModel{}, sqls.Mysql{
+	friend := sqls.GetList(user_models.FriendModel{}, sqls.Mysql{
 		DB:      l.svcCtx.DB.Where("send_user_id = ? or receive_user_id = ?", req.UserId, req.UserId),
 		Preload: []string{"SendUserModel", "ReceiveUserModel"},
 		PageInfo: src.PageInfo{
@@ -53,7 +53,7 @@ func (l *FriendListLogic) FriendList(req *types.FriendListRequest) (resp *types.
 	}
 
 	var list []types.FriendInfoResponse
-	for _, fv := range friends {
+	for _, fv := range friend.List {
 		// 发起方
 		info := types.FriendInfoResponse{}
 		if fv.SendUserId == req.UserId {
@@ -79,5 +79,5 @@ func (l *FriendListLogic) FriendList(req *types.FriendListRequest) (resp *types.
 		}
 		list = append(list, info)
 	}
-	return &types.FriendListResponse{List: list, Total: int(total)}, nil
+	return &types.FriendListResponse{List: list, Total: friend.Total}, nil
 }

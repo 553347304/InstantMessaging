@@ -39,7 +39,7 @@ type ChatHistory struct {
 }
 
 type ChatHistoryResponse struct {
-	Total       int            `json:"total"`
+	Total       int64            `json:"total"`
 	SendUser    mtype.UserInfo `json:"sendUser"`
 	ReceiveUser mtype.UserInfo `json:"receive_user"`
 	List        []ChatHistory  `json:"list"`
@@ -53,7 +53,7 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 		return nil, logs.Error("不是好友")
 	}
 
-	chatList, total := sqls.GetList(chat_models.ChatModel{}, sqls.Mysql{
+	chatList := sqls.GetList(chat_models.ChatModel{}, sqls.Mysql{
 		DB: l.svcCtx.DB.Where("(send_user_id = ? and receive_user_id = ?) or "+
 			"(send_user_id = ? and receive_user_id = ?) and id not in "+
 			"(select chat_id from user_chat_delete_models where user_id = ?)",
@@ -66,7 +66,7 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 	})
 
 	var userIdList []uint32
-	for _, model := range chatList {
+	for _, model := range chatList.List {
 		userIdList = append(userIdList, uint32(model.SendUserId))
 		userIdList = append(userIdList, uint32(model.ReceiveUserId))
 	}
@@ -81,7 +81,7 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 
 	var list = make([]ChatHistory, 0)
 	var sendUser, receiveUser mtype.UserInfo
-	for i, model := range chatList {
+	for i, model := range chatList.List {
 
 		if i == 0 {
 			sendUser = mtype.UserInfo{
@@ -109,7 +109,7 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 
 	}
 	resp = &ChatHistoryResponse{
-		Total:       int(total),
+		Total:      chatList.Total,
 		SendUser:    sendUser,
 		ReceiveUser: receiveUser,
 		List:        list,
