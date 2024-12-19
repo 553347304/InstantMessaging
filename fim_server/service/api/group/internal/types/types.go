@@ -32,6 +32,19 @@ type GroupDeleteRequest struct {
 type GroupDeleteResponse struct {
 }
 
+type GroupFriendsListRequest struct {
+	UserId   uint `header:"User-Id"`
+	Id       uint `json:"id"`
+	MemberId uint `json:"member_id"`
+}
+
+type GroupFriendsListResponse struct {
+	UserId    uint   `json:"user_id"`
+	Avatar    string `json:"avatar"`
+	Name      string `json:"name"`
+	IsInGroup bool   `json:"is_in_group"`
+}
+
 type GroupInfoRequest struct {
 	UserId uint `header:"User-Id"`
 	Id     int8 `path:"id"`
@@ -49,6 +62,24 @@ type GroupInfoResponse struct {
 	Role             int8       `json:"role"` // 角色   1 群主 2 群管理员 3 群成员
 }
 
+type GroupMemberAddRequest struct {
+	UserId       uint   `header:"User-Id"`
+	Id           uint   `json:"id"`
+	MemberIdList []uint `json:"member_id_list"`
+}
+
+type GroupMemberAddResponse struct {
+}
+
+type GroupMemberDeleteRequest struct {
+	UserId   uint `header:"User-Id"`
+	Id       uint `form:"id"`
+	MemberId uint `form:"member_id"`
+}
+
+type GroupMemberDeleteResponse struct {
+}
+
 type GroupMemberInfo struct {
 	UserId         uint   `json:"user_id"`
 	Name           string `json:"name"`
@@ -58,6 +89,16 @@ type GroupMemberInfo struct {
 	MemberName     string `json:"member_name"`
 	CreatedAt      string `json:"created_at"`
 	NewMessageDate string `json:"new_message_date"`
+}
+
+type GroupMemberNameRequest struct {
+	UserId   uint   `header:"User-Id"`
+	Id       uint   `json:"id"`
+	MemberId uint   `json:"member_id"`
+	Name     string `json:"name"`
+}
+
+type GroupMemberNameResponse struct {
 }
 
 type GroupMemberRequest struct {
@@ -71,6 +112,16 @@ type GroupMemberRequest struct {
 type GroupMemberResponse struct {
 	Total int64             `json:"total"`
 	List  []GroupMemberInfo `json:"list"`
+}
+
+type GroupMemberRoleRequest struct {
+	UserId   uint `header:"User-Id"`
+	Id       uint `json:"id"`
+	MemberId uint `json:"member_id"`
+	Role     int8 `json:"role"`
+}
+
+type GroupMemberRoleResponse struct {
 }
 
 type GroupUpdateRequest struct {

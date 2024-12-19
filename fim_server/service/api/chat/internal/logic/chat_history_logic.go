@@ -8,7 +8,7 @@ import (
 	"fim_server/utils/src"
 	"fim_server/utils/src/sqls"
 	"fim_server/utils/stores/logs"
-	"fim_server/utils/stores/method"
+	"fim_server/utils/stores/method/method_list"
 
 	"fim_server/service/api/chat/internal/svc"
 	"fim_server/service/api/chat/internal/types"
@@ -70,7 +70,7 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 		userIdList = append(userIdList, uint32(model.SendUserId))
 		userIdList = append(userIdList, uint32(model.ReceiveUserId))
 	}
-	userIdList = method.Deduplication(userIdList) // 去重
+	userIdList = method_list.Unique(userIdList) // 去重
 	// 调用户服务
 	response, err := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
 		UserIdList: userIdList,

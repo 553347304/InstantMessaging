@@ -84,21 +84,71 @@ type (
 		Limit  int    `form:"limit,optional"`
 		Sort   string `form:"sort,optional"`
 	}
-
+	GroupMemberInfo {
+		UserId         uint   `json:"user_id"`
+		Name           string `json:"name"`
+		Avatar         string `json:"avatar"`
+		InOnline       bool   `json:"in_online"`
+		Role           int8   `json:"role"`
+		MemberName     string `json:"member_name"`
+		CreatedAt      string `json:"created_at"`
+		NewMessageDate string `json:"new_message_date"`
+	}
 	GroupMemberResponse {
 		Total int64             `json:"total"`
 		List  []GroupMemberInfo `json:"list"`
+	}
+)
 
-		GroupMemberInfo {
-			UserId         uint   `json:"user_id"`
-			Name           string `json:"name"`
-			Avatar         string `json:"avatar"`
-			InOnline       bool   `json:"in_online"`
-			Role           int8   `json:"role"`
-			MemberName     string `json:"member_name"`
-			CreatedAt      string `json:"created_at"`
-			NewMessageDate string `json:"new_message_date"`
-		}
+type (
+	GroupMemberDeleteRequest {
+		UserId   uint `header:"User-Id"`
+		Id       uint `form:"id"`
+		MemberId uint `form:"member_id"`
+	}
+	GroupMemberDeleteResponse  {}
+)
+
+type (
+	GroupMemberAddRequest {
+		UserId       uint   `header:"User-Id"`
+		Id           uint   `json:"id"`
+		MemberIdList []uint `json:"member_id_list"`
+	}
+	GroupMemberAddResponse  {}
+)
+
+type (
+	GroupMemberNameRequest {
+		UserId   uint   `header:"User-Id"`
+		Id       uint   `json:"id"`
+		MemberId uint   `json:"member_id"`
+		Name     string `json:"name"`
+	}
+	GroupMemberNameResponse  {}
+)
+
+type (
+	GroupMemberRoleRequest {
+		UserId   uint `header:"User-Id"`
+		Id       uint `json:"id"`
+		MemberId uint `json:"member_id"`
+		Role     int8 `json:"role"`
+	}
+	GroupMemberRoleResponse  {}
+)
+
+type (
+	GroupFriendsListRequest {
+		UserId   uint `header:"User-Id"`
+		Id       uint `json:"id"`
+		MemberId uint `json:"member_id"`
+	}
+	GroupFriendsListResponse {
+		UserId    uint   `json:"user_id"`
+		Avatar    string `json:"avatar"`
+		Name      string `json:"name"`
+		IsInGroup bool   `json:"is_in_group"`
 	}
 )
 
@@ -117,5 +167,20 @@ service group {
 
 	@handler GroupMember
 	get /api/group/member (GroupMemberRequest) returns (GroupMemberResponse) // 群成员
+
+	@handler GroupMemberDelete
+	delete /api/group/member (GroupMemberDeleteRequest) returns (GroupMemberDeleteResponse) // 踢出群聊
+
+	@handler GroupMemberAdd
+	post /api/group/member (GroupMemberAddRequest) returns (GroupMemberAddResponse) // 邀请进入群聊
+
+	@handler GroupMemberName
+	put /api/group/member/name (GroupMemberNameRequest) returns (GroupMemberNameResponse) // 群成员修改名称
+
+	@handler GroupMemberRole
+	put /api/group/member/role (GroupMemberRoleRequest) returns (GroupMemberRoleResponse) // 群成员修改权限
+
+	@handler GroupFriendsList
+	put /api/group/friends (GroupFriendsListRequest) returns (GroupFriendsListResponse) // 我的好友哪些在群里面
 }
 

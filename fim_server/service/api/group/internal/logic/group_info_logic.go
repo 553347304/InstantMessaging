@@ -8,7 +8,7 @@ import (
 	"fim_server/service/rpc/group/group_rpc"
 	"fim_server/service/rpc/user/user_rpc"
 	"fim_server/utils/stores/logs"
-	"fim_server/utils/stores/method"
+	"fim_server/utils/stores/method/method_list"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -98,7 +98,7 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 	// 用户在线总数
 	userOnlineResponse, err := l.svcCtx.UserRpc.UserOnlineList(context.Background(), &user_rpc.UserOnlineListRequest{})
 	if err == nil {
-		slice := method.ListIntersect(userOnlineResponse.UserIdList, userAllIdList)
+		slice := method_list.Intersect(userOnlineResponse.UserIdList, userAllIdList)
 		resp.MemberOnlinCount = len(slice)
 	}
 

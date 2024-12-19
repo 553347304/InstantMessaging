@@ -10,6 +10,7 @@ import (
 	"fim_server/utils/src"
 	"fim_server/utils/src/sqls"
 	"fim_server/utils/stores/logs"
+	"fim_server/utils/stores/method/method_list"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -39,10 +40,14 @@ type mysqlSel struct {
 func (l *GroupMemberLogic) GroupMember(req *types.GroupMemberRequest) (resp *types.GroupMemberResponse, err error) {
 	// todo: add your logic here and delete this line
 
+	if !method_list.InRegex([]string{"", "role", "created_at"}, req.Sort) {
+		return nil, logs.Error("不支持的排序模式")
+	}
+
 	member := sqls.GetListGroup(group_models.GroupMemberModel{GroupId: req.Id}, sqls.Mysql{
 		DB: l.svcCtx.DB.Select("group_id,user_id,role,created_at,member_name,"+
-			"(select group_message_models.created_at " +
-			"from group_message_models where group_member_models.group_id = ? " +
+			"(select group_message_models.created_at "+
+			"from group_message_models where group_member_models.group_id = ? "+
 			"and group_message_models.send_user_id = user_id limit 1) as new_message_date",
 			1),
 		PageInfo: src.PageInfo{Page: req.Page, Limit: req.Limit, Sort: req.Sort},

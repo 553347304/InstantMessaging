@@ -2,7 +2,7 @@ package files
 
 import (
 	"fim_server/utils/stores/logs"
-	"fim_server/utils/stores/method"
+	"fim_server/utils/stores/method/method_list"
 	"fmt"
 	"io"
 	"mime/multipart"
@@ -33,13 +33,13 @@ type FileResponse struct {
 // inRoster 判断文件是否在黑白名单中
 func inRoster(f File, ext string) string {
 	if len(f.WhiteEXT) != 0 {
-		if !method.InList(f.WhiteEXT, ext) {
+		if !method_list.In(f.WhiteEXT, ext) {
 			return fmt.Sprintf("不支持此文件类型 %s/%s", ext, f.WhiteEXT)
 		}
 
 	}
 	if len(f.BlackEXT) != 0 {
-		if method.InList(f.BlackEXT, ext) {
+		if method_list.In(f.BlackEXT, ext) {
 			return fmt.Sprintf("不支持此文件类型 %s/%s", ext, f.BlackEXT)
 		}
 	}
