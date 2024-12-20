@@ -31,7 +31,7 @@ func (l *FriendListLogic) FriendList(in *user_rpc.FriendListRequest) (*user_rpc.
 	// 	Find(&friends)
 
 	friend := sqls.GetList(user_models.FriendModel{}, sqls.Mysql{
-		DB:      l.svcCtx.DB,
+		DB:      l.svcCtx.DB.Where("send_user_id = ? or receive_user_id = ?", in.UserId, in.UserId),
 		Preload: []string{"SendUserModel", "ReceiveUserModel"},
 	})
 

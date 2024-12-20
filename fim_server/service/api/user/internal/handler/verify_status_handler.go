@@ -11,16 +11,16 @@ import (
 	"fim_server/service/server/response"
 )
 
-func AuthStatusHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func VerifyStatusHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.FriendAuthStatusRequest
+		var req types.VerifyStatusRequest
 		if err := httpx.Parse(r, &req); err != nil {
 			response.Response(r, w, nil, err)
 			return
 		}
 
-		l := logic.NewAuthStatusLogic(r.Context(), svcCtx)
-		resp, err := l.AuthStatus(&req)
+		l := logic.NewVerifyStatusLogic(r.Context(), svcCtx)
+		resp, err := l.VerifyStatus(&req)
 		response.Response(r, w, resp, err)
 	}
 }

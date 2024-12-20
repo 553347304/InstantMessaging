@@ -16,18 +16,13 @@ func RegisterHandlers(src *rest.Server, serverCtx *svc.ServiceContext) {
 		[]rest.Route{
 			{
 				Method:  http.MethodPost,
+				Path:    "/api/user/add_friend",
+				Handler: AddFriendHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPost,
 				Path:    "/api/user/auth",
 				Handler: userAuthHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodGet,
-				Path:    "/api/user/auth",
-				Handler: UserAuthListHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPut,
-				Path:    "/api/user/auth_status",
-				Handler: AuthStatusHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodGet,
@@ -38,11 +33,6 @@ func RegisterHandlers(src *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPut,
 				Path:    "/api/user/friend",
 				Handler: FriendNoticeHandler(serverCtx),
-			},
-			{
-				Method:  http.MethodPost,
-				Path:    "/api/user/friend",
-				Handler: AddFriendHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodDelete,
@@ -68,6 +58,16 @@ func RegisterHandlers(src *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodPut,
 				Path:    "/api/user/user_info",
 				Handler: UserInfoUpdateHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/api/user/verify",
+				Handler: VerifyListHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPut,
+				Path:    "/api/user/verify_status",
+				Handler: VerifyStatusHandler(serverCtx),
 			},
 		},
 	)

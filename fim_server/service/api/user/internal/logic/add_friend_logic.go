@@ -39,64 +39,43 @@ func (l *AddFriendLogic) AddFriend(req *types.AddFriendRequest) (resp *types.Add
 		return nil, logs.Error("用户不存在")
 	}
 	resp = new(types.AddFriendResponse)
-	var authModel = user_models.FriendAuthModel{
+
+
+	// 创建验证消息
+	var verifyModel = user_models.FriendAuthModel{
 		SendUserId:    req.UserId,
 		ReceiveUserId: req.FriendId,
-		AuthMessage:   req.AuthMessage,
+		SendStatus:    1,
+		VerifyMessage: req.VerifyMessage,
+		VerifyInfo: models.VerifyInfo{
+			Issue:  req.VerifyInfo.Issue,
+			Answer: req.VerifyInfo.Answer,
+		},
 	}
+
 	logs.Info(req.FriendId)
-	logs.Info(userConfig.Auth)
-	switch userConfig.Auth {
+	logs.Info(userConfig.Verify)
+
+	switch userConfig.Verify {
 	case 0:
 		return nil, logs.Error("不允许任何人添加")
 	case 1:
-		// 允许任何人添加
-		authModel.ReceiveStatus = 1
+		verifyModel.ReceiveStatus = 1 // 允许任何人添加
 		break
 	case 2:
-	// 需要验证
+		verifyModel.ReceiveStatus = 0 // 需要验证
+		err = l.svcCtx.DB.Create(&verifyModel).Error
+		return
 	case 3:
-		// 需要回答问题
-
-		if req.AuthQuestion != nil {
-			authModel.AuthQuestion = &models.AuthQuestion{
-				Problem1: req.AuthQuestion.Problem1,
-				Problem2: req.AuthQuestion.Problem2,
-				Problem3: req.AuthQuestion.Problem3,
-				Answer1:  req.AuthQuestion.Answer1,
-				Answer2:  req.AuthQuestion.Answer2,
-				Answer3:  req.AuthQuestion.Answer3,
-			}
-		}
+		verifyModel.ReceiveStatus = 0 // 需要回答问题
+		err = l.svcCtx.DB.Create(&verifyModel).Error
+		return
 	case 4:
 		// 需要正确回答问题
-		if req.AuthQuestion != nil && userConfig.AuthQuestion != nil {
-			// 判断问题是否回答正确
-			// 考虑到一个问题，两个问题，三个问题的情况
-			var count int
-			if userConfig.AuthQuestion.Answer1 != nil && req.AuthQuestion.Answer1 != nil {
-				if *userConfig.AuthQuestion.Answer1 == *req.AuthQuestion.Answer1 {
-					count += 1
-				}
-			}
-			if userConfig.AuthQuestion.Answer2 != nil && req.AuthQuestion.Answer2 != nil {
-				if *userConfig.AuthQuestion.Answer2 == *req.AuthQuestion.Answer2 {
-					count += 1
-				}
-			}
-			if userConfig.AuthQuestion.Answer3 != nil && req.AuthQuestion.Answer3 != nil {
-				if *userConfig.AuthQuestion.Answer3 == *req.AuthQuestion.Answer3 {
-					count += 1
-				}
-			}
-			if count != userConfig.ProblemCount() {
-				return nil, logs.Error("答案错误")
-			}
-			// 直接加好友
-			authModel.ReceiveStatus = 1
-			authModel.AuthQuestion = userConfig.AuthQuestion
-
+		if !userConfig.VerifyInfo.Verify(req.VerifyInfo.Answer) {
+			return nil, logs.Error("答案错误")
 		}
+		verifyModel.ReceiveStatus = 1 // 直接加好友
 	}
 
 	// 加好友
@@ -108,5 +87,6 @@ func (l *AddFriendLogic) AddFriend(req *types.AddFriendRequest) (resp *types.Add
 	if err != nil {
 		return nil, logs.Error("添加好友失败")
 	}
+
 	return
 }

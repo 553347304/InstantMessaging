@@ -12,7 +12,7 @@ go run main.go -db # 迁移表结构
 goctl template init --home $pwd/go-zero-template    # 模版文件
 
 cd service
-$t=@("-style", "go_zero", "--home", "template")
+$t=@("-style", "go_zero", "--home", "template");
 
 $p="user";      # 用户
 $p="chat";      # 消息

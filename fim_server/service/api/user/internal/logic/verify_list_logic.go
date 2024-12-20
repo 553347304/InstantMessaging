@@ -11,24 +11,24 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type UserAuthListLogic struct {
+type VerifyListLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewUserAuthListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserAuthListLogic {
-	return &UserAuthListLogic{
+func NewVerifyListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *VerifyListLogic {
+	return &VerifyListLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *UserAuthListLogic) UserAuthList(req *types.FriendAuthRequest) (resp *types.FriendAuthResponse, err error) {
+func (l *VerifyListLogic) VerifyList(req *types.FriendVerifyListRequest) (resp *types.FriendVerifyListResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	fvs := sqls.GetList(user_models.FriendAuthModel{ReceiveUserId: req.UserId}, sqls.Mysql{
+	fvs := sqls.GetList(user_models.FriendAuthModel{}, sqls.Mysql{
 		DB:      l.svcCtx.DB.Where("send_user_id = ? or receive_user_id = ?", req.UserId, req.UserId),
 		Preload: []string{"ReceiveUserModel.UserConfigModel", "SendUserModel.UserConfigModel"},
 		PageInfo: src.PageInfo{
@@ -37,13 +37,13 @@ func (l *UserAuthListLogic) UserAuthList(req *types.FriendAuthRequest) (resp *ty
 		},
 	})
 
-	var list []types.FriendAuthInfo
+	var list []types.FriendVerifyInfo
 	for _, fv := range fvs.List {
-		info := types.FriendAuthInfo{
-			AuthMessage:  fv.AuthMessage,
-			AuthQuestion: (*types.AuthQuestion)(fv.AuthQuestion),
-			Status:       fv.Status,
-			Id:           fv.ID,
+		info := types.FriendVerifyInfo{
+			VerifyMessage: fv.VerifyMessage,
+			VerifyInfo:    types.VerifyInfo{Issue: fv.VerifyInfo.Issue, Answer: fv.VerifyInfo.Answer},
+			Status:        fv.Status,
+			Id:            fv.ID,
 		}
 
 		if fv.SendUserId == req.UserId {
@@ -51,7 +51,7 @@ func (l *UserAuthListLogic) UserAuthList(req *types.FriendAuthRequest) (resp *ty
 			info.UserId = fv.SendUserId
 			info.Name = fv.SendUserModel.Name
 			info.Avatar = fv.SendUserModel.Avatar
-			info.Auth = fv.SendUserModel.UserConfigModel.Auth
+			info.Auth = fv.SendUserModel.UserConfigModel.Verify
 			info.Status = fv.SendStatus
 			info.Flag = "send"
 		}
@@ -60,7 +60,7 @@ func (l *UserAuthListLogic) UserAuthList(req *types.FriendAuthRequest) (resp *ty
 			info.UserId = fv.ReceiveUserId
 			info.Name = fv.ReceiveUserModel.Name
 			info.Avatar = fv.ReceiveUserModel.Avatar
-			info.Auth = fv.ReceiveUserModel.UserConfigModel.Auth
+			info.Auth = fv.ReceiveUserModel.UserConfigModel.Verify
 			info.Status = fv.ReceiveStatus
 			info.Flag = "receive"
 		}
@@ -68,5 +68,5 @@ func (l *UserAuthListLogic) UserAuthList(req *types.FriendAuthRequest) (resp *ty
 		list = append(list, info)
 	}
 
-	return &types.FriendAuthResponse{List: list, Total: fvs.Total}, nil
+	return &types.FriendVerifyListResponse{List: list, Total: fvs.Total}, nil
 }

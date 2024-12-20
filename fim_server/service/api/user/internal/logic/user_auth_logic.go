@@ -39,8 +39,8 @@ func (l *UserAuthLogic) UserAuth(req *types.UserAuthRequest) (resp *types.UserAu
 		return nil, logs.Error("用户不存在")
 	}
 	resp = new(types.UserAuthResponse)
-	resp.Auth = userConfig.Auth
-	switch userConfig.Auth {
+	resp.Verify = userConfig.Verify
+	switch userConfig.Verify {
 	case 0:
 		return nil, logs.Error("不允许任何人添加")
 	case 1:
@@ -49,12 +49,9 @@ func (l *UserAuthLogic) UserAuth(req *types.UserAuthRequest) (resp *types.UserAu
 	// 需要验证
 	case 3, 4:
 		// 需要回答问题   需要正确回答问题
-		if userConfig.AuthQuestion != nil {
-			resp.AuthQuestion = types.AuthQuestion{
-				Problem1: userConfig.AuthQuestion.Problem1,
-				Problem2: userConfig.AuthQuestion.Problem2,
-				Problem3: userConfig.AuthQuestion.Problem3,
-			}
+		resp.VerifyInfo = types.VerifyInfo{
+			Issue:  userConfig.VerifyInfo.Issue,
+			Answer: userConfig.VerifyInfo.Answer,
 		}
 	}
 

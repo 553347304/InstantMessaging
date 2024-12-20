@@ -56,17 +56,12 @@ func (l *UserInfoLogic) UserInfo(req *types.UserInfoRequest) (resp *types.UserIn
 		SecureLink:    user.UserConfigModel.SecureLink,
 		SavePassword:  user.UserConfigModel.SavePassword,
 		SearchUser:    user.UserConfigModel.SearchUser,
-		Auth:          user.UserConfigModel.Auth,
+		Verify:        user.UserConfigModel.Verify,
 	}
-	if user.UserConfigModel.AuthQuestion != nil {
-		resp.AuthQuestion = &types.AuthQuestion{
-			Problem1: user.UserConfigModel.AuthQuestion.Problem1,
-			Problem2: user.UserConfigModel.AuthQuestion.Problem2,
-			Problem3: user.UserConfigModel.AuthQuestion.Problem3,
-			Answer1:  user.UserConfigModel.AuthQuestion.Answer1,
-			Answer2:  user.UserConfigModel.AuthQuestion.Answer2,
-			Answer3:  user.UserConfigModel.AuthQuestion.Answer3,
-		}
+	resp.VerifyInfo = types.VerifyInfo{
+		Issue:  user.UserConfigModel.VerifyInfo.Issue,
+		Answer: user.UserConfigModel.VerifyInfo.Answer,
 	}
+
 	return resp, nil
 }

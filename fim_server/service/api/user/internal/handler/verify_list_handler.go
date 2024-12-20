@@ -11,16 +11,16 @@ import (
 	"fim_server/service/server/response"
 )
 
-func UserAuthListHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func VerifyListHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.FriendAuthRequest
+		var req types.FriendVerifyListRequest
 		if err := httpx.Parse(r, &req); err != nil {
 			response.Response(r, w, nil, err)
 			return
 		}
 
-		l := logic.NewUserAuthListLogic(r.Context(), svcCtx)
-		resp, err := l.UserAuthList(&req)
+		l := logic.NewVerifyListLogic(r.Context(), svcCtx)
+		resp, err := l.VerifyList(&req)
 		response.Response(r, w, resp, err)
 	}
 }

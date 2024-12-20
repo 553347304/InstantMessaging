@@ -57,7 +57,12 @@ func (l *UserInfoUpdateLogic) UserInfoUpdate(req *types.UserUpdateRequest) (resp
 			return nil, logs.Error("用户配置不存在")
 		}
 
-		err = l.svcCtx.DB.Model(&userConfig).Updates(&user_models.UserConfigModel{AuthQuestion: (*models.AuthQuestion)(req.AuthQuestion)}).Error
+		err = l.svcCtx.DB.Model(&userConfig).Updates(&user_models.UserConfigModel{
+			VerifyInfo: models.VerifyInfo{
+				Issue:  req.VerifyInfo.Issue,
+				Answer: req.VerifyInfo.Answer,
+			},
+		}).Error
 		if err != nil {
 			return nil, logs.Error("用户配置验证问题更新失败", err)
 		}

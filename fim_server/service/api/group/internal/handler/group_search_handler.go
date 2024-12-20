@@ -11,16 +11,16 @@ import (
 	"fim_server/service/server/response"
 )
 
-func GroupFriendsListHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func GroupSearchHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.GroupFriendsListRequest
+		var req types.GroupSearchListRequest
 		if err := httpx.Parse(r, &req); err != nil {
 			response.Response(r, w, nil, err)
 			return
 		}
 
-		l := logic.NewGroupFriendsListLogic(r.Context(), svcCtx)
-		resp, err := l.GroupFriendsList(&req)
+		l := logic.NewGroupSearchLogic(r.Context(), svcCtx)
+		resp, err := l.GroupSearch(&req)
 		response.Response(r, w, resp, err)
 	}
 }

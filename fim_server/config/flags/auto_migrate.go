@@ -28,5 +28,7 @@ func MigrationTable() error {
 			&group_models.GroupAuthModel{},
 
 			&file_models.FileModel{},
+
+			// &models.Test{},
 		)
 }

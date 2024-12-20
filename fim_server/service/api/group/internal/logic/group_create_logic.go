@@ -35,7 +35,7 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 	var groupModel = group_models.GroupModel{
 		Leader:      req.UserId,
 		IsSearch:    false,
-		AuthMessage: 2,
+		Verify: 			2,
 		Size:        50,
 		Sign:        fmt.Sprintf("本群创建于%s  群主很聪明,什么都没有留下", times.Now()),
 	}

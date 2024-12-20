@@ -3,13 +3,23 @@
 
 package types
 
-type AuthQuestion struct {
-	Problem1 *string `json:"problem1"`
-	Problem2 *string `json:"problem2"`
-	Problem3 *string `json:"problem3"`
-	Answer1  *string `json:"answer1"`
-	Answer2  *string `json:"answer2"`
-	Answer3  *string `json:"answer3"`
+type GroupAddRequest struct {
+	UserId     uint       `header:"User-Id"`
+	GroupId    uint       `json:"group_id"`
+	VerifyInfo VerifyInfo `json:"verify_info,optional"`
+}
+
+type GroupAddResponse struct {
+}
+
+type GroupAuthAddRequest struct {
+	UserId  uint `header:"User-Id"`
+	GroupId uint `json:"group_id"`
+}
+
+type GroupAuthAddResponse struct {
+	Verify     int8       `json:"verify，optional"`
+	VerifyInfo VerifyInfo `json:"verify_info,optional"`
 }
 
 type GroupCreateRequest struct {
@@ -32,17 +42,21 @@ type GroupDeleteRequest struct {
 type GroupDeleteResponse struct {
 }
 
-type GroupFriendsListRequest struct {
-	UserId   uint `header:"User-Id"`
-	Id       uint `json:"id"`
-	MemberId uint `json:"member_id"`
-}
-
-type GroupFriendsListResponse struct {
+type GroupFriendsInfo struct {
 	UserId    uint   `json:"user_id"`
 	Avatar    string `json:"avatar"`
 	Name      string `json:"name"`
 	IsInGroup bool   `json:"is_in_group"`
+}
+
+type GroupFriendsListRequest struct {
+	UserId uint `header:"User-Id"`
+	Id     uint `form:"id"`
+}
+
+type GroupFriendsListResponse struct {
+	Total int64              `json:"total"`
+	List  []GroupFriendsInfo `json:"list"`
 }
 
 type GroupInfoRequest struct {
@@ -124,18 +138,41 @@ type GroupMemberRoleRequest struct {
 type GroupMemberRoleResponse struct {
 }
 
+type GroupSearchInfo struct {
+	GroupId         uint   `json:"group_id"`
+	Name            string `json:"name"`
+	Sign            string `json:"sign"`
+	Avatar          string `json:"avatar"`
+	IsInGroup       bool   `json:"is_in_group"`
+	UserCount       int    `json:"user_count"`
+	UserOnlineCount int    `json:"user_online_count"`
+}
+
+type GroupSearchListRequest struct {
+	UserId uint   `header:"User-Id"`
+	Id     string `form:"id"`
+	Key    string `form:"key"`
+	Page   int    `form:"page,optional"`
+	Limit  int    `form:"limit,optional"`
+}
+
+type GroupSearchListResponse struct {
+	Total int64             `json:"total"`
+	List  []GroupSearchInfo `json:"list"`
+}
+
 type GroupUpdateRequest struct {
-	UserId             uint          `header:"User-Id"`
-	Id                 int8          `json:"id"`
-	Name               string        `json:"name,optional" conf:"name"`                                 // 群名
-	Avatar             string        `json:"avatar,optional" conf:"avatar"`                             // 群头像
-	Sign               string        `json:"sign,optional" conf:"sign"`                                 // 群简介
-	IsSearch           *bool         `json:"is_search,optional" conf:"is_search"`                       // is搜索
-	IsInvite           *bool         `json:"is_invite,optional" conf:"is_invite"`                       // is邀请
-	IsTemporarySession *bool         `json:"is_temporary_session,optional" conf:"is_temporary_session"` // is临时会话
-	IsForbiddenSpeech  *bool         `json:"is_forbidden_speech,optional" conf:"is_forbidden_speech"`   // is禁言
-	AuthMessage        int8          `json:"auth_message,optional" conf:"auth_message"`                 // 群验证
-	AuthQuestion       *AuthQuestion `json:"auth_question,optional" conf:"auth_question"`               // 群验证问题
+	UserId             uint       `header:"User-Id"`
+	Id                 int8       `json:"id"`
+	Name               string     `json:"name,optional" conf:"name"`                                 // 群名
+	Avatar             string     `json:"avatar,optional" conf:"avatar"`                             // 群头像
+	Sign               string     `json:"sign,optional" conf:"sign"`                                 // 群简介
+	IsSearch           *bool      `json:"is_search,optional" conf:"is_search"`                       // is搜索
+	IsInvite           *bool      `json:"is_invite,optional" conf:"is_invite"`                       // is邀请
+	IsTemporarySession *bool      `json:"is_temporary_session,optional" conf:"is_temporary_session"` // is临时会话
+	IsForbiddenSpeech  *bool      `json:"is_forbidden_speech,optional" conf:"is_forbidden_speech"`   // is禁言
+	Verify             int8       `json:"verify，optional"`
+	VerifyInfo         VerifyInfo `json:"verify_info,optional"`
 }
 
 type GroupUpdateResponse struct {
@@ -145,4 +182,9 @@ type UserInfo struct {
 	UserId uint   `json:"user_id"`
 	Name   string `json:"name"`
 	Avatar string `json:"avatar"`
+}
+
+type VerifyInfo struct {
+	Issue  []string `json:"issue,optional"`
+	Answer []string `json:"answer,optional"`
 }

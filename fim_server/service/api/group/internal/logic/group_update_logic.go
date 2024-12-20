@@ -45,7 +45,10 @@ func (l *GroupUpdateLogic) GroupUpdate(req *types.GroupUpdateRequest) (resp *typ
 		if ok {
 			delete(groupMaps, "auth_question")
 			l.svcCtx.DB.Model(&groupMember.GroupModel).Updates(&group_models.GroupModel{
-				AuthQuestion: (*models.AuthQuestion)(req.AuthQuestion),
+				VerifyInfo: models.VerifyInfo{
+					Issue:  req.VerifyInfo.Issue,
+					Answer: req.VerifyInfo.Answer,
+				},
 			})
 		}
 		err = l.svcCtx.DB.Model(&groupMember.GroupModel).Updates(groupMaps).Error
