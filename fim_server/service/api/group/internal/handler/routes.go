@@ -20,11 +20,6 @@ func RegisterHandlers(src *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: GroupAddHandler(serverCtx),
 			},
 			{
-				Method:  http.MethodPost,
-				Path:    "/api/group/auth",
-				Handler: GroupAuthAddHandler(serverCtx),
-			},
-			{
 				Method:  http.MethodGet,
 				Path:    "/api/group/friend",
 				Handler: GroupFriendListHandler(serverCtx),
@@ -78,6 +73,21 @@ func RegisterHandlers(src *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodGet,
 				Path:    "/api/group/search",
 				Handler: GroupSearchHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/api/group/valid",
+				Handler: GroupValidListHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodPut,
+				Path:    "/api/group/valid",
+				Handler: GroupValidStatusHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/api/group/valid/:id",
+				Handler: GroupValidIssueHandler(serverCtx),
 			},
 		},
 	)

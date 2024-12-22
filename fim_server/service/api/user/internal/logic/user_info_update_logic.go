@@ -6,6 +6,7 @@ import (
 	"fim_server/models/user_models"
 	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
+	"fim_server/utils/stores/method/method_struct"
 
 	"fim_server/service/api/user/internal/svc"
 	"fim_server/service/api/user/internal/types"
@@ -58,10 +59,7 @@ func (l *UserInfoUpdateLogic) UserInfoUpdate(req *types.UserUpdateRequest) (resp
 		}
 
 		err = l.svcCtx.DB.Model(&userConfig).Updates(&user_models.UserConfigModel{
-			VerifyInfo: models.VerifyInfo{
-				Issue:  req.VerifyInfo.Issue,
-				Answer: req.VerifyInfo.Answer,
-			},
+			ValidInfo: method_struct.ReplaceStruct[models.ValidInfo](req.ValidInfo),
 		}).Error
 		if err != nil {
 			return nil, logs.Error("用户配置验证问题更新失败", err)

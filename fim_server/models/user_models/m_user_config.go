@@ -17,7 +17,7 @@ type UserConfigModel struct {
 
 	// 防骚扰
 	SearchUser int8              `json:"search_user"` // 别人查找到你的方式
-	Verify       int8              `json:"verify"`        // 好友验证
-	VerifyInfo models.VerifyInfo `json:"verify_info"` // 验证问题
+	Valid       int8              `json:"valid"`        // 好友验证
+	ValidInfo models.ValidInfo `json:"valid_info"` // 验证问题
 	Online     bool              `json:"online"`      // 是否在线
 }

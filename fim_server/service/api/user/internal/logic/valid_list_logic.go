@@ -3,32 +3,34 @@ package logic
 import (
 	"context"
 	"fim_server/models/user_models"
-	"fim_server/service/api/user/internal/svc"
-	"fim_server/service/api/user/internal/types"
 	"fim_server/utils/src"
 	"fim_server/utils/src/sqls"
+	"fim_server/utils/stores/method/method_struct"
+
+	"fim_server/service/api/user/internal/svc"
+	"fim_server/service/api/user/internal/types"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type VerifyListLogic struct {
+type ValidListLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewVerifyListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *VerifyListLogic {
-	return &VerifyListLogic{
+func NewValidListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ValidListLogic {
+	return &ValidListLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *VerifyListLogic) VerifyList(req *types.FriendVerifyListRequest) (resp *types.FriendVerifyListResponse, err error) {
+func (l *ValidListLogic) ValidList(req *types.FriendValidListRequest) (resp *types.FriendValidListResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	fvs := sqls.GetList(user_models.FriendAuthModel{}, sqls.Mysql{
+	fvs := sqls.GetList(user_models.FriendValidModel{}, sqls.Mysql{
 		DB:      l.svcCtx.DB.Where("send_user_id = ? or receive_user_id = ?", req.UserId, req.UserId),
 		Preload: []string{"ReceiveUserModel.UserConfigModel", "SendUserModel.UserConfigModel"},
 		PageInfo: src.PageInfo{
@@ -37,13 +39,14 @@ func (l *VerifyListLogic) VerifyList(req *types.FriendVerifyListRequest) (resp *
 		},
 	})
 
-	var list []types.FriendVerifyInfo
+	var list []types.FriendValidInfo
 	for _, fv := range fvs.List {
-		info := types.FriendVerifyInfo{
-			VerifyMessage: fv.VerifyMessage,
-			VerifyInfo:    types.VerifyInfo{Issue: fv.VerifyInfo.Issue, Answer: fv.VerifyInfo.Answer},
+		info := types.FriendValidInfo{
+			ValidMessage: fv.ValidMessage,
+			ValidInfo:    method_struct.ReplaceStruct[types.ValidInfo](fv.ValidInfo),
 			Status:        fv.Status,
 			Id:            fv.ID,
+			CreatedAt:     fv.CreatedAt.String(),
 		}
 
 		if fv.SendUserId == req.UserId {
@@ -51,7 +54,7 @@ func (l *VerifyListLogic) VerifyList(req *types.FriendVerifyListRequest) (resp *
 			info.UserId = fv.SendUserId
 			info.Name = fv.SendUserModel.Name
 			info.Avatar = fv.SendUserModel.Avatar
-			info.Auth = fv.SendUserModel.UserConfigModel.Verify
+			info.Auth = fv.SendUserModel.UserConfigModel.Valid
 			info.Status = fv.SendStatus
 			info.Flag = "send"
 		}
@@ -60,7 +63,7 @@ func (l *VerifyListLogic) VerifyList(req *types.FriendVerifyListRequest) (resp *
 			info.UserId = fv.ReceiveUserId
 			info.Name = fv.ReceiveUserModel.Name
 			info.Avatar = fv.ReceiveUserModel.Avatar
-			info.Auth = fv.ReceiveUserModel.UserConfigModel.Verify
+			info.Auth = fv.ReceiveUserModel.UserConfigModel.Valid
 			info.Status = fv.ReceiveStatus
 			info.Flag = "receive"
 		}
@@ -68,5 +71,5 @@ func (l *VerifyListLogic) VerifyList(req *types.FriendVerifyListRequest) (resp *
 		list = append(list, info)
 	}
 
-	return &types.FriendVerifyListResponse{List: list, Total: fvs.Total}, nil
+	return &types.FriendValidListResponse{List: list, Total: fvs.Total}, nil
 }

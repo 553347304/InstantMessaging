@@ -3,7 +3,7 @@ type UserInfoRequest {
 	Role   int8 `header:"Role"`
 }
 
-type VerifyInfo {
+type ValidInfo {
 	Issue  []string `json:"issue,optional"`
 	Answer []string `json:"answer,optional"`
 }
@@ -19,9 +19,9 @@ type UserInfoResponse {
 	SecureLink    bool    `json:"secure_link"` // 安全链接
 	SavePassword  bool    `json:"save_password"` // 保存密码
 	// 防骚扰
-	SearchUser int8       `json:"search_user"` // 别人查找到你的方式
-	Verify     int8       `json:"verify，optional"`
-	VerifyInfo VerifyInfo `json:"verify_info,optional"`
+	SearchUser int8      `json:"search_user"` // 别人查找到你的方式
+	Valid      int8      `json:"valid,optional"`
+	ValidInfo  ValidInfo `json:"valid_info,optional"`
 }
 
 type UserUpdateRequest {
@@ -35,9 +35,9 @@ type UserUpdateRequest {
 	SecureLink    *bool   `json:"secure_link,optional"` // 安全链接
 	SavePassword  *bool   `json:"save_password,optional"` // 保存密码
 	// 防骚扰
-	SearchUser *int8      `json:"search_user,optional"` // 别人查找到你的方式
-	Verify     int8       `json:"verify，optional"`
-	VerifyInfo VerifyInfo `json:"verify_info,optional"`
+	SearchUser *int8     `json:"search_user,optional"` // 别人查找到你的方式
+	Valid      int8      `json:"valid，optional"`
+	ValidInfo  ValidInfo `json:"valid_info,optional"`
 }
 
 type UserUpdateResponse {}
@@ -98,57 +98,60 @@ type SearchResponse {
 	Total int64        `json:"total"`
 }
 
-type UserAuthRequest {
-	UserId   uint `header:"User-Id"`
-	FriendId uint `json:"friend_id"` // 好友ID
-}
-
-type UserAuthResponse {
-	Verify     int8       `json:"verify，optional"`
-	VerifyInfo VerifyInfo `json:"verify_info,optional"`
-}
-
-type AddFriendRequest {
-	UserId        uint       `header:"User-Id"`
-	FriendId      uint       `json:"friend_id"` // 好友ID
-	VerifyMessage string     `json:"verify_message,optional"` // 验证消息
-	VerifyInfo    VerifyInfo `json:"verify_info,optional"`
-}
-
-type AddFriendResponse {}
-
 type (
-	FriendVerifyListRequest {
+	ValidIssueRequest {
 		UserId uint `header:"User-Id"`
-		Page   int  `form:"page,optional"`
-		Limit  int  `form:"limit,optional"`
+		Id     uint `path:"id"` // 好友ID
 	}
-	FriendVerifyInfo {
-		UserId        uint       `json:"user_id"`
-		Name          string     `json:"name"`
-		Avatar        string     `json:"avatar"`
-		VerifyMessage string     `json:"verify_message,optional"` // 验证消息
-		VerifyInfo    VerifyInfo `json:"verify_info,optional"`
-		Status        int8       `json:"status"`
-		Auth          int8       `json:"auth"` // 好友验证
-		Id            uint       `json:"id"`
-		Flag          string     `json:"flag"` // send  rev
-	}
-	FriendVerifyListResponse {
-		List  []FriendVerifyInfo `json:"list"`
-		Total int64              `json:"total"`
+	ValidIssueResponse {
+		Valid     int8      `json:"valid"`
+		ValidInfo ValidInfo `json:"valid_info"`
 	}
 )
 
 type (
-	VerifyStatusRequest {
-		UserId   uint `header:"User-Id"`
-		VerifyId uint `json:"verify_id"`
-		Status   int8 `json:"status"`
+	AddFriendRequest {
+		UserId       uint      `header:"User-Id"`
+		FriendId     uint      `json:"friend_id"` // 好友ID
+		ValidMessage string    `json:"valid_message,optional"` // 验证消息
+		ValidInfo    ValidInfo `json:"valid_info,optional"`
 	}
-	VerifyStatusResponse {
-		UserId   uint `header:"User-Id"`
-		VerifyId uint `json:"verify_id"`
+	AddFriendResponse  {}
+)
+
+type (
+	FriendValidListRequest {
+		UserId uint `header:"User-Id"`
+		Page   int  `form:"page,optional"`
+		Limit  int  `form:"limit,optional"`
+	}
+	FriendValidInfo {
+		UserId       uint      `json:"user_id"`
+		Name         string    `json:"name"`
+		Avatar       string    `json:"avatar"`
+		ValidMessage string    `json:"valid_message,optional"` // 验证消息
+		ValidInfo    ValidInfo `json:"valid_info,optional"`
+		Status       int8      `json:"status"`
+		Auth         int8      `json:"auth"` // 好友验证
+		Id           uint      `json:"id"`
+		Flag         string    `json:"flag"` // send  rev
+		CreatedAt    string    `json:"created_at"` // 验证时间
+	}
+	FriendValidListResponse {
+		List  []FriendValidInfo `json:"list"`
+		Total int64             `json:"total"`
+	}
+)
+
+type (
+	ValidStatusRequest {
+		UserId  uint `header:"User-Id"`
+		ValidId uint `json:"valid_id"`
+		Status  int8 `json:"status"`
+	}
+	ValidStatusResponse {
+		UserId  uint `header:"User-Id"`
+		ValidId uint `json:"valid_id"`
 	}
 )
 
@@ -178,17 +181,17 @@ service user {
 	@handler search
 	get /api/user/search (SearchRequest) returns (SearchResponse) // 搜索好友
 
-	@handler userAuth
-	post /api/user/auth (UserAuthRequest) returns (UserAuthResponse) // 好友验证
-
 	@handler AddFriend
-	post /api/user/add_friend (AddFriendRequest) returns (AddFriendResponse) // 添加好友
+	post /api/user/add (AddFriendRequest) returns (AddFriendResponse) // 添加好友
 
-	@handler VerifyStatus
-	put /api/user/verify_status (VerifyStatusRequest) returns (VerifyStatusResponse) // 好友验证状态
+	@handler ValidIssue
+	get /api/user/valid/:id (ValidIssueRequest) returns (ValidIssueResponse) // 获取验证问题
 
-	@handler VerifyList
-	get /api/user/verify (FriendVerifyListRequest) returns (FriendVerifyListResponse) // 好友验证列表
+	@handler ValidList
+	get /api/user/valid (FriendValidListRequest) returns (FriendValidListResponse) // 好友验证列表
+
+	@handler ValidStatus
+	put /api/user/valid (ValidStatusRequest) returns (ValidStatusResponse) // 好友验证状态
 
 	@handler FriendDelete
 	delete /api/user/friend (FriendDeleteRequest) returns (FriendDeleteResponse) // 删除好友

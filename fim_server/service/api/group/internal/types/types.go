@@ -4,22 +4,12 @@
 package types
 
 type GroupAddRequest struct {
-	UserId     uint       `header:"User-Id"`
-	GroupId    uint       `json:"group_id"`
-	VerifyInfo VerifyInfo `json:"verify_info,optional"`
+	UserId    uint      `header:"User-Id"`
+	GroupId   uint      `json:"group_id"`
+	ValidInfo ValidInfo `json:"valid_info,optional"`
 }
 
 type GroupAddResponse struct {
-}
-
-type GroupAuthAddRequest struct {
-	UserId  uint `header:"User-Id"`
-	GroupId uint `json:"group_id"`
-}
-
-type GroupAuthAddResponse struct {
-	Verify     int8       `json:"verify，optional"`
-	VerifyInfo VerifyInfo `json:"verify_info,optional"`
 }
 
 type GroupCreateRequest struct {
@@ -162,20 +152,65 @@ type GroupSearchListResponse struct {
 }
 
 type GroupUpdateRequest struct {
-	UserId             uint       `header:"User-Id"`
-	Id                 int8       `json:"id"`
-	Name               string     `json:"name,optional" conf:"name"`                                 // 群名
-	Avatar             string     `json:"avatar,optional" conf:"avatar"`                             // 群头像
-	Sign               string     `json:"sign,optional" conf:"sign"`                                 // 群简介
-	IsSearch           *bool      `json:"is_search,optional" conf:"is_search"`                       // is搜索
-	IsInvite           *bool      `json:"is_invite,optional" conf:"is_invite"`                       // is邀请
-	IsTemporarySession *bool      `json:"is_temporary_session,optional" conf:"is_temporary_session"` // is临时会话
-	IsForbiddenSpeech  *bool      `json:"is_forbidden_speech,optional" conf:"is_forbidden_speech"`   // is禁言
-	Verify             int8       `json:"verify，optional"`
-	VerifyInfo         VerifyInfo `json:"verify_info,optional"`
+	UserId             uint      `header:"User-Id"`
+	Id                 int8      `json:"id"`
+	Name               string    `json:"name,optional" conf:"name"`                                 // 群名
+	Avatar             string    `json:"avatar,optional" conf:"avatar"`                             // 群头像
+	Sign               string    `json:"sign,optional" conf:"sign"`                                 // 群简介
+	IsSearch           *bool     `json:"is_search,optional" conf:"is_search"`                       // is搜索
+	IsInvite           *bool     `json:"is_invite,optional" conf:"is_invite"`                       // is邀请
+	IsTemporarySession *bool     `json:"is_temporary_session,optional" conf:"is_temporary_session"` // is临时会话
+	IsForbiddenSpeech  *bool     `json:"is_forbidden_speech,optional" conf:"is_forbidden_speech"`   // is禁言
+	Valid              int8      `json:"valid，optional"`
+	ValidInfo          ValidInfo `json:"valid_info,optional"`
 }
 
 type GroupUpdateResponse struct {
+}
+
+type GroupValidInfo struct {
+	ID         uint      `json:"id"`
+	UserId     uint      `header:"User-Id"`
+	GroupId    uint      `json:"group_id"`
+	UserAvatar string    `json:"user_avatar"`
+	UserName   string    `json:"user_name"`
+	Name       string    `json:"name"`
+	Status     int8      `json:"status"` // 状态
+	Valid      int8      `json:"valid，optional"`
+	ValidInfo  ValidInfo `json:"valid_info,optional"`
+	Type       int8      `json:"type"` // 1 加群 2 退群
+	CreatedAt  string    `json:"created_at"`
+}
+
+type GroupValidIssueRequest struct {
+	UserId uint `header:"User-Id"`
+	Id     uint `path:"id"`
+}
+
+type GroupValidIssueResponse struct {
+	Valid     int8      `json:"valid，optional"`
+	ValidInfo ValidInfo `json:"valid_info,optional"`
+}
+
+type GroupValidListRequest struct {
+	UserId  uint `header:"User-Id"`
+	GroupId uint `form:"group_id"`
+	Page    int  `form:"page,optional"`
+	Limit   int  `form:"limit,optional"`
+}
+
+type GroupValidListResponse struct {
+	Total int64            `json:"total"`
+	List  []GroupValidInfo `json:"list"`
+}
+
+type GroupValidStatusRequest struct {
+	UserId  uint `header:"User-Id"`
+	VaildId uint `json:"vaild_id"`
+	Status  int8 `json:"status"`
+}
+
+type GroupValidStatusResponse struct {
 }
 
 type UserInfo struct {
@@ -184,7 +219,7 @@ type UserInfo struct {
 	Avatar string `json:"avatar"`
 }
 
-type VerifyInfo struct {
+type ValidInfo struct {
 	Issue  []string `json:"issue,optional"`
 	Answer []string `json:"answer,optional"`
 }

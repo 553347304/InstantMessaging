@@ -57,7 +57,7 @@ func (l *UserCreateLogic) UserCreate(in *user_rpc.UserCreateRequest) (*user_rpc.
 		SecureLink:    false,
 		SavePassword:  false,
 		SearchUser:    2,
-		Verify:        2,
+		Valid:        2,
 		Online:        true,
 	})
 

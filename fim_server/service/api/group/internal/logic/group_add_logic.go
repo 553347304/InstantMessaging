@@ -5,6 +5,7 @@ import (
 	"fim_server/models"
 	"fim_server/models/group_models"
 	"fim_server/utils/stores/logs"
+	"fim_server/utils/stores/method/method_struct"
 
 	"fim_server/service/api/group/internal/svc"
 	"fim_server/service/api/group/internal/types"
@@ -43,17 +44,15 @@ func (l *GroupAddLogic) GroupAdd(req *types.GroupAddRequest) (resp *types.GroupA
 
 	resp = new(types.GroupAddResponse)
 
-	var verifyModel = group_models.GroupAuthModel{
+	var verifyModel = group_models.GroupValidModel{
 		GroupId:    req.GroupId,
 		UserId:     req.UserId,
-		Verify:     group.Verify,
-		VerifyInfo: models.VerifyInfo{Issue: req.VerifyInfo.Issue, Answer: req.VerifyInfo.Answer},
+		Valid:     group.Valid,
+		ValidInfo: method_struct.ReplaceStruct[models.ValidInfo](req.ValidInfo),
 		Type:       1,
 	}
 
-	logs.Info(group.VerifyInfo)
-	logs.Info(req.VerifyInfo.Answer)
-	switch group.Verify {
+	switch group.Valid {
 	case 0:
 		return nil, logs.Error("不允许任何人添加")
 	case 1:
@@ -65,7 +64,7 @@ func (l *GroupAddLogic) GroupAdd(req *types.GroupAddRequest) (resp *types.GroupA
 	case 3:
 		verifyModel.Status = 2 // 需要验证
 	case 4:
-		if !group.VerifyInfo.Verify(req.VerifyInfo.Answer) {
+		if !group.ValidInfo.Valid(req.ValidInfo.Answer) {
 			return nil, logs.Error("答案错误")
 		}
 		verifyModel.Status = 1 // 直接加群

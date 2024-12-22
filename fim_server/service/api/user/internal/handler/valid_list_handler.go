@@ -11,16 +11,16 @@ import (
 	"fim_server/service/server/response"
 )
 
-func VerifyStatusHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func ValidListHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.VerifyStatusRequest
+		var req types.FriendValidListRequest
 		if err := httpx.Parse(r, &req); err != nil {
 			response.Response(r, w, nil, err)
 			return
 		}
 
-		l := logic.NewVerifyStatusLogic(r.Context(), svcCtx)
-		resp, err := l.VerifyStatus(&req)
+		l := logic.NewValidListLogic(r.Context(), svcCtx)
+		resp, err := l.ValidList(&req)
 		response.Response(r, w, resp, err)
 	}
 }

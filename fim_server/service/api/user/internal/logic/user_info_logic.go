@@ -6,6 +6,7 @@ import (
 	"fim_server/models/user_models"
 	"fim_server/service/rpc/user/user_rpc"
 	"fim_server/utils/stores/logs"
+	"fim_server/utils/stores/method/method_struct"
 
 	"fim_server/service/api/user/internal/svc"
 	"fim_server/service/api/user/internal/types"
@@ -56,12 +57,8 @@ func (l *UserInfoLogic) UserInfo(req *types.UserInfoRequest) (resp *types.UserIn
 		SecureLink:    user.UserConfigModel.SecureLink,
 		SavePassword:  user.UserConfigModel.SavePassword,
 		SearchUser:    user.UserConfigModel.SearchUser,
-		Verify:        user.UserConfigModel.Verify,
+		Valid:         user.UserConfigModel.Valid,
+		ValidInfo:     method_struct.ReplaceStruct[types.ValidInfo](user.UserConfigModel.ValidInfo),
 	}
-	resp.VerifyInfo = types.VerifyInfo{
-		Issue:  user.UserConfigModel.VerifyInfo.Issue,
-		Answer: user.UserConfigModel.VerifyInfo.Answer,
-	}
-
 	return resp, nil
 }

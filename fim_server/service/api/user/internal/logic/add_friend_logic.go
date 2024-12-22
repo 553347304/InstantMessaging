@@ -7,6 +7,7 @@ import (
 	"fim_server/service/api/user/internal/svc"
 	"fim_server/service/api/user/internal/types"
 	"fim_server/utils/stores/logs"
+	"fim_server/utils/stores/method/method_struct"
 
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -42,43 +43,43 @@ func (l *AddFriendLogic) AddFriend(req *types.AddFriendRequest) (resp *types.Add
 
 
 	// 创建验证消息
-	var verifyModel = user_models.FriendAuthModel{
+	var validModel = user_models.FriendValidModel{
 		SendUserId:    req.UserId,
 		ReceiveUserId: req.FriendId,
 		SendStatus:    1,
-		VerifyMessage: req.VerifyMessage,
-		VerifyInfo: models.VerifyInfo{
-			Issue:  req.VerifyInfo.Issue,
-			Answer: req.VerifyInfo.Answer,
-		},
+		ValidMessage: req.ValidMessage,
+		ValidInfo: method_struct.ReplaceStruct[models.ValidInfo](req.ValidInfo),
 	}
 
 	logs.Info(req.FriendId)
-	logs.Info(userConfig.Verify)
+	logs.Info(userConfig.Valid)
 
-	switch userConfig.Verify {
+	switch userConfig.Valid {
 	case 0:
 		return nil, logs.Error("不允许任何人添加")
 	case 1:
-		verifyModel.ReceiveStatus = 1 // 允许任何人添加
+		validModel.ReceiveStatus = 1 // 允许任何人添加
 		break
 	case 2:
-		verifyModel.ReceiveStatus = 0 // 需要验证
-		err = l.svcCtx.DB.Create(&verifyModel).Error
+		validModel.ReceiveStatus = 0 // 需要验证
 		return
 	case 3:
-		verifyModel.ReceiveStatus = 0 // 需要回答问题
-		err = l.svcCtx.DB.Create(&verifyModel).Error
+		validModel.ReceiveStatus = 0 // 需要回答问题
 		return
 	case 4:
 		// 需要正确回答问题
-		if !userConfig.VerifyInfo.Verify(req.VerifyInfo.Answer) {
+		if !userConfig.ValidInfo.Valid(req.ValidInfo.Answer) {
 			return nil, logs.Error("答案错误")
 		}
-		verifyModel.ReceiveStatus = 1 // 直接加好友
+		validModel.ReceiveStatus = 1 // 直接加好友
 	}
 
+	err = l.svcCtx.DB.Create(&validModel).Error
+
 	// 加好友
+	if validModel.ReceiveStatus != 1 {
+		return
+	}
 	var userFriend = user_models.FriendModel{
 		SendUserId:    req.UserId,
 		ReceiveUserId: req.FriendId,

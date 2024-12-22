@@ -11,16 +11,16 @@ import (
 	"fim_server/service/server/response"
 )
 
-func GroupAuthAddHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
+func GroupValidIssueHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		var req types.GroupAuthAddRequest
+		var req types.GroupValidIssueRequest
 		if err := httpx.Parse(r, &req); err != nil {
 			response.Response(r, w, nil, err)
 			return
 		}
 
-		l := logic.NewGroupAuthAddLogic(r.Context(), svcCtx)
-		resp, err := l.GroupAuthAdd(&req)
+		l := logic.NewGroupValidIssueLogic(r.Context(), svcCtx)
+		resp, err := l.GroupValidIssue(&req)
 		response.Response(r, w, resp, err)
 	}
 }

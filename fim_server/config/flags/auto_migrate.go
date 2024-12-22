@@ -15,7 +15,7 @@ func MigrationTable() error {
 		AutoMigrate(
 			&user_models.UserModel{},
 			&user_models.FriendModel{},
-			&user_models.FriendAuthModel{},
+			&user_models.FriendValidModel{},
 			&user_models.UserConfigModel{},
 
 			&chat_models.ChatModel{},
@@ -25,7 +25,7 @@ func MigrationTable() error {
 			&group_models.GroupModel{},
 			&group_models.GroupMemberModel{},
 			&group_models.GroupMessageModel{},
-			&group_models.GroupAuthModel{},
+			&group_models.GroupValidModel{},
 
 			&file_models.FileModel{},
 

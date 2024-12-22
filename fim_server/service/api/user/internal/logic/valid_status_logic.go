@@ -14,25 +14,26 @@ import (
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
-type VerifyStatusLogic struct {
+type ValidStatusLogic struct {
 	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
-func NewVerifyStatusLogic(ctx context.Context, svcCtx *svc.ServiceContext) *VerifyStatusLogic {
-	return &VerifyStatusLogic{
+func NewValidStatusLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ValidStatusLogic {
+	return &ValidStatusLogic{
 		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
-func (l *VerifyStatusLogic) VerifyStatus(req *types.VerifyStatusRequest) (resp *types.VerifyStatusResponse, err error) {
+func (l *ValidStatusLogic) ValidStatus(req *types.ValidStatusRequest) (resp *types.ValidStatusResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	var friendVerify user_models.FriendAuthModel
-	err = l.svcCtx.DB.Take(&friendVerify, "id = ? and receive_user_id = ?", req.VerifyId, req.UserId).Error
+	var friendVerify user_models.FriendValidModel
+	err = l.svcCtx.DB.Take(&friendVerify, "id = ? and receive_user_id = ?", req.ValidId, req.UserId).Error
+
 	if err != nil {
 		return nil, logs.Error("验证记录不存在")
 	}
@@ -60,7 +61,7 @@ func (l *VerifyStatusLogic) VerifyStatus(req *types.VerifyStatusRequest) (resp *
 		// 给对方发消息
 		_, err = l.svcCtx.ChatRpc.UserChat(context.Background(), &chat.UserChatRequest{
 			SendUserId:    uint32(req.UserId),
-			ReceiveUserId: uint32(req.VerifyId),
+			ReceiveUserId: uint32(req.ValidId),
 			Message:       byteData,
 			SystemMessage: nil,
 		})

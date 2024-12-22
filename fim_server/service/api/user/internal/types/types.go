@@ -4,10 +4,10 @@
 package types
 
 type AddFriendRequest struct {
-	UserId        uint       `header:"User-Id"`
-	FriendId      uint       `json:"friend_id"`               // 好友ID
-	VerifyMessage string     `json:"verify_message,optional"` // 验证消息
-	VerifyInfo    VerifyInfo `json:"verify_info,optional"`
+	UserId       uint      `header:"User-Id"`
+	FriendId     uint      `json:"friend_id"`              // 好友ID
+	ValidMessage string    `json:"valid_message,optional"` // 验证消息
+	ValidInfo    ValidInfo `json:"valid_info,optional"`
 }
 
 type AddFriendResponse struct {
@@ -57,27 +57,28 @@ type FriendNoticeUpdateRequest struct {
 type FriendNoticeUpdateResponse struct {
 }
 
-type FriendVerifyInfo struct {
-	UserId        uint       `json:"user_id"`
-	Name          string     `json:"name"`
-	Avatar        string     `json:"avatar"`
-	VerifyMessage string     `json:"verify_message,optional"` // 验证消息
-	VerifyInfo    VerifyInfo `json:"verify_info,optional"`
-	Status        int8       `json:"status"`
-	Auth          int8       `json:"auth"` // 好友验证
-	Id            uint       `json:"id"`
-	Flag          string     `json:"flag"` // send  rev
+type FriendValidInfo struct {
+	UserId       uint      `json:"user_id"`
+	Name         string    `json:"name"`
+	Avatar       string    `json:"avatar"`
+	ValidMessage string    `json:"valid_message,optional"` // 验证消息
+	ValidInfo    ValidInfo `json:"valid_info,optional"`
+	Status       int8      `json:"status"`
+	Auth         int8      `json:"auth"` // 好友验证
+	Id           uint      `json:"id"`
+	Flag         string    `json:"flag"`       // send  rev
+	CreatedAt    string    `json:"created_at"` // 验证时间
 }
 
-type FriendVerifyListRequest struct {
+type FriendValidListRequest struct {
 	UserId uint `header:"User-Id"`
 	Page   int  `form:"page,optional"`
 	Limit  int  `form:"limit,optional"`
 }
 
-type FriendVerifyListResponse struct {
-	List  []FriendVerifyInfo `json:"list"`
-	Total int64              `json:"total"`
+type FriendValidListResponse struct {
+	List  []FriendValidInfo `json:"list"`
+	Total int64             `json:"total"`
 }
 
 type SearchInfo struct {
@@ -101,66 +102,66 @@ type SearchResponse struct {
 	Total int64        `json:"total"`
 }
 
-type UserAuthRequest struct {
-	UserId   uint `header:"User-Id"`
-	FriendId uint `json:"friend_id"` // 好友ID
-}
-
-type UserAuthResponse struct {
-	Verify     int8       `json:"verify，optional"`
-	VerifyInfo VerifyInfo `json:"verify_info,optional"`
-}
-
 type UserInfoRequest struct {
 	UserId uint `header:"User-Id"`
 	Role   int8 `header:"Role"`
 }
 
 type UserInfoResponse struct {
-	UserId        uint       `json:"user_id"`
-	Name          string     `json:"name"`
-	Sign          string     `json:"sign"`
-	Avatar        string     `json:"avatar"`
-	RecallMessage *string    `json:"recall_message"` // 撤回消息内容
-	FriendOnline  bool       `json:"friend_online"`  // 好友上线
-	Sound         bool       `json:"sound"`          // 好友上线声音
-	SecureLink    bool       `json:"secure_link"`    // 安全链接
-	SavePassword  bool       `json:"save_password"`  // 保存密码
-	SearchUser    int8       `json:"search_user"`    // 别人查找到你的方式
-	Verify        int8       `json:"verify，optional"`
-	VerifyInfo    VerifyInfo `json:"verify_info,optional"`
+	UserId        uint      `json:"user_id"`
+	Name          string    `json:"name"`
+	Sign          string    `json:"sign"`
+	Avatar        string    `json:"avatar"`
+	RecallMessage *string   `json:"recall_message"` // 撤回消息内容
+	FriendOnline  bool      `json:"friend_online"`  // 好友上线
+	Sound         bool      `json:"sound"`          // 好友上线声音
+	SecureLink    bool      `json:"secure_link"`    // 安全链接
+	SavePassword  bool      `json:"save_password"`  // 保存密码
+	SearchUser    int8      `json:"search_user"`    // 别人查找到你的方式
+	Valid         int8      `json:"valid,optional"`
+	ValidInfo     ValidInfo `json:"valid_info,optional"`
 }
 
 type UserUpdateRequest struct {
-	UserId        uint       `json:"user_id"`
-	Name          *string    `json:"name,optional"`
-	Sign          *string    `json:"sign,optional"`
-	Avatar        *string    `json:"avatar,optional"`
-	RecallMessage *string    `json:"recall_message,optional"` // 撤回消息内容
-	FriendOnline  *bool      `json:"friend_online,optional"`  // 好友上线
-	Sound         *bool      `json:"sound,optional"`          // 好友上线声音
-	SecureLink    *bool      `json:"secure_link,optional"`    // 安全链接
-	SavePassword  *bool      `json:"save_password,optional"`  // 保存密码
-	SearchUser    *int8      `json:"search_user,optional"`    // 别人查找到你的方式
-	Verify        int8       `json:"verify，optional"`
-	VerifyInfo    VerifyInfo `json:"verify_info,optional"`
+	UserId        uint      `json:"user_id"`
+	Name          *string   `json:"name,optional"`
+	Sign          *string   `json:"sign,optional"`
+	Avatar        *string   `json:"avatar,optional"`
+	RecallMessage *string   `json:"recall_message,optional"` // 撤回消息内容
+	FriendOnline  *bool     `json:"friend_online,optional"`  // 好友上线
+	Sound         *bool     `json:"sound,optional"`          // 好友上线声音
+	SecureLink    *bool     `json:"secure_link,optional"`    // 安全链接
+	SavePassword  *bool     `json:"save_password,optional"`  // 保存密码
+	SearchUser    *int8     `json:"search_user,optional"`    // 别人查找到你的方式
+	Valid         int8      `json:"valid，optional"`
+	ValidInfo     ValidInfo `json:"valid_info,optional"`
 }
 
 type UserUpdateResponse struct {
 }
 
-type VerifyInfo struct {
+type ValidInfo struct {
 	Issue  []string `json:"issue,optional"`
 	Answer []string `json:"answer,optional"`
 }
 
-type VerifyStatusRequest struct {
-	UserId   uint `header:"User-Id"`
-	VerifyId uint `json:"verify_id"`
-	Status   int8 `json:"status"`
+type ValidIssueRequest struct {
+	UserId uint `header:"User-Id"`
+	Id     uint `path:"id"` // 好友ID
 }
 
-type VerifyStatusResponse struct {
-	UserId   uint `header:"User-Id"`
-	VerifyId uint `json:"verify_id"`
+type ValidIssueResponse struct {
+	Valid     int8      `json:"valid"`
+	ValidInfo ValidInfo `json:"valid_info"`
+}
+
+type ValidStatusRequest struct {
+	UserId  uint `header:"User-Id"`
+	ValidId uint `json:"valid_id"`
+	Status  int8 `json:"status"`
+}
+
+type ValidStatusResponse struct {
+	UserId  uint `header:"User-Id"`
+	ValidId uint `json:"valid_id"`
 }

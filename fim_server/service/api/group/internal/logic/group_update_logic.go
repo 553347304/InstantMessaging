@@ -6,6 +6,7 @@ import (
 	"fim_server/models/group_models"
 	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
+	"fim_server/utils/stores/method/method_struct"
 
 	"fim_server/service/api/group/internal/svc"
 	"fim_server/service/api/group/internal/types"
@@ -45,10 +46,7 @@ func (l *GroupUpdateLogic) GroupUpdate(req *types.GroupUpdateRequest) (resp *typ
 		if ok {
 			delete(groupMaps, "auth_question")
 			l.svcCtx.DB.Model(&groupMember.GroupModel).Updates(&group_models.GroupModel{
-				VerifyInfo: models.VerifyInfo{
-					Issue:  req.VerifyInfo.Issue,
-					Answer: req.VerifyInfo.Answer,
-				},
+				ValidInfo: method_struct.ReplaceStruct[models.ValidInfo](req.ValidInfo),
 			})
 		}
 		err = l.svcCtx.DB.Model(&groupMember.GroupModel).Updates(groupMaps).Error
