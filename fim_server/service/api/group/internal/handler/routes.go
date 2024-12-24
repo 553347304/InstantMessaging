@@ -20,6 +20,11 @@ func RegisterHandlers(src *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: GroupAddHandler(serverCtx),
 			},
 			{
+				Method:  http.MethodPut,
+				Path:    "/api/group/ban",
+				Handler: GroupBanUpdateHandler(serverCtx),
+			},
+			{
 				Method:  http.MethodGet,
 				Path:    "/api/group/friend",
 				Handler: GroupFriendListHandler(serverCtx),
@@ -43,6 +48,11 @@ func RegisterHandlers(src *rest.Server, serverCtx *svc.ServiceContext) {
 				Method:  http.MethodDelete,
 				Path:    "/api/group/group/:id",
 				Handler: GroupDeleteHandler(serverCtx),
+			},
+			{
+				Method:  http.MethodGet,
+				Path:    "/api/group/history/:id",
+				Handler: GroupHistoryHandler(serverCtx),
 			},
 			{
 				Method:  http.MethodGet,

@@ -54,6 +54,8 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 		MemberCount: len(groupModel.MemberList),
 		Avatar:      groupModel.Avatar,
 		Role:        member.Role,
+		IsBan:       groupModel.IsBan,
+		BanTime:     member.BanTime,
 	}
 
 	// 查用户列表信息

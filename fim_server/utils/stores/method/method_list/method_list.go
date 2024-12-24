@@ -6,7 +6,11 @@ import (
 	"regexp"
 )
 
-func In(arr []string, key string) bool {
+
+func Delete[T any](slice *[]T, index int)  {
+	*slice = append((*slice)[:index], (*slice)[index+1:]...)
+} // 删除切片下标
+func In[T comparable](arr []T, key T) bool {
 	for _, s := range arr {
 		if s == key {
 			return true
@@ -14,8 +18,8 @@ func In(arr []string, key string) bool {
 	}
 	return false
 } // Key是否在列表中
-func InRegex(arr []string, key string) bool {
-	for _, s := range arr {
+func InRegex(slice []string, key string) bool {
+	for _, s := range slice {
 		regex, err := regexp.Compile(s)
 		if err != nil {
 			logs.Info("正则表达式编译失败:", err)

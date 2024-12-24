@@ -33,7 +33,7 @@ func (l *GroupValidStatusLogic) GroupValidStatus(req *types.GroupValidStatusRequ
 	if err != nil {
 		return nil, logs.Error("验证记录不存在")
 	}
-	if req.Status != 1 {
+	if groupValidModel.Status != 0 {
 		return nil, logs.Error("已经处理过验证请求")
 	}
 
@@ -43,24 +43,32 @@ func (l *GroupValidStatusLogic) GroupValidStatus(req *types.GroupValidStatusRequ
 		return nil, logs.Error("权限不足")
 	}
 
+
+	
 	switch req.Status {
 	case 1: // 同意
-		return
 	case 2:
-		friendVerify.ReceiveStatus = 2 // 拒绝
 	case 3:
-		friendVerify.ReceiveStatus = 3 // 忽略
 	case 4:
-		friendVerify.Status = 4 // 删除
-		l.svcCtx.DB.Delete(&friendVerify)
-		return nil, nil
 	}
-	friendVerify.Status = friendVerify.ReceiveStatus
-	logs.Info(friendVerify.Status)
-	l.svcCtx.DB.Model(&friendVerify).Updates(map[string]any{
-		"status":         friendVerify.Status,
-		"receive_status": friendVerify.ReceiveStatus,
+
+
+	l.svcCtx.DB.Model(&groupValidModel).UpdateColumn("status", req.Status)
+
+	var isMember group_models.GroupMemberModel
+	is := l.svcCtx.DB.Take(&isMember, "user_id = ? and group_id = ?", groupValidModel.UserId, groupValidModel.GroupId).Error
+	if is == nil {
+		return nil, logs.Error("该用户已经在群了")
+	}
+
+	// 将用户加到群里去
+	l.svcCtx.DB.Create(&group_models.GroupMemberModel{
+		GroupId: groupValidModel.GroupId,
+		UserId:  groupValidModel.UserId,
+		Role:    3,
 	})
+
+
 
 	return
 }

@@ -60,9 +60,9 @@ func (l *GroupAddLogic) GroupAdd(req *types.GroupAddRequest) (resp *types.GroupA
 		l.svcCtx.DB.Create(&verifyModel)
 	// 允许任何人添加
 	case 2:
-		verifyModel.Status = 2 // 需要验证
+		verifyModel.Status = 0 // 需要验证
 	case 3:
-		verifyModel.Status = 2 // 需要验证
+		verifyModel.Status = 0 // 需要验证
 	case 4:
 		if !group.ValidInfo.Valid(req.ValidInfo.Answer) {
 			return nil, logs.Error("答案错误")

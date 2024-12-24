@@ -12,6 +12,16 @@ type GroupAddRequest struct {
 type GroupAddResponse struct {
 }
 
+type GroupBanUpdateRequest struct {
+	UserId   uint `header:"User-Id"`
+	GroupId  uint `json:"group_id"`
+	MemberId uint `json:"member_id"`
+	BanTime  int  `json:"ban_time"` // 禁言时间
+}
+
+type GroupBanUpdateResponse struct {
+}
+
 type GroupCreateRequest struct {
 	UserId     uint   `header:"User-Id"`
 	Mode       int8   `json:"mode,optional"` // 模式 1 直接创建   2 创建模式
@@ -49,6 +59,15 @@ type GroupFriendsListResponse struct {
 	List  []GroupFriendsInfo `json:"list"`
 }
 
+type GroupHistoryRequest struct {
+	UserId uint `header:"User-Id"`
+	Id     uint `path:"id"`
+	PageInfo
+}
+
+type GroupHistoryResponse struct {
+}
+
 type GroupInfoRequest struct {
 	UserId uint `header:"User-Id"`
 	Id     int8 `path:"id"`
@@ -63,7 +82,9 @@ type GroupInfoResponse struct {
 	MemberOnlinCount int        `json:"member_onlin_count"`
 	Leader           UserInfo   `json:"leader"` // 群主
 	AdminList        []UserInfo `json:"admin_list"`
-	Role             int8       `json:"role"` // 角色   1 群主 2 群管理员 3 群成员
+	Role             int8       `json:"role"`     // 角色   1 群主 2 群管理员 3 群成员
+	IsBan            bool       `json:"is_time"`  // is禁言
+	BanTime          *int       `json:"ban_time"` // 禁言时间 单位分钟
 }
 
 type GroupMemberAddRequest struct {
@@ -93,6 +114,11 @@ type GroupMemberInfo struct {
 	MemberName     string `json:"member_name"`
 	CreatedAt      string `json:"created_at"`
 	NewMessageDate string `json:"new_message_date"`
+}
+
+type GroupMemberInfoRequest struct {
+	UserId uint `header:"User-Id"`
+	Id     uint `path:"id"`
 }
 
 type GroupMemberNameRequest struct {
@@ -160,7 +186,7 @@ type GroupUpdateRequest struct {
 	IsSearch           *bool     `json:"is_search,optional" conf:"is_search"`                       // is搜索
 	IsInvite           *bool     `json:"is_invite,optional" conf:"is_invite"`                       // is邀请
 	IsTemporarySession *bool     `json:"is_temporary_session,optional" conf:"is_temporary_session"` // is临时会话
-	IsForbiddenSpeech  *bool     `json:"is_forbidden_speech,optional" conf:"is_forbidden_speech"`   // is禁言
+	IsBan              *bool     `json:"is_time,optional" conf:"is_time"`                           // is禁言
 	Valid              int8      `json:"valid，optional"`
 	ValidInfo          ValidInfo `json:"valid_info,optional"`
 }
@@ -211,6 +237,12 @@ type GroupValidStatusRequest struct {
 }
 
 type GroupValidStatusResponse struct {
+}
+
+type PageInfo struct {
+	Key   string `form:"key,optional"`
+	Page  int    `form:"page,optional"`
+	Limit int    `form:"limit,optional"`
 }
 
 type UserInfo struct {

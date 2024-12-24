@@ -3,11 +3,12 @@ package models
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"fim_server/models/mgorm"
 )
 
 type ValidInfo struct {
-	Issue  StringArr `json:"issue,omitempty"`
-	Answer StringArr `json:"answer,omitempty"`
+	Issue  mgorm.String `json:"issue,omitempty"`
+	Answer mgorm.String `json:"answer,omitempty"`
 }
 
 func (v ValidInfo) Value() (driver.Value, error)  { return json.Marshal(v) }
@@ -28,8 +29,7 @@ func (v ValidInfo) Valid(v1 []string)bool  {
 
 
 type Test struct {
-	// ID           uint                 `json:"id"`
-	// String       string               `json:"string"`
-	// AuthQuestion AuthQuestion         `json:"auth_question,omitempty"`
-	// Answer       StringArr `json:"answer"`
+	ID           uint                 `json:"id"`
+	String       string               `json:"string"`
+	Arr       mgorm.String `json:"arr"`
 }

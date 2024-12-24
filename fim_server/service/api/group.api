@@ -14,6 +14,12 @@ type ValidInfo {
 	Answer []string `json:"answer,optional"`
 }
 
+type PageInfo {
+	Key   string `form:"key,optional"`
+	Page  int    `form:"page,optional"`
+	Limit int    `form:"limit,optional"`
+}
+
 type (
 	GroupCreateRequest {
 		UserId     uint   `header:"User-Id"`
@@ -46,6 +52,8 @@ type (
 		Leader           UserInfo   `json:"leader"` // 群主
 		AdminList        []UserInfo `json:"admin_list"`
 		Role             int8       `json:"role"` // 角色   1 群主 2 群管理员 3 群成员
+		IsBan            bool       `json:"is_time"` // is禁言
+		BanTime          *int       `json:"ban_time"` // 禁言时间 单位分钟
 	}
 )
 
@@ -59,7 +67,7 @@ type (
 		IsSearch           *bool     `json:"is_search,optional" conf:"is_search"` // is搜索
 		IsInvite           *bool     `json:"is_invite,optional" conf:"is_invite"` // is邀请
 		IsTemporarySession *bool     `json:"is_temporary_session,optional" conf:"is_temporary_session"` // is临时会话
-		IsForbiddenSpeech  *bool     `json:"is_forbidden_speech,optional" conf:"is_forbidden_speech"` // is禁言
+		IsBan              *bool     `json:"is_time,optional" conf:"is_time"` // is禁言
 		Valid              int8      `json:"valid，optional"`
 		ValidInfo          ValidInfo `json:"valid_info,optional"`
 	}
@@ -81,6 +89,10 @@ type (
 		Page   int    `form:"page,optional"`
 		Limit  int    `form:"limit,optional"`
 		Sort   string `form:"sort,optional"`
+	}
+	GroupMemberInfoRequest {
+		UserId uint `header:"User-Id"`
+		Id     uint `path:"id"`
 	}
 	GroupMemberInfo {
 		UserId         uint   `json:"user_id"`
@@ -222,6 +234,25 @@ type (
 	GroupValidStatusResponse  {}
 )
 
+type (
+	GroupBanUpdateRequest {
+		UserId   uint `header:"User-Id"`
+		GroupId  uint `json:"group_id"`
+		MemberId uint `json:"member_id"`
+		BanTime  int  `json:"ban_time"` // 禁言时间
+	}
+	GroupBanUpdateResponse  {}
+)
+
+type (
+	GroupHistoryRequest {
+		UserId uint `header:"User-Id"`
+		Id     uint `path:"id"`
+		PageInfo
+	}
+	GroupHistoryResponse  {}
+)
+
 service group {
 	@handler GroupCreate
 	post /api/group/group (GroupCreateRequest) returns (GroupCreateResponse) // 创建群
@@ -267,5 +298,11 @@ service group {
 
 	@handler GroupValidStatus
 	put /api/group/valid (GroupValidStatusRequest) returns (GroupValidStatusResponse) // 群证状态
+
+	@handler GroupBanUpdate
+	put /api/group/ban (GroupBanUpdateRequest) returns (GroupBanUpdateResponse) // 群禁言更新
+
+	@handler GroupHistory
+	get /api/group/history/:id (GroupHistoryRequest) returns (GroupHistoryResponse) // 群聊天记录  /群ID
 }
 

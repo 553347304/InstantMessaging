@@ -43,7 +43,7 @@ func (l *GroupValidListLogic) GroupValidList(req *types.GroupValidListRequest) (
 
 	groups := sqls.GetList(group_models.GroupValidModel{},
 		sqls.Mysql{
-			DB:      l.svcCtx.DB.Where("group_id in ?", groupIdList),
+			DB:      l.svcCtx.DB.Where("group_id in ? or user_id = ?", groupIdList, req.UserId),
 			Preload: []string{"GroupModel"},
 			PageInfo: src.PageInfo{
 				Page:  req.Page,

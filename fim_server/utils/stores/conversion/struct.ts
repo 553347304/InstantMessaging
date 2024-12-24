@@ -39,16 +39,13 @@ class Convert {
 const c = new Convert();
 
 console.log(c.GoStructToFieldType(`
-type GroupValidInfo struct {
-    UserId     uint       \`header:"User-Id"\`
-    GroupId    uint       \`json:"group_id"\`
-    UserAvatar string     \`json:"user_avatar"\`
-    UserName   string     \`json:"user_name"\`
-    Name       string     \`json:"name"\`
-    Status     int8       \`json:"status"\` // 状态
-    Verify     int8       \`json:"verify，optional"\`
-    VerifyInfo VerifyInfo \`json:"verify_info,optional"\`
-    Type       int8       \`json:"type"\` // 1 加群 2 退群
-    CreatedAt  string     \`json:"created_at"\`
+type HistoryResponse struct {
+	ID          uint              \`json:"id"\`
+	UserId      uint              \`json:"user_id"\`
+	UserName    string            \`json:"user_name"\`
+	UserAvatar  string            \`json:"user_avatar"\`
+	MessageType mtype.MessageType \`json:"message_type"\`
+	Message     mtype.Message     \`json:"message"\`
+	CreatedAt   time.Time            \`json:"created_at"\`
 }
 `))
