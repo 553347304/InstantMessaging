@@ -9,7 +9,7 @@ import (
 	"fim_server/utils/src"
 	"fim_server/utils/src/sqls"
 	"fim_server/utils/stores/logs"
-	"fim_server/utils/stores/method/method_list"
+	"fim_server/utils/stores/method"
 	"fmt"
 	"time"
 
@@ -55,7 +55,7 @@ func (l *GroupHistoryLogic) GroupHistory(req *types.GroupHistoryRequest) (resp *
 	groupMessageList := sqls.GetList(group_models.GroupMessageModel{},
 		sqls.Mysql{
 			DB: l.svcCtx.DB.Where("group_id = ? and delete_user_id not like ?",
-				req.Id, fmt.Sprintf("%%\"%d\"%%", req.UserId)),
+				req.Id, fmt.Sprintf("%%\"%d\"%%", req.UserId)),	// 查询删除的用户ID  "id"
 			PageInfo: src.PageInfo{
 				Page:  req.Page,
 				Limit: req.Limit,
@@ -66,7 +66,8 @@ func (l *GroupHistoryLogic) GroupHistory(req *types.GroupHistoryRequest) (resp *
 	for _, model := range groupMessageList.List {
 		userIdList = append(userIdList, uint32(model.SendUserId))
 	}
-	userIdList = method_list.Unique(userIdList)
+
+	userIdList = method.List(userIdList).Unique() // 去重
 	userInfoList, err := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{UserIdList: userIdList})
 	if err != nil {
 		return nil, err

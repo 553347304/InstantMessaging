@@ -1,15 +1,14 @@
 package main
 
 import (
-	"fim_server/utils/stores/logs"
-	"fim_server/utils/stores/method/method_list"
+	"fim_server/utils/stores/method"
 )
 
 func main() {
 
 	arr := []string{"created_at", "banana", "cherry"}
-	a2 := method_list.InRegex(arr, "created_at desc")
-
+	a2 := method.List(arr).InRegex("created_at desc")
+	method.
 
 
 	logs.Info(a2)

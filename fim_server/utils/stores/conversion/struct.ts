@@ -39,13 +39,12 @@ class Convert {
 const c = new Convert();
 
 console.log(c.GoStructToFieldType(`
-type HistoryResponse struct {
-	ID          uint              \`json:"id"\`
-	UserId      uint              \`json:"user_id"\`
-	UserName    string            \`json:"user_name"\`
-	UserAvatar  string            \`json:"user_avatar"\`
-	MessageType mtype.MessageType \`json:"message_type"\`
-	Message     mtype.Message     \`json:"message"\`
-	CreatedAt   time.Time            \`json:"created_at"\`
+type GroupMeInfo struct {
+	Id          string \`json:"id"\`
+	Name        string \`json:"name"\`
+	Avatar      string \`json:"avatar"\`
+	MemberTatal int64  \`json:"member_tatal"\`
+	Role        int8   \`json:"role"\`
+	Mode        int8   \`json:"mode"\`
 }
 `))

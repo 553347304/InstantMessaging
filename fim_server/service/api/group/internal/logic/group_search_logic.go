@@ -8,7 +8,7 @@ import (
 	"fim_server/service/rpc/user/user_rpc"
 	"fim_server/utils/src"
 	"fim_server/utils/src/sqls"
-	"fim_server/utils/stores/method/method_list"
+	"fim_server/utils/stores/method"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -60,7 +60,7 @@ func (l *GroupSearchLogic) GroupSearch(req *types.GroupSearchListRequest) (resp 
 				isInGroup = true
 			}
 		}
-		total := method_list.Intersect(groupMemberIdList, userOnlineIdList)
+		total := method.List(groupMemberIdList).Intersect(userOnlineIdList)
 
 		resp.List = append(resp.List, types.GroupSearchInfo{
 			GroupId:         group.ID,

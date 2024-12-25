@@ -7,7 +7,7 @@ import (
 	"fim_server/service/api/group/internal/types"
 	"fim_server/service/rpc/user/user_rpc"
 	"fim_server/utils/stores/logs"
-	"fim_server/utils/stores/method/method_list"
+	"fim_server/utils/stores/method"
 	"fim_server/utils/stores/times"
 	"fmt"
 	"strings"
@@ -87,8 +87,7 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 		for _, i2 := range userFriendList.FriendList {
 			friendList = append(friendList, uint(i2.UserId))
 		}
-
-		slice := method_list.Difference(req.UserIdList, friendList)
+		slice := method.List(req.UserIdList).Difference(friendList)
 		if len(slice) != 0 {
 			return nil, logs.Error("列表中有人不是好友")
 		}

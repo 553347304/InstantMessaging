@@ -1,7 +1,10 @@
 package user_models
 
 import (
+	"database/sql/driver"
+	"encoding/json"
 	"fim_server/models"
+	"fim_server/models/mgorm"
 )
 
 // UserModel 用户表
@@ -17,4 +20,10 @@ type UserModel struct {
 	OpenId          string           `gorm:"size:64" json:"-"`
 	RegisterSource  string           `gorm:"size:16" json:"register_source"` // 注册来源 1手机号 2邮箱 3第三方
 	UserConfigModel *UserConfigModel `gorm:"foreignKey:UserId" json:"user_config_model"`
+	Top   			TopModel		 `json:"top"`
 }
+type TopModel struct {
+	Group  mgorm.String `json:"group"`
+}
+func (v TopModel) Value() (driver.Value, error)  { return json.Marshal(v) }
+func (v *TopModel) Scan(value interface{}) error { return json.Unmarshal(value.([]byte), v) }

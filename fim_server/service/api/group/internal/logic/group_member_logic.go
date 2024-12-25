@@ -10,7 +10,7 @@ import (
 	"fim_server/utils/src"
 	"fim_server/utils/src/sqls"
 	"fim_server/utils/stores/logs"
-	"fim_server/utils/stores/method/method_list"
+	"fim_server/utils/stores/method"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -40,7 +40,7 @@ type mysqlSel struct {
 func (l *GroupMemberLogic) GroupMember(req *types.GroupMemberRequest) (resp *types.GroupMemberResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	if !method_list.InRegex([]string{"", "role", "created_at"}, req.Sort) {
+	if !method.List([]string{"", "role", "created_at"}).InRegex(req.Sort) {
 		return nil, logs.Error("不支持的排序模式")
 	}
 

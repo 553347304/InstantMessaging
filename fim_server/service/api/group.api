@@ -9,16 +9,24 @@ info (
 )
 
 // 通用
-type ValidInfo {
-	Issue  []string `json:"issue,optional"`
-	Answer []string `json:"answer,optional"`
-}
-
-type PageInfo {
-	Key   string `form:"key,optional"`
-	Page  int    `form:"page,optional"`
-	Limit int    `form:"limit,optional"`
-}
+type (
+	EmptyResponse  {}
+	Header {
+		UserId uint `header:"User-Id"`
+	}
+	ParamsPath {
+		Id uint `path:"id"`
+	}
+	ValidInfo {
+		Issue  []string `json:"issue,optional"`
+		Answer []string `json:"answer,optional"`
+	}
+	PageInfo {
+		Key   string `form:"key,optional"`
+		Page  int    `form:"page,optional"`
+		Limit int    `form:"limit,optional"`
+	}
+)
 
 type (
 	GroupCreateRequest {
@@ -246,11 +254,60 @@ type (
 
 type (
 	GroupHistoryRequest {
-		UserId uint `header:"User-Id"`
-		Id     uint `path:"id"`
+		Header
+		ParamsPath
 		PageInfo
 	}
 	GroupHistoryResponse  {}
+	GroupHistoryDeleteRequest {
+		Header
+		ParamsPath
+		IdList []uint `json:"id_list"`
+	}
+)
+
+type (
+	GroupSessionRequest {
+		Header
+		PageInfo
+	}
+	GroupSessionResponse {
+		GroupId           uint   `json:"group_id"`
+		Name              string `json:"name"`
+		Avatar            string `json:"avatar"`
+		NewMessageDate    string `json:"new_message_date"`
+		NewMessagePreview string `json:"new_message_preview"`
+	}
+	GroupTopRequest {
+		Header
+		GroupId uint `json:"group_id"`
+		Top     bool `json:"top"`
+	}
+	GroupTopResponse  {}
+	GroupMeListRequest {
+		Header
+		PageInfo
+		Mode int8 `form:"mode"` // 1 我创建的群 | 2 我加入的群
+	}
+	GroupMeInfo {
+		Id          uint   `json:"id"`
+		Name        string `json:"name"`
+		Avatar      string `json:"avatar"`
+		MemberTatal int64  `json:"member_tatal"`
+		Role        int8   `json:"role"`
+		Mode        int8   `json:"mode"`
+	}
+	GroupMeListResponse {
+		Total int64         `json:"total"`
+		List  []GroupMeInfo `json:"list"`
+	}
+)
+
+type (
+	GroupChatRequest {
+		Header
+	}
+	GroupChatResponse  {}
 )
 
 service group {
@@ -304,5 +361,20 @@ service group {
 
 	@handler GroupHistory
 	get /api/group/history/:id (GroupHistoryRequest) returns (GroupHistoryResponse) // 群聊天记录  /群ID
+
+	@handler GroupHistoryDelete
+	delete /api/group/history/:id (GroupHistoryDeleteRequest) returns (EmptyResponse) // 删除聊天记录  /群ID
+
+	@handler GroupSession
+	get /api/group/session (GroupSessionRequest) returns (GroupSessionResponse) // 群会话列表
+
+	@handler GroupTop
+	put /api/group/top (GroupTopRequest) returns (GroupTopResponse) // 群置顶 取消置顶
+
+	@handler GroupMeList
+	get /api/group/me (GroupMeListRequest) returns (GroupMeListResponse) // 我创建的群 | 我加入的群
+
+	@handler GroupChat
+	get /api/group/ws/chat (GroupChatRequest) returns (GroupChatResponse) // 群聊
 }
 

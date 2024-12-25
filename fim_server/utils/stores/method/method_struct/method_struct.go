@@ -1,6 +1,8 @@
 package method_struct
 
-import "fim_server/utils/stores/conv"
+import (
+	"fim_server/utils/stores/conv"
+)
 
 // ReplaceStruct 替换结构体
 func ReplaceStruct[T any](source any) T {
@@ -8,3 +10,4 @@ func ReplaceStruct[T any](source any) T {
 	conv.Unmarshal(conv.Marshal(source), &m)
 	return *m
 }
+

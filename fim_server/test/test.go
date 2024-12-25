@@ -1,22 +1,21 @@
 package main
 
 import (
-	"fim_server/config/core"
+	"fim_server/utils/stores/method"
+	"fmt"
 )
 
 func main() {
+	// 定义一个整数切片
+	// numbers := []int{9, 8, 1, 3, 5,6 ,7}
+	numbers := []string{"9", "8", "1", "3", "5","6" ,"7"}
 
-	core.Init()
 
-	// src.DB.Create(&models.Test{
-	// 	String: "66",
-	// 	AuthQuestion: models.AuthQuestion{
-	// 		Issue:  []string{"What is your name?", "What is your age?"},
-	// 	},
-	// })
-	// var cr models.Test
-	// src.DB.Take(&cr, 26)
-	// logs.Info(cr)
-	// logs.Info(cr.AuthQuestion.Answer)
-	// logs.Info(cr.AuthQuestion)
+	fmt.Println(method.List(numbers).Sort(true)) // 输出: [1 2 3 4 7]
+
+
+
 }
+
+
+

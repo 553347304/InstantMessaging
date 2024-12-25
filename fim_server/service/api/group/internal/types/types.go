@@ -3,6 +3,9 @@
 
 package types
 
+type EmptyResponse struct {
+}
+
 type GroupAddRequest struct {
 	UserId    uint      `header:"User-Id"`
 	GroupId   uint      `json:"group_id"`
@@ -20,6 +23,13 @@ type GroupBanUpdateRequest struct {
 }
 
 type GroupBanUpdateResponse struct {
+}
+
+type GroupChatRequest struct {
+	Header
+}
+
+type GroupChatResponse struct {
 }
 
 type GroupCreateRequest struct {
@@ -59,9 +69,15 @@ type GroupFriendsListResponse struct {
 	List  []GroupFriendsInfo `json:"list"`
 }
 
+type GroupHistoryDeleteRequest struct {
+	Header
+	ParamsPath
+	IdList []uint `json:"id_list"`
+}
+
 type GroupHistoryRequest struct {
-	UserId uint `header:"User-Id"`
-	Id     uint `path:"id"`
+	Header
+	ParamsPath
 	PageInfo
 }
 
@@ -85,6 +101,26 @@ type GroupInfoResponse struct {
 	Role             int8       `json:"role"`     // 角色   1 群主 2 群管理员 3 群成员
 	IsBan            bool       `json:"is_time"`  // is禁言
 	BanTime          *int       `json:"ban_time"` // 禁言时间 单位分钟
+}
+
+type GroupMeInfo struct {
+	Id          uint   `json:"id"`
+	Name        string `json:"name"`
+	Avatar      string `json:"avatar"`
+	MemberTatal int64  `json:"member_tatal"`
+	Role        int8   `json:"role"`
+	Mode        int8   `json:"mode"`
+}
+
+type GroupMeListRequest struct {
+	Header
+	PageInfo
+	Mode int8 `form:"mode"` // 1 我创建的群 | 2 我加入的群
+}
+
+type GroupMeListResponse struct {
+	Total int64         `json:"total"`
+	List  []GroupMeInfo `json:"list"`
 }
 
 type GroupMemberAddRequest struct {
@@ -177,6 +213,28 @@ type GroupSearchListResponse struct {
 	List  []GroupSearchInfo `json:"list"`
 }
 
+type GroupSessionRequest struct {
+	Header
+	PageInfo
+}
+
+type GroupSessionResponse struct {
+	GroupId           uint   `json:"group_id"`
+	Name              string `json:"name"`
+	Avatar            string `json:"avatar"`
+	NewMessageDate    string `json:"new_message_date"`
+	NewMessagePreview string `json:"new_message_preview"`
+}
+
+type GroupTopRequest struct {
+	Header
+	GroupId uint `json:"group_id"`
+	Top     bool `json:"top"`
+}
+
+type GroupTopResponse struct {
+}
+
 type GroupUpdateRequest struct {
 	UserId             uint      `header:"User-Id"`
 	Id                 int8      `json:"id"`
@@ -239,10 +297,18 @@ type GroupValidStatusRequest struct {
 type GroupValidStatusResponse struct {
 }
 
+type Header struct {
+	UserId uint `header:"User-Id"`
+}
+
 type PageInfo struct {
 	Key   string `form:"key,optional"`
 	Page  int    `form:"page,optional"`
 	Limit int    `form:"limit,optional"`
+}
+
+type ParamsPath struct {
+	Id uint `path:"id"`
 }
 
 type UserInfo struct {

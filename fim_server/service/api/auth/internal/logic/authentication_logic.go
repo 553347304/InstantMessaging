@@ -4,7 +4,7 @@ import (
 	"context"
 	"fim_server/utils/encryption_and_decryptio/jwts"
 	"fim_server/utils/stores/logs"
-	"fim_server/utils/stores/method/method_list"
+	"fim_server/utils/stores/method"
 	"fmt"
 
 	"fim_server/service/api/auth/internal/svc"
@@ -30,7 +30,7 @@ func NewAuthenticationLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Au
 func (l *AuthenticationLogic) Authentication(req *types.AuthenticationRequest) (resp *types.AuthenticationResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	if method_list.InRegex(l.svcCtx.Config.WhiteList, req.ValidPath) {
+	if method.List(l.svcCtx.Config.WhiteList).InRegex(req.ValidPath) {
 		logs.Info("白名单", req.ValidPath)
 		return nil, nil
 	}
