@@ -4,6 +4,7 @@ import (
 	"fim_server/models"
 	"fim_server/models/mgorm"
 	"fim_server/models/mtype"
+	"fmt"
 )
 
 // GroupMessageModel 群聊消息表
@@ -17,4 +18,17 @@ type GroupMessageModel struct {
 	Message        mtype.Message        `json:"message"`                        // 消息内容
 	SystemMessage  *mtype.SystemMessage `json:"system_message"`                 // 系统消息
 	DeleteUserId   mgorm.String         `json:"delete_user_id"`                 // 用户删除的聊天记录
+}
+
+func (chat GroupMessageModel) MessagePreviewMethod() string {
+	if chat.SystemMessage != nil {
+		Map := map[int8]string{
+			1: "涉黄",
+			2: "涉恐",
+			3: "涉政",
+			4: "不正当言论",
+		}
+		return fmt.Sprintf("系统消息 - 该消息%s, 已被系统拦截", Map[chat.SystemMessage.Type])
+	}
+	return chat.Message.Preview()
 }

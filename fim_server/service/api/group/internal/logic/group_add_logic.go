@@ -45,11 +45,11 @@ func (l *GroupAddLogic) GroupAdd(req *types.GroupAddRequest) (resp *types.GroupA
 	resp = new(types.GroupAddResponse)
 
 	var verifyModel = group_models.GroupValidModel{
-		GroupId:    req.GroupId,
-		UserId:     req.UserId,
+		GroupId:   req.GroupId,
+		UserId:    req.UserId,
 		Valid:     group.Valid,
 		ValidInfo: method_struct.ReplaceStruct[models.ValidInfo](req.ValidInfo),
-		Type:       1,
+		Type:      1,
 	}
 
 	switch group.Valid {
@@ -71,8 +71,10 @@ func (l *GroupAddLogic) GroupAdd(req *types.GroupAddRequest) (resp *types.GroupA
 	}
 
 	err = l.svcCtx.DB.Create(&verifyModel).Error
-	if err != nil { return nil, err }
-	
+	if err != nil {
+		return nil, err
+	}
+
 	// 加群
 	if verifyModel.Status != 1 {
 		return

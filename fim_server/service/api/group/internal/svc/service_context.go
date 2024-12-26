@@ -14,19 +14,19 @@ import (
 )
 
 type ServiceContext struct {
-	Config  config.Config
-	DB      *gorm.DB
-	Redis   *redis.Client
-	UserRpc user_rpc.UserClient
+	Config   config.Config
+	DB       *gorm.DB
+	Redis    *redis.Client
+	UserRpc  user_rpc.UserClient
 	GroupRpc group_rpc.GroupClient
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
-		Config:  c,
-		DB:      core.Mysql(c.System.Mysql),
-		Redis:   core.Redis(c.System.Redis),
-		UserRpc: user.NewUser(zrpc.MustNewClient(c.UserRpc)),
+		Config:   c,
+		DB:       core.Mysql(c.System.Mysql),
+		Redis:    core.Redis(c.System.Redis),
+		UserRpc:  user.NewUser(zrpc.MustNewClient(c.UserRpc)),
 		GroupRpc: group.NewGroup(zrpc.MustNewClient(c.GroupRpc)),
 	}
 }

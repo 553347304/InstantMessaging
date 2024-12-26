@@ -12,6 +12,6 @@ type Config struct {
 		Redis string
 		Etcd  string
 	}
-	UserRpc   zrpc.RpcClientConf
-	GroupRpc   zrpc.RpcClientConf
+	UserRpc  zrpc.RpcClientConf
+	GroupRpc zrpc.RpcClientConf
 }

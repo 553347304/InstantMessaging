@@ -44,9 +44,9 @@ func (l *ValidListLogic) ValidList(req *types.FriendValidListRequest) (resp *typ
 		info := types.FriendValidInfo{
 			ValidMessage: fv.ValidMessage,
 			ValidInfo:    method_struct.ReplaceStruct[types.ValidInfo](fv.ValidInfo),
-			Status:        fv.Status,
-			Id:            fv.ID,
-			CreatedAt:     fv.CreatedAt.String(),
+			Status:       fv.Status,
+			Id:           fv.ID,
+			CreatedAt:    fv.CreatedAt.String(),
 		}
 
 		if fv.SendUserId == req.UserId {

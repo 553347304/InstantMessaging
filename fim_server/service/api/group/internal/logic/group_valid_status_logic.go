@@ -43,15 +43,12 @@ func (l *GroupValidStatusLogic) GroupValidStatus(req *types.GroupValidStatusRequ
 		return nil, logs.Error("权限不足")
 	}
 
-
-	
 	switch req.Status {
 	case 1: // 同意
 	case 2:
 	case 3:
 	case 4:
 	}
-
 
 	l.svcCtx.DB.Model(&groupValidModel).UpdateColumn("status", req.Status)
 
@@ -67,8 +64,6 @@ func (l *GroupValidStatusLogic) GroupValidStatus(req *types.GroupValidStatusRequ
 		UserId:  groupValidModel.UserId,
 		Role:    3,
 	})
-
-
 
 	return
 }

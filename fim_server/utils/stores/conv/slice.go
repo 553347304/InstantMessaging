@@ -7,7 +7,6 @@ import (
 	"strconv"
 )
 
-
 type sliceServerInterface interface {
 	String() []string
 	Int() []int
@@ -15,6 +14,7 @@ type sliceServerInterface interface {
 type sliceServer struct {
 	Slice []string
 }
+
 //goland:noinspection GoExportedFuncWithUnexportedType	忽略警告
 func Slice(slice interface{}) sliceServerInterface {
 	// reflection to string slice
@@ -31,10 +31,10 @@ func Slice(slice interface{}) sliceServerInterface {
 	return &sliceServer{Slice: make([]string, 0)}
 }
 
-func (s *sliceServer) String () []string {
+func (s *sliceServer) String() []string {
 	return s.Slice
 }
-func (s *sliceServer) Int () []int {
+func (s *sliceServer) Int() []int {
 	slice := make([]int, len(s.Slice))
 	for i, str := range s.Slice {
 		intVal, err := strconv.ParseInt(str, 10, 64)

@@ -27,31 +27,5 @@ func (chat ChatModel) MessagePreviewMethod() string {
 		}
 		return fmt.Sprintf("系统消息 - 该消息%s, 已被系统拦截", Map[chat.SystemMessage.Type])
 	}
-
-	switch chat.Message.MessageType {
-	case mtype.MessageTypeIText:
-		return chat.Message.MessageText.Content
-	case mtype.MessageTypeImage:
-		return "图片消息" + chat.Message.MessageImage.Title
-	case mtype.MessageTypeVideo:
-		return "视频消息" + chat.Message.MessageImage.Title
-	case mtype.MessageTypeFile:
-		return "文件消息" + chat.Message.MessageFile.Title
-	case mtype.MessageTypeVoice:
-		return "语音消息"
-	case mtype.MessageTypeVoiceCall:
-		return "语音通话"
-	case mtype.MessageTypeVideoCall:
-		return "视频通话"
-	case mtype.MessageTypeWithdraw:
-		return "撤回消息" + chat.Message.MessageWithdraw.Content
-	case mtype.MessageTypeReply:
-		return "回复消息" + chat.Message.MessageReply.Content
-	case mtype.MessageTypeQuote:
-		return "引用消息" + chat.Message.MessageQuote.Content
-	case mtype.MessageTypeAt:
-		return "@消息" + chat.Message.MessageAt.Content
-	default:
-		return ""
-	}
+	return chat.Message.Preview()
 }

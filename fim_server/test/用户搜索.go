@@ -33,7 +33,7 @@ func main() {
 			Page:  1,
 			Limit: 10,
 		},
-	},&chatList)
+	}, &chatList)
 
 	fmt.Println(chatList)
 }

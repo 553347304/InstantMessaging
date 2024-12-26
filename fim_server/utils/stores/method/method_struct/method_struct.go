@@ -10,4 +10,3 @@ func ReplaceStruct[T any](source any) T {
 	conv.Unmarshal(conv.Marshal(source), &m)
 	return *m
 }
-

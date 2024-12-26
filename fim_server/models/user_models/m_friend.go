@@ -19,15 +19,15 @@ type FriendModel struct {
 // FriendValidModel 好友验证表
 type FriendValidModel struct {
 	models.Model
-	SendUserId       uint              `json:"send_user_id"` // 发送人
-	SendUserModel    UserModel         `gorm:"foreignKey:SendUserId" json:"-"`
-	ReceiveUserId    uint              `json:"receive_user_id"` // 接收人
-	ReceiveUserModel UserModel         `gorm:"foreignKey:ReceiveUserId" json:"-"`
-	Status           int8              `json:"status"`                         // 0 等待验证  1 同意  2 拒绝  3 忽略  4 删除
-	SendStatus       int8              `json:"send_status"`                    // 发送方状态
-	ReceiveStatus    int8              `json:"receive_status"`                 // 接收方状态
-	ValidMessage    string            `gorm:"size:128" json:"valid_message"` // 验证消息
-	ValidInfo       models.ValidInfo `json:"valid_info"`                    // 验证问题
+	SendUserId       uint             `json:"send_user_id"` // 发送人
+	SendUserModel    UserModel        `gorm:"foreignKey:SendUserId" json:"-"`
+	ReceiveUserId    uint             `json:"receive_user_id"` // 接收人
+	ReceiveUserModel UserModel        `gorm:"foreignKey:ReceiveUserId" json:"-"`
+	Status           int8             `json:"status"`                        // 0 等待验证  1 同意  2 拒绝  3 忽略  4 删除
+	SendStatus       int8             `json:"send_status"`                   // 发送方状态
+	ReceiveStatus    int8             `json:"receive_status"`                // 接收方状态
+	ValidMessage     string           `gorm:"size:128" json:"valid_message"` // 验证消息
+	ValidInfo        models.ValidInfo `json:"valid_info"`                    // 验证问题
 }
 
 func (f *FriendModel) IsFriend(db *gorm.DB, userId uint, friendId uint) bool {

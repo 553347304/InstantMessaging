@@ -62,7 +62,7 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 			Page:  req.Page,
 			Limit: req.Limit,
 		},
-	},&chatList)
+	}, &chatList)
 
 	var userIdList []uint32
 	for _, data := range chatList {

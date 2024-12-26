@@ -378,3 +378,5 @@ service group {
 	get /api/group/ws/chat (GroupChatRequest) returns (GroupChatResponse) // 群聊
 }
 
+
+

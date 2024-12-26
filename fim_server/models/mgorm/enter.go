@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 )
+
 type Int []int
 type String []string
 

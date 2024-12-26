@@ -10,23 +10,24 @@ import (
 )
 
 type listServerInterface[T cmp.Ordered] interface {
-	In(T) int	// 是否在列表中    返回 index    -1 = false
-	InRegex(T) bool	// 是否在列表中  支持正则
-	Sort(bool) []T	// 排序 升序 true 降序 false
-	Unique() []T	// 去重
-	Intersect([]T) []T	// 交集
-	Difference([]T) []T	// 差集
-	Delete(int) []T	// 删除下标	index 索引
+	In(T) int           // 是否在列表中    返回 index    -1 = false
+	InRegex(T) bool     // 是否在列表中  支持正则
+	Sort(bool) []T      // 排序 升序 true 降序 false
+	Unique() []T        // 去重
+	Intersect([]T) []T  // 交集
+	Difference([]T) []T // 差集
+	Delete(int) []T     // 删除下标	index 索引
 }
 type listServer[T cmp.Ordered] struct {
 	Slice []T
 }
+
 //goland:noinspection GoExportedFuncWithUnexportedType	忽略警告
 func List[T cmp.Ordered](slice []T) listServerInterface[T] {
 	return &listServer[T]{Slice: slice}
 }
 
-func (l *listServer[T]) In (key T) int {
+func (l *listServer[T]) In(key T) int {
 	for index, s := range l.Slice {
 		if s == key {
 			return index
@@ -34,7 +35,7 @@ func (l *listServer[T]) In (key T) int {
 	}
 	return -1
 }
-func (l *listServer[T]) InRegex (key T) bool {
+func (l *listServer[T]) InRegex(key T) bool {
 	for _, s := range l.Slice {
 		regex, err := regexp.Compile(fmt.Sprint(s))
 		if err != nil {
@@ -46,7 +47,7 @@ func (l *listServer[T]) InRegex (key T) bool {
 	}
 	return false
 }
-func (l *listServer[T]) Sort (asc bool) []T {
+func (l *listServer[T]) Sort(asc bool) []T {
 	sort.Slice(l.Slice, func(i, j int) bool {
 		if asc {
 			return l.Slice[i] < l.Slice[j] // 升序  asc
@@ -66,7 +67,7 @@ func (l *listServer[T]) Unique() []T {
 	}
 	return s
 }
-func (l *listServer[T]) Intersect(slice []T)  []T {
+func (l *listServer[T]) Intersect(slice []T) []T {
 	s := make([]T, 0)
 	m := conv.SliceMap(l.Slice)
 	for _, v := range slice {

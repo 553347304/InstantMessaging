@@ -48,19 +48,19 @@ func areStructsEqual(a, b interface{}) bool {
 	return true
 }
 
-
 type structServerInterface[T any] interface {
-	Replace(any) T	// 替换结构体
+	Replace(any) T // 替换结构体
 }
 type structServer[T any] struct {
 	Struct T
 }
+
 //goland:noinspection GoExportedFuncWithUnexportedType	忽略警告
 func Struct[T any](m T) structServerInterface[T] {
 	return &structServer[T]{Struct: m}
 }
 
-func (l *structServer[T]) Replace (source any) T {
+func (l *structServer[T]) Replace(source any) T {
 	var m = new(T)
 	conv.Unmarshal(conv.Marshal(source), &m)
 	return *m

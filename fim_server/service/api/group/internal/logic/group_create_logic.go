@@ -33,11 +33,11 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 	// todo: add your logic here and delete this line
 
 	var groupModel = group_models.GroupModel{
-		Leader:      req.UserId,
-		IsSearch:    false,
-		Valid: 			2,
-		Size:        50,
-		Sign:        fmt.Sprintf("本群创建于%s  群主很聪明,什么都没有留下", times.Now()),
+		Leader:   req.UserId,
+		IsSearch: false,
+		Valid:    2,
+		Size:     50,
+		Sign:     fmt.Sprintf("本群创建于%s  群主很聪明,什么都没有留下", times.Now()),
 	}
 
 	var groupUserList = []uint{req.UserId}
@@ -119,7 +119,6 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 	if err != nil {
 		return nil, logs.Error("群成员添加失败")
 	}
-
 
 	return
 }

@@ -46,9 +46,9 @@ func (l *GroupDeleteLogic) GroupDelete(req *types.GroupDeleteRequest) (resp *typ
 	l.svcCtx.DB.Find(&vList, "group_id = ?", req.Id).Delete(&vList)
 	var group group_models.GroupModel
 	l.svcCtx.DB.Find(&group, req.Id).Delete(&group)
-	logs.Info("删除群",group.Name)
-	logs.Info("群成员数",len(memberList))
-	logs.Info("群消息数",len(messageList))
-	logs.Info("群验证消息",len(vList))
+	logs.Info("删除群", group.Name)
+	logs.Info("群成员数", len(memberList))
+	logs.Info("群消息数", len(messageList))
+	logs.Info("群验证消息", len(vList))
 	return
 }

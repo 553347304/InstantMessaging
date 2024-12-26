@@ -38,7 +38,7 @@ type ChatHistory struct {
 }
 
 type ChatHistoryResponse struct {
-	Total       int64            `json:"total"`
+	Total       int64          `json:"total"`
 	SendUser    mtype.UserInfo `json:"sendUser"`
 	ReceiveUser mtype.UserInfo `json:"receive_user"`
 	List        []ChatHistory  `json:"list"`
@@ -69,7 +69,7 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 		userIdList = append(userIdList, uint32(model.SendUserId))
 		userIdList = append(userIdList, uint32(model.ReceiveUserId))
 	}
-	userIdList = method.List(userIdList).Unique()	// 去重
+	userIdList = method.List(userIdList).Unique() // 去重
 	// 调用户服务
 	response, err := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
 		UserIdList: userIdList,
@@ -108,7 +108,7 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 
 	}
 	resp = &ChatHistoryResponse{
-		Total:      chatList.Total,
+		Total:       chatList.Total,
 		SendUser:    sendUser,
 		ReceiveUser: receiveUser,
 		List:        list,

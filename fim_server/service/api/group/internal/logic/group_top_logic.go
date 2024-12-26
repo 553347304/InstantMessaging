@@ -38,7 +38,6 @@ func (l *GroupTopLogic) GroupTop(req *types.GroupTopRequest) (resp *types.GroupT
 	var userModel user_models.UserModel
 	l.svcCtx.DB.Take(&userModel, req.UserId)
 
-
 	index := method.List(userModel.Top.Group).In(fmt.Sprint(req.GroupId))
 
 	// 置顶

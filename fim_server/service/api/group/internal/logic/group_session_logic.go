@@ -27,18 +27,18 @@ func NewGroupSessionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Grou
 }
 
 type Data struct {
-	GroupId string `gorm:"column:group_id"`
+	GroupId        string `gorm:"column:group_id"`
 	NewMessageDate string `gorm:"column:new_message_date"`
 	MessagePreview string `gorm:"column:message_preview"`
-
 }
+
 func (l *GroupSessionLogic) GroupSession(req *types.GroupSessionRequest) (resp *types.GroupSessionResponse, err error) {
 	// todo: add your logic here and delete this line
 
 	var data []Data
-	response := sqls.GetListGroup(group_models.GroupMessageModel{},sqls.Mysql{
-		DB: l.svcCtx.DB.Select("group_id,max(created_at)," +
-			"(select message_preview from group_message_models as g " +
+	response := sqls.GetListGroup(group_models.GroupMessageModel{}, sqls.Mysql{
+		DB: l.svcCtx.DB.Select("group_id,max(created_at),"+
+			"(select message_preview from group_message_models as g "+
 			"where g.group_id = g.group_id order by g.created_at desc limit 1)as new_message_date").
 			Where("group_id in (?)", req.UserId).
 			Group("group_id"),

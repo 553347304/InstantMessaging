@@ -25,7 +25,6 @@ func NewGroupHistoryDeleteLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 	}
 }
 
-
 func (l *GroupHistoryDeleteLogic) GroupHistoryDelete(req *types.GroupHistoryDeleteRequest) (resp *types.EmptyResponse, err error) {
 	// todo: add your logic here and delete this line
 
@@ -38,7 +37,7 @@ func (l *GroupHistoryDeleteLogic) GroupHistoryDelete(req *types.GroupHistoryDele
 	for _, id := range req.IdList {
 		var deleteUserId group_models.GroupMessageModel
 		is := l.svcCtx.DB.Take(&deleteUserId, "id = ? and delete_user_id not like ?",
-			id,fmt.Sprintf("%%\"%d\"%%", req.UserId)).Error
+			id, fmt.Sprintf("%%\"%d\"%%", req.UserId)).Error
 		// 用户删除列表中没找到就添加
 		if is == nil {
 			deleteUserId.DeleteUserId = append(deleteUserId.DeleteUserId, fmt.Sprint(id))
@@ -50,4 +49,3 @@ func (l *GroupHistoryDeleteLogic) GroupHistoryDelete(req *types.GroupHistoryDele
 
 	return
 }
-

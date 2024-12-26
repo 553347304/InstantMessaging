@@ -43,11 +43,11 @@ func (l *GroupFriendListLogic) GroupFriendList(req *types.GroupFriendsListReques
 	}
 	resp = new(types.GroupFriendsListResponse)
 	for _, info := range friendListResponse.FriendList {
-		resp.List  = append(resp.List, types.GroupFriendsInfo{
-			UserId:  uint(info.UserId),
-			Avatar: info.Avatar,
-			Name:info.Name,
-			IsInGroup:  memberMap[uint(info.UserId)],
+		resp.List = append(resp.List, types.GroupFriendsInfo{
+			UserId:    uint(info.UserId),
+			Avatar:    info.Avatar,
+			Name:      info.Name,
+			IsInGroup: memberMap[uint(info.UserId)],
 		})
 	}
 	return

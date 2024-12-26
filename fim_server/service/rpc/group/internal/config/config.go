@@ -12,4 +12,3 @@ type Config struct {
 		Etcd  string
 	}
 }
-

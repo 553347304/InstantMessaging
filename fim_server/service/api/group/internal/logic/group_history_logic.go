@@ -55,7 +55,7 @@ func (l *GroupHistoryLogic) GroupHistory(req *types.GroupHistoryRequest) (resp *
 	groupMessageList := sqls.GetList(group_models.GroupMessageModel{},
 		sqls.Mysql{
 			DB: l.svcCtx.DB.Where("group_id = ? and delete_user_id not like ?",
-				req.Id, fmt.Sprintf("%%\"%d\"%%", req.UserId)),	// 查询删除的用户ID  "id"
+				req.Id, fmt.Sprintf("%%\"%d\"%%", req.UserId)), // 查询删除的用户ID  "id"
 			PageInfo: src.PageInfo{
 				Page:  req.Page,
 				Limit: req.Limit,

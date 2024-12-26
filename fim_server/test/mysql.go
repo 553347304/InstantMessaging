@@ -9,7 +9,7 @@ import (
 func main() {
 
 	core.Init()
-var aa group_models.GroupMessageModel
+	var aa group_models.GroupMessageModel
 	src.DB.Take(&aa, 6)
 	src.DB.Model(&aa).Update("delete_user_id", "[]")
 

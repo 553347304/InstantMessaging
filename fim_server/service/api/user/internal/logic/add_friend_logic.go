@@ -41,14 +41,13 @@ func (l *AddFriendLogic) AddFriend(req *types.AddFriendRequest) (resp *types.Add
 	}
 	resp = new(types.AddFriendResponse)
 
-
 	// 创建验证消息
 	var validModel = user_models.FriendValidModel{
 		SendUserId:    req.UserId,
 		ReceiveUserId: req.FriendId,
 		SendStatus:    1,
-		ValidMessage: req.ValidMessage,
-		ValidInfo: method_struct.ReplaceStruct[models.ValidInfo](req.ValidInfo),
+		ValidMessage:  req.ValidMessage,
+		ValidInfo:     method_struct.ReplaceStruct[models.ValidInfo](req.ValidInfo),
 	}
 
 	logs.Info(req.FriendId)
