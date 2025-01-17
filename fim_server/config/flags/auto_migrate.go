@@ -18,16 +18,16 @@ func MigrationTable() error {
 			&user_models.FriendModel{},
 			&user_models.FriendValidModel{},
 			&user_models.UserConfigModel{},
-
+			
 			&chat_models.ChatModel{},
 			&chat_models.TopUserModel{},
 			&chat_models.UserChatDeleteModels{},
-
+			
 			&group_models.GroupModel{},
 			&group_models.GroupMemberModel{},
 			&group_models.GroupMessageModel{},
 			&group_models.GroupValidModel{},
-
+			
 			&file_models.FileModel{},
 
 			&models.Test{},

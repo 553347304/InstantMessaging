@@ -2,23 +2,39 @@ package main
 
 import (
 	"fim_server/config/core"
-	"fim_server/models/group_models"
+	"fim_server/models"
 	"fim_server/utils/src"
+	"fim_server/utils/stores/logs"
 )
+
+type Content struct {
+	Type    int8   `json:"type"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
+}
+type Size struct {
+	Type    int8   `json:"type"`
+	Title   string `json:"title"`
+	Content string `json:"content"`
+	Size    string `json:"size"`
+}
+
+
+
 
 func main() {
 
 	core.Init()
-	var aa group_models.GroupMessageModel
-	src.DB.Take(&aa, 6)
-	src.DB.Model(&aa).Update("delete_user_id", "[]")
-
-	// src.DB.Create(&models.Test{
-	// 	String: "66",
-	// 	Arr: []string{"What is your name?", "What is your age?"},
-	// })
-	// var cr models.Test
-	// src.DB.Take(&cr, 10)
-	// logs.Info(cr)
-
+	
+	src.DB.Create(&models.Test{
+		Arr: []models.Content{
+			{Title: "13", Content: "你好你好", Size: 100},
+			{Title: "22"},
+			{Title: "33"},
+		},
+	})
+	var cr models.Test
+	src.DB.Take(&cr, 0)
+	logs.Info(cr.Arr[0].Title)
+	
 }

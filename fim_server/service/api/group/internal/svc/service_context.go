@@ -7,7 +7,7 @@ import (
 	"fim_server/service/rpc/group/group_rpc"
 	"fim_server/service/rpc/user/user"
 	"fim_server/service/rpc/user/user_rpc"
-
+	
 	"github.com/go-redis/redis"
 	"github.com/zeromicro/go-zero/zrpc"
 	"gorm.io/gorm"
@@ -30,3 +30,7 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		GroupRpc: group.NewGroup(zrpc.MustNewClient(c.GroupRpc)),
 	}
 }
+
+
+
+

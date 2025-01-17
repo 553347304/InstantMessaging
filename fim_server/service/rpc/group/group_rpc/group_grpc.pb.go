@@ -26,7 +26,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GroupClient interface {
-	IsInGroupMember(ctx context.Context, in *IsInGroupMemberRequest, opts ...grpc.CallOption) (*IsInGroupMemberResponse, error)
+	IsInGroupMember(ctx context.Context, in *IsInGroupMemberRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
 }
 
 type groupClient struct {
@@ -37,8 +37,8 @@ func NewGroupClient(cc grpc.ClientConnInterface) GroupClient {
 	return &groupClient{cc}
 }
 
-func (c *groupClient) IsInGroupMember(ctx context.Context, in *IsInGroupMemberRequest, opts ...grpc.CallOption) (*IsInGroupMemberResponse, error) {
-	out := new(IsInGroupMemberResponse)
+func (c *groupClient) IsInGroupMember(ctx context.Context, in *IsInGroupMemberRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
+	out := new(EmptyResponse)
 	err := c.cc.Invoke(ctx, Group_IsInGroupMember_FullMethodName, in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (c *groupClient) IsInGroupMember(ctx context.Context, in *IsInGroupMemberRe
 // All implementations must embed UnimplementedGroupServer
 // for forward compatibility
 type GroupServer interface {
-	IsInGroupMember(context.Context, *IsInGroupMemberRequest) (*IsInGroupMemberResponse, error)
+	IsInGroupMember(context.Context, *IsInGroupMemberRequest) (*EmptyResponse, error)
 	mustEmbedUnimplementedGroupServer()
 }
 
@@ -58,7 +58,7 @@ type GroupServer interface {
 type UnimplementedGroupServer struct {
 }
 
-func (UnimplementedGroupServer) IsInGroupMember(context.Context, *IsInGroupMemberRequest) (*IsInGroupMemberResponse, error) {
+func (UnimplementedGroupServer) IsInGroupMember(context.Context, *IsInGroupMemberRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IsInGroupMember not implemented")
 }
 func (UnimplementedGroupServer) mustEmbedUnimplementedGroupServer() {}

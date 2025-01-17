@@ -25,10 +25,10 @@ func NewIsInGroupMemberLogic(ctx context.Context, svcCtx *svc.ServiceContext) *I
 	}
 }
 
-func (l *IsInGroupMemberLogic) IsInGroupMember(in *group_rpc.IsInGroupMemberRequest) (resp *group_rpc.IsInGroupMemberResponse, err error) {
+func (l *IsInGroupMemberLogic) IsInGroupMember(in *group_rpc.IsInGroupMemberRequest) (resp *group_rpc.EmptyResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	resp = new(group_rpc.IsInGroupMemberResponse)
+	resp = new(group_rpc.EmptyResponse)
 	// 判断用户是否在群里
 	var groupModel group_models.GroupMemberModel
 	err = l.svcCtx.DB.Take(&groupModel, "group_id = ? and user_id = ?", in.GroupId, in.UserId).Error
@@ -36,5 +36,5 @@ func (l *IsInGroupMemberLogic) IsInGroupMember(in *group_rpc.IsInGroupMemberRequ
 		return nil, logs.Error("不在群里面")
 	}
 
-	return &group_rpc.IsInGroupMemberResponse{}, nil
+	return &group_rpc.EmptyResponse{}, nil
 }

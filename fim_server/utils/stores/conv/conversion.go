@@ -23,7 +23,8 @@ func HexRgb(hex string) (int, int, int) {
 
 type typeServerInterface interface {
 	String() string
-	Int() int // 转换错误返回   -1
+	Int() int   // 转换错误返回   -1
+	Uint() uint // 转换错误返回   -1
 	Error() error
 }
 type typeServer struct {
@@ -45,6 +46,9 @@ func (s *typeServer) Int() int {
 		return -1
 	}
 	return number
+}
+func (s *typeServer) Uint() uint {
+	return uint(s.Int())
 }
 func (s *typeServer) Error() error {
 	return errors.New(s.Value)

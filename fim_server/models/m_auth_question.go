@@ -26,8 +26,3 @@ func (v ValidInfo) Valid(v1 []string) bool {
 	return false
 }
 
-type Test struct {
-	ID     uint         `json:"id"`
-	String string       `json:"string"`
-	Arr    mgorm.String `json:"arr"`
-}

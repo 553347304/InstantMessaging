@@ -23,7 +23,7 @@ func NewGroupServer(svcCtx *svc.ServiceContext) *GroupServer {
 	}
 }
 
-func (s *GroupServer) IsInGroupMember(ctx context.Context, in *group_rpc.IsInGroupMemberRequest) (*group_rpc.IsInGroupMemberResponse, error) {
+func (s *GroupServer) IsInGroupMember(ctx context.Context, in *group_rpc.IsInGroupMemberRequest) (*group_rpc.EmptyResponse, error) {
 	l := logic.NewIsInGroupMemberLogic(ctx, s.svcCtx)
 	return l.IsInGroupMember(in)
 }

@@ -10,6 +10,7 @@ type LoginResponse {
 type OpenLoginRequest {
 	Code string `json:"code"`
 	Flag string `json:"flag"`
+	UserId string `json:"user_id"`
 }
 
 type OpenLoginInfoResponse {

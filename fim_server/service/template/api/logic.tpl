@@ -5,7 +5,6 @@ import (
 )
 
 type {{.logic}} struct {
-	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
@@ -13,7 +12,6 @@ type {{.logic}} struct {
 {{if .hasDoc}}{{.doc}}{{end}}
 func New{{.logic}}(ctx context.Context, svcCtx *svc.ServiceContext) *{{.logic}} {
 	return &{{.logic}}{
-		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}

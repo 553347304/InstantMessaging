@@ -17,4 +17,4 @@ type Claims struct {
 
 // const issuer = "baiyin" // 签发人
 const key = "key"  // 秘钥
-const expires = 48 // 过期时间
+const expires = 480 // 过期时间
