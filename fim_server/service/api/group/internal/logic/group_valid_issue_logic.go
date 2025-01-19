@@ -3,12 +3,11 @@ package logic
 import (
 	"context"
 	"fim_server/models/group_models"
-	"fim_server/utils/stores/logs"
-	"fim_server/utils/stores/method/method_struct"
-
 	"fim_server/service/api/group/internal/svc"
 	"fim_server/service/api/group/internal/types"
-
+	"fim_server/utils/stores/conv"
+	"fim_server/utils/stores/logs"
+	
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -28,7 +27,7 @@ func NewGroupValidIssueLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 
 func (l *GroupValidIssueLogic) GroupValidIssue(req *types.GroupValidIssueRequest) (resp *types.GroupValidIssueResponse, err error) {
 	// todo: add your logic here and delete this line
-
+	
 	var groupModel group_models.GroupModel
 	err = l.svcCtx.DB.Take(&groupModel, "id = ?", req.Id).Error
 	if err != nil {
@@ -36,6 +35,6 @@ func (l *GroupValidIssueLogic) GroupValidIssue(req *types.GroupValidIssueRequest
 	}
 	resp = new(types.GroupValidIssueResponse)
 	resp.Valid = groupModel.Valid
-	resp.ValidInfo = method_struct.ReplaceStruct[types.ValidInfo](groupModel.ValidInfo)
+	resp.ValidInfo = conv.Struct(types.ValidInfo{}).Type(groupModel.ValidInfo)
 	return
 }

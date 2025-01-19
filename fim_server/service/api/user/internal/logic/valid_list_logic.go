@@ -3,13 +3,12 @@ package logic
 import (
 	"context"
 	"fim_server/models/user_models"
-	"fim_server/utils/src"
-	"fim_server/utils/src/sqls"
-	"fim_server/utils/stores/method/method_struct"
-
 	"fim_server/service/api/user/internal/svc"
 	"fim_server/service/api/user/internal/types"
-
+	"fim_server/utils/src"
+	"fim_server/utils/src/sqls"
+	"fim_server/utils/stores/conv"
+	
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -43,7 +42,7 @@ func (l *ValidListLogic) ValidList(req *types.FriendValidListRequest) (resp *typ
 	for _, fv := range fvs.List {
 		info := types.FriendValidInfo{
 			ValidMessage: fv.ValidMessage,
-			ValidInfo:    method_struct.ReplaceStruct[types.ValidInfo](fv.ValidInfo),
+			ValidInfo:    conv.Struct(types.ValidInfo{}).Type(fv.ValidInfo),
 			Status:       fv.Status,
 			Id:           fv.ID,
 			CreatedAt:    fv.CreatedAt.String(),

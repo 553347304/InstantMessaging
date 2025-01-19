@@ -4,13 +4,12 @@ import (
 	"context"
 	"encoding/json"
 	"fim_server/models/user_models"
-	"fim_server/service/rpc/user/user_rpc"
-	"fim_server/utils/stores/logs"
-	"fim_server/utils/stores/method/method_struct"
-
 	"fim_server/service/api/user/internal/svc"
 	"fim_server/service/api/user/internal/types"
-
+	"fim_server/service/rpc/user/user_rpc"
+	"fim_server/utils/stores/conv"
+	"fim_server/utils/stores/logs"
+	
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -58,7 +57,7 @@ func (l *UserInfoLogic) UserInfo(req *types.UserInfoRequest) (resp *types.UserIn
 		SavePassword:  user.UserConfigModel.SavePassword,
 		SearchUser:    user.UserConfigModel.SearchUser,
 		Valid:         user.UserConfigModel.Valid,
-		ValidInfo:     method_struct.ReplaceStruct[types.ValidInfo](user.UserConfigModel.ValidInfo),
+		ValidInfo:     conv.Struct(types.ValidInfo{}).Type(user.UserConfigModel.ValidInfo),
 	}
 	return resp, nil
 }

@@ -3,12 +3,11 @@ package logic
 import (
 	"context"
 	"fim_server/models/user_models"
-	"fim_server/utils/stores/logs"
-	"fim_server/utils/stores/method/method_struct"
-
 	"fim_server/service/api/user/internal/svc"
 	"fim_server/service/api/user/internal/types"
-
+	"fim_server/utils/stores/conv"
+	"fim_server/utils/stores/logs"
+	
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -41,6 +40,6 @@ func (l *ValidIssueLogic) ValidIssue(req *types.ValidIssueRequest) (resp *types.
 	}
 	resp = new(types.ValidIssueResponse)
 	resp.Valid = userConfig.Valid
-	resp.ValidInfo = method_struct.ReplaceStruct[types.ValidInfo](userConfig.ValidInfo)
+	resp.ValidInfo = conv.Struct(types.ValidInfo{}).Type(userConfig.ValidInfo)
 	return
 }

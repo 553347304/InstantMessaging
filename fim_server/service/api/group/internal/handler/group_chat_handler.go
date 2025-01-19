@@ -72,7 +72,7 @@ func (s *sendMessage) TipError(message string) {
 		},
 		CreatedAt: time.Now(),
 	}
-	s.Conn.WriteMessage(websocket.TextMessage, conv.Marshal(resp))
+	s.Conn.WriteMessage(websocket.TextMessage, conv.Json().Marshal(resp))
 }
 func (s *sendMessage) GroupOnlineUser(messageId uint) {
 	
@@ -106,7 +106,7 @@ func (s *sendMessage) GroupOnlineUser(messageId uint) {
 		chatResponse.IsMe = wsUserInfo.UserInfo.ID == s.Req.UserId
 		
 		for _, w2 := range wsUserInfo.ConnMap {
-			w2.WriteMessage(websocket.TextMessage, conv.Marshal(chatResponse))
+			w2.WriteMessage(websocket.TextMessage, conv.Json().Marshal(chatResponse))
 		}
 	}
 }
@@ -179,7 +179,7 @@ func (s *sendMessage) IsBan() error {
 }
 func (s *sendMessage) Init(p []byte) error {
 	// 获取发送的消息
-	if !conv.Unmarshal(p, &s.Request) {
+	if !conv.Json().Unmarshal(p, &s.Request) {
 		return s.Error("消息格式错误")
 	}
 	

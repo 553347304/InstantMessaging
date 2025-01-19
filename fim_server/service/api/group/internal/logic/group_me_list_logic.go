@@ -7,8 +7,8 @@ import (
 	"fim_server/service/api/group/internal/types"
 	"fim_server/utils/src"
 	"fim_server/utils/src/sqls"
+	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
-	"fim_server/utils/stores/method"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -38,7 +38,7 @@ func (l *GroupMeListLogic) GroupMeList(req *types.GroupMeListRequest) (resp *typ
 
 	groups := sqls.GetList(group_models.GroupModel{}, sqls.Mysql{
 		DB:       l.svcCtx.DB.Where("id in ?", groupIdList),
-		PageInfo: method.Struct(src.PageInfo{}).Replace(req.PageInfo),
+		PageInfo: conv.Struct(src.PageInfo{}).Type(req.PageInfo),
 	})
 
 	resp = new(types.GroupMeListResponse)

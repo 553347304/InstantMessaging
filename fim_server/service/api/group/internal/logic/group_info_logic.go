@@ -40,7 +40,7 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 	if err != nil {
 		return nil, err
 	}
-
+	
 	var groupModel group_models.GroupModel
 	err = l.svcCtx.DB.Preload("MemberList").Take(&groupModel, req.Id).Error
 	if err != nil {
@@ -54,9 +54,9 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 		Avatar:      groupModel.Avatar,
 		Role:        member.Role,
 		IsBan:       groupModel.IsBan,
-		BanTime:     member.BanTime,
+		BanTime:     member.GetBanTime(l.svcCtx.DB,l.svcCtx.Redis),
 	}
-
+	
 	// 查用户列表信息
 	var userIdList []uint32
 	var userAllIdList []uint32
@@ -66,7 +66,7 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 		}
 		userAllIdList = append(userAllIdList, uint32(model.UserId))
 	}
-
+	
 	userListResponse, err := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
 		UserIdList: userIdList,
 	})
@@ -92,16 +92,16 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 			adminList = append(adminList, userInfo)
 		}
 	}
-
+	
 	resp.Leader = leader
 	resp.AdminList = adminList
-
+	
 	// 用户在线总数
 	userOnlineResponse, err := l.svcCtx.UserRpc.UserOnlineList(context.Background(), &user_rpc.UserOnlineListRequest{})
 	if err == nil {
 		slice := method.List(userOnlineResponse.UserIdList).Intersect(userAllIdList)
 		resp.MemberOnlinCount = len(slice)
 	}
-
+	
 	return
 }

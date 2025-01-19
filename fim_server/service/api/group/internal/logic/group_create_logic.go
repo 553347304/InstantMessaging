@@ -8,10 +8,9 @@ import (
 	"fim_server/service/rpc/user/user_rpc"
 	"fim_server/utils/stores/logs"
 	"fim_server/utils/stores/method"
-	"fim_server/utils/stores/times"
 	"fmt"
 	"strings"
-
+	
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -37,9 +36,10 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 		IsSearch: false,
 		Valid:    2,
 		Size:     50,
-		Sign:     fmt.Sprintf("本群创建于%s  群主很聪明,什么都没有留下", times.Now()),
+		Sign:     fmt.Sprintf("本群创建于%s  群主很聪明,什么都没有留下", method.Time().Now()),
 	}
-
+	
+	
 	var groupUserList = []uint{req.UserId}
 	switch req.Mode {
 	case 1:

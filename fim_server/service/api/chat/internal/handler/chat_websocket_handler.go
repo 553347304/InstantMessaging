@@ -94,10 +94,10 @@ func SendMessageByUser(svcCtx *svc.ServiceContext, receiveUserId uint, sendUserI
 	}
 	
 	resp.IsMe = true
-	sendUser.Conn.WriteMessage(websocket.TextMessage, conv.Marshal(resp)) // 给自己发
+	sendUser.Conn.WriteMessage(websocket.TextMessage, conv.Json().Marshal(resp)) // 给自己发
 	if ok1 && receiveUserId != sendUserId {
 		resp.IsMe = false
-		receiveUser.Conn.WriteMessage(websocket.TextMessage, conv.Marshal(resp)) // 接收方
+		receiveUser.Conn.WriteMessage(websocket.TextMessage, conv.Json().Marshal(resp)) // 接收方
 	}
 }
 
@@ -105,11 +105,11 @@ func SendMessageByUser(svcCtx *svc.ServiceContext, receiveUserId uint, sendUserI
 func SendTipErrorMessage(conn *websocket.Conn, message string) {
 	resp := chatResponse{
 		Message: mtype.MessageArray{
-			{Type: mtype.MessageType.Tip, Title: "error", Content: message},
+			{Type: mtype.MessageType.Tip, State: "error", Content: message},
 		},
 		CreatedAt: time.Now(),
 	}
-	conn.WriteMessage(websocket.TextMessage, conv.Marshal(resp))
+	conn.WriteMessage(websocket.TextMessage, conv.Json().Marshal(resp))
 }
 
 func sendWsMapMessage(wsMap map[string]*websocket.Conn, data []byte) {
@@ -148,7 +148,7 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 		
 		var userInfo user_models.UserModel
-		if !conv.Unmarshal(res.Data, &userInfo) {
+		if !conv.Json().Unmarshal(res.Data, &userInfo) {
 			return
 		}
 		
@@ -193,7 +193,7 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			
 			// 处理消息
 			var request chatRequest
-			if !conv.Unmarshal(p, &request) {
+			if !conv.Json().Unmarshal(p, &request) {
 				SendTipErrorMessage(conn, "参数解析失败")
 				continue
 			}

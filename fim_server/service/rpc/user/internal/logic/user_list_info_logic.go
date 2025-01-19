@@ -27,7 +27,6 @@ func NewUserListInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *User
 
 func (l *UserListInfoLogic) UserListInfo(in *user_rpc.UserListInfoRequest) (*user_rpc.UserListInfoResponse, error) {
 	// todo: add your logic here and delete this line
-	
 	err := conv.Type("用户不存在").Error()
 	
 	var userList []user_models.UserModel

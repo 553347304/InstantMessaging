@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fim_server/common/middleware"
 	"fim_server/utils/src/etcd"
 	"flag"
 	"fmt"
@@ -20,15 +21,17 @@ func main() {
 
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
-
-	src := rest.MustNewServer(c.RestConf)
-	defer src.Stop()
+	
+	server := rest.MustNewServer(c.RestConf)
+	defer server.Stop()
 
 	ctx := svc.NewServiceContext(c)
-	handler.RegisterHandlers(src, ctx)
+	handler.RegisterHandlers(server, ctx)
+	
+	server.Use(middleware.LogMiddleware)
 
 	etcd.DeliveryAddress(c.System.Etcd, c.Name+"_api", fmt.Sprintf("%s:%d", c.Host, c.Port))
 
-	fmt.Printf("Starting src at %s:%d...\n", c.Host, c.Port)
-	src.Start()
+	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
+	server.Start()
 }

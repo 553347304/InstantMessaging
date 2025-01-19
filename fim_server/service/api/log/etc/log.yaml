@@ -1,0 +1,34 @@
+Name: log
+Host: 0.0.0.0
+Port: 20027
+Log:
+  Encoding: plain
+  TimeFormat: 2006-01-02 15:04:05
+  Stat: false
+KqConsumerConf:
+  Name: kqConsumer
+  Brokers:
+    - 150.109.83.77:9092
+  Group: kqConsumer
+  Topic: log-topic
+  Offset: first
+  Consumers: 8
+  Processors: 8
+KqPusherConf:
+  Brokers:
+    - 150.109.83.77:9092
+  Topic: log-topic
+System:
+  Mysql: root:baiyin@tcp(127.0.0.1:3306)/fim_db?charset=utf8mb4&parseTime=True&loc=Local
+  Redis: 127.0.0.1:6379 baiyin 0
+  Etcd: 127.0.0.1:2379
+UserRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: user.rpc
+ChatRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: chat.rpc

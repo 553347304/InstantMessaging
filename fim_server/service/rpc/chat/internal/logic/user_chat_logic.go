@@ -31,9 +31,9 @@ func (l *UserChatLogic) UserChat(in *chat_rpc.UserChatRequest) (*chat_rpc.UserCh
 	// todo: add your logic here and delete this line
 	
 	var message mtype.MessageArray
-	conv.Unmarshal(in.Message, &message)
+	conv.Json().Unmarshal(in.Message, &message)
 	var systemMessage *mtype.SystemMessage
-	conv.Unmarshal(in.Message, &systemMessage)
+	conv.Json().Unmarshal(in.Message, &systemMessage)
 	chat := chat_models.ChatModel{
 		SendUserId:    uint(in.SendUserId),
 		ReceiveUserId: uint(in.ReceiveUserId),

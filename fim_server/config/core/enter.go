@@ -12,5 +12,5 @@ const (
 func Init() {
 	src.Config = Yaml()
 	src.DB = Mysql(src.Config.System.Mysql)
-	src.Redis = Redis(src.Config.System.Redis)
+	// src.Redis = Redis(src.Config.System.Redis)
 }

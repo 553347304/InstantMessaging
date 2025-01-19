@@ -6,9 +6,11 @@ import (
 	"fim_server/utils/stores/logs"
 )
 
+
+
 func main() {
 	core.Init()
 	flags.Command()
 	logs.Info("初始化成功")
-
+	
 }

@@ -4,13 +4,11 @@ import (
 	"context"
 	"fim_server/models"
 	"fim_server/models/user_models"
-	"fim_server/utils/stores/conv"
-	"fim_server/utils/stores/logs"
-	"fim_server/utils/stores/method/method_struct"
-
 	"fim_server/service/api/user/internal/svc"
 	"fim_server/service/api/user/internal/types"
-
+	"fim_server/utils/stores/conv"
+	"fim_server/utils/stores/logs"
+	
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -30,8 +28,8 @@ func NewUserInfoUpdateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Us
 
 func (l *UserInfoUpdateLogic) UserInfoUpdate(req *types.UserUpdateRequest) (resp *types.UserUpdateResponse, err error) {
 	// todo: add your logic here and delete this line
-
-	userMap := conv.StructMap(*req, "user")
+	
+	userMap := conv.Struct(*req).StructMap()
 	logs.Info(userMap)
 	if len(userMap) != 0 {
 		var user user_models.UserModel
@@ -44,8 +42,8 @@ func (l *UserInfoUpdateLogic) UserInfoUpdate(req *types.UserUpdateRequest) (resp
 			return nil, logs.Error("用户信息更新失败", err)
 		}
 	}
-
-	userConfigMaps := conv.StructMap(*req, "json")
+	
+	userConfigMaps := conv.Struct(*req).StructMap()
 	logs.Info(userConfigMaps)
 	if len(userConfigMaps) != 0 {
 		delete(userConfigMaps, "name")
@@ -57,9 +55,9 @@ func (l *UserInfoUpdateLogic) UserInfoUpdate(req *types.UserUpdateRequest) (resp
 		if err != nil {
 			return nil, logs.Error("用户配置不存在")
 		}
-
+		
 		err = l.svcCtx.DB.Model(&userConfig).Updates(&user_models.UserConfigModel{
-			ValidInfo: method_struct.ReplaceStruct[models.ValidInfo](req.ValidInfo),
+			ValidInfo: conv.Struct(models.ValidInfo{}).Type(req.ValidInfo),
 		}).Error
 		if err != nil {
 			return nil, logs.Error("用户配置验证问题更新失败", err)
@@ -69,6 +67,6 @@ func (l *UserInfoUpdateLogic) UserInfoUpdate(req *types.UserUpdateRequest) (resp
 			return nil, logs.Error("用户配置更新失败", err)
 		}
 	}
-
+	
 	return
 }

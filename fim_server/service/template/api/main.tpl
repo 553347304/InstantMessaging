@@ -15,13 +15,13 @@ func main() {
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 
-	src := rest.MustNewServer(c.RestConf)
-	defer src.Stop()
+	server := rest.MustNewServer(c.RestConf)
+	defer server.Stop()
 
 	ctx := svc.NewServiceContext(c)
-	handler.RegisterHandlers(src, ctx)
+	handler.RegisterHandlers(server, ctx)
 
 
-	fmt.Printf("Starting src at %s:%d...\n", c.Host, c.Port)
-	src.Start()
+	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
+	server.Start()
 }

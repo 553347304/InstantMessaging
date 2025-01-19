@@ -1,15 +1,24 @@
 package main
 
 import (
-	"fim_server/utils/stores/method"
+	"fim_server/models"
+	"fim_server/utils/stores/conv"
 	"fmt"
 )
 
+type GroupModel struct {
+	models.Model
+	ValidInfo []models.ValidInfo `json:"valid_info"` // 验证问题
+}
+
 func main() {
-	// 定义一个整数切片
-	// numbers := []int{9, 8, 1, 3, 5,6 ,7}
-	numbers := []string{"9", "8", "1", "3", "5", "6", "7"}
-
-	fmt.Println(method.List(numbers).Sort(true)) // 输出: [1 2 3 4 7]
-
+	r := []GroupModel{
+		{ValidInfo: []models.ValidInfo{
+			{Issue: []string{"issue"},
+				Answer: []string{"answer"}}},
+		},
+	}
+	
+	fmt.Println(conv.Struct(r).StructSliceMap("id","valid_info"))
+	
 }

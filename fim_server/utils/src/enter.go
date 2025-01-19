@@ -2,7 +2,6 @@ package src
 
 import (
 	"fim_server/config"
-	"github.com/go-redis/redis"
 	"gorm.io/gorm"
 )
 
@@ -32,5 +31,5 @@ func (o *PageInfo) Param() {
 var (
 	Config *config.Config
 	DB     *gorm.DB
-	Redis  *redis.Client
+	// Redis  *redis.Client
 )

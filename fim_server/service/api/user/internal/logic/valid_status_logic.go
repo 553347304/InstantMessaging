@@ -53,7 +53,7 @@ func (l *ValidStatusLogic) ValidStatus(req *types.ValidStatusRequest) (resp *typ
 		message := mtype.MessageArray{
 			{Type: mtype.MessageType.Text, Content: "已添加你为好友"},
 		}
-		byteData := conv.Marshal(message)
+		byteData := conv.Json().Marshal(message)
 		
 		// 给对方发消息
 		_, err = l.svcCtx.ChatRpc.UserChat(context.Background(), &chat.UserChatRequest{

@@ -1,14 +1,15 @@
 package main
 
 import (
+	"fim_server/common/middleware"
 	"fim_server/utils/src/etcd"
 	"flag"
 	"fmt"
-
+	
 	"fim_server/service/api/auth/internal/config"
 	"fim_server/service/api/auth/internal/handler"
 	"fim_server/service/api/auth/internal/svc"
-
+	
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
 )
@@ -17,18 +18,20 @@ var configFile = flag.String("f", "etc/auth.yaml", "the config file")
 
 func main() {
 	flag.Parse()
-
+	
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
-
-	src := rest.MustNewServer(c.RestConf)
-	defer src.Stop()
-
+	
+	server := rest.MustNewServer(c.RestConf)
+	defer server.Stop()
+	
 	ctx := svc.NewServiceContext(c)
-	handler.RegisterHandlers(src, ctx)
-
+	handler.RegisterHandlers(server, ctx)
+	
+	server.Use(middleware.LogMiddleware)
+	
 	etcd.DeliveryAddress(c.System.Etcd, c.Name+"_api", fmt.Sprintf("%s:%d", c.Host, c.Port))
-
-	fmt.Printf("Starting src at %s:%d...\n", c.Host, c.Port)
-	src.Start()
+	
+	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
+	server.Start()
 }

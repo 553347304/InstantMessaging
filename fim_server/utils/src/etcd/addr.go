@@ -37,3 +37,4 @@ func GetServiceAddr(etcdAddr string, serviceName string) string {
 	}
 	return string(result.Kvs[0].Value)
 }
+

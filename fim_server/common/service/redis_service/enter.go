@@ -26,11 +26,12 @@ func GetUserInfo(rdb *redis.Client, UserRpc user_rpc.UserClient, userId uint) (u
 		userInfo.ID = userId
 		userInfo.Avatar = info.Avatar
 		userInfo.Name = info.Name
+		
 
-		data := conv.Marshal(userInfo)
+		data := conv.Json().Marshal(userInfo)
 		rdb.Set(key, string(data), time.Hour) // 1个小时过期
 		return
 	}
-	conv.Unmarshal([]byte(str), &userInfo)
+	conv.Json().Unmarshal([]byte(str), &userInfo)
 	return
 }

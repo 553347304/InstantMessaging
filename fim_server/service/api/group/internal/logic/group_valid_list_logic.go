@@ -8,9 +8,8 @@ import (
 	"fim_server/service/rpc/user/user_rpc"
 	"fim_server/utils/src"
 	"fim_server/utils/src/sqls"
+	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
-	"fim_server/utils/stores/method/method_struct"
-
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -74,7 +73,7 @@ func (l *GroupValidListLogic) GroupValidList(req *types.GroupValidListRequest) (
 			Name:       group.GroupModel.Name,
 			Status:     group.Status,
 			Valid:      group.Valid,
-			ValidInfo:  method_struct.ReplaceStruct[types.ValidInfo](group.ValidInfo),
+			ValidInfo:  conv.Struct(types.ValidInfo{}).Type(group.ValidInfo),
 			Type:       group.Type,
 			CreatedAt:  group.CreatedAt.String(),
 			UserName:   userList.UserInfo[uint32(group.UserId)].Name,

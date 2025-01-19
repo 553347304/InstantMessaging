@@ -6,9 +6,8 @@ import (
 	"fim_server/models/user_models"
 	"fim_server/service/api/user/internal/svc"
 	"fim_server/service/api/user/internal/types"
+	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
-	"fim_server/utils/stores/method/method_struct"
-
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -47,7 +46,7 @@ func (l *AddFriendLogic) AddFriend(req *types.AddFriendRequest) (resp *types.Add
 		ReceiveUserId: req.FriendId,
 		SendStatus:    1,
 		ValidMessage:  req.ValidMessage,
-		ValidInfo:     method_struct.ReplaceStruct[models.ValidInfo](req.ValidInfo),
+		ValidInfo:     conv.Struct(models.ValidInfo{}).Type(req.ValidInfo),
 	}
 
 	logs.Info(req.FriendId)

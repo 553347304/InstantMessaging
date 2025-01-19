@@ -29,7 +29,7 @@ func NewChatSessionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ChatS
 
 func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *types.ChatSessionResponse, err error) {
 	// todo: add your logic here and delete this line
-
+	
 	type Data struct {
 		SU         uint   `gorm:"column:s_u"`
 		RU         uint   `gorm:"column:r_u"`
@@ -37,7 +37,7 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 		MaxPreview string `gorm:"column:max_preview"`
 		IsTop      bool   `gorm:"column:is_top"`
 	}
-
+	
 	var chatList []Data
 	chatResponse := sqls.GetListGroup(chat_models.ChatModel{}, sqls.Mysql{
 		DB: l.svcCtx.DB.
@@ -45,7 +45,7 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 				"greatest(send_user_id, receive_user_id) as r_u,"+
 				"count(id) as ct,"+
 				"max(created_at) as max_date,"+
-				"(select message_preview from chat_models "+
+				"(select preview from chat_models "+
 				"where (send_user_id = s_u and receive_user_id = r_u)"+
 				"or (send_user_id = r_u and receive_user_id = s_u)"+
 				"and id not in (select chat_id from user_chat_delete_models where user_id = ?)"+
@@ -63,7 +63,7 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 			Limit: req.Limit,
 		},
 	}, &chatList)
-
+	
 	var userIdList []uint32
 	for _, data := range chatList {
 		if data.RU != req.UserId {
@@ -77,16 +77,17 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 			userIdList = append(userIdList, uint32(req.UserId))
 		}
 	}
-
+	
 	userIdList = method.List(userIdList).Unique() // 去重
 	// 调用户服务
-	response, err := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
+	response, err := l.svcCtx.UserRpc.UserListInfo(l.ctx, &user_rpc.UserListInfoRequest{
 		UserIdList: userIdList,
 	})
+	
 	if err != nil {
 		return nil, logs.Error("用户服务错误")
 	}
-
+	
 	var list = make([]types.ChatSession, 0)
 	for _, data := range chatList {
 		s := types.ChatSession{

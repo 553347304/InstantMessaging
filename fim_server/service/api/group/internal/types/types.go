@@ -3,6 +3,8 @@
 
 package types
 
+import "fim_server/models/mgorm"
+
 type EmptyResponse struct {
 }
 
@@ -238,13 +240,13 @@ type GroupTopResponse struct {
 type GroupUpdateRequest struct {
 	UserId             uint      `header:"User-Id"`
 	Id                 int8      `json:"id"`
-	Name               string    `json:"name,optional" conf:"name"`                                 // 群名
-	Avatar             string    `json:"avatar,optional" conf:"avatar"`                             // 群头像
-	Sign               string    `json:"sign,optional" conf:"sign"`                                 // 群简介
-	IsSearch           *bool     `json:"is_search,optional" conf:"is_search"`                       // is搜索
-	IsInvite           *bool     `json:"is_invite,optional" conf:"is_invite"`                       // is邀请
-	IsTemporarySession *bool     `json:"is_temporary_session,optional" conf:"is_temporary_session"` // is临时会话
-	IsBan              *bool     `json:"is_time,optional" conf:"is_time"`                           // is禁言
+	Name               string    `json:"name,optional"`                 // 群名
+	Avatar             string    `json:"avatar,optional"`               // 群头像
+	Sign               string    `json:"sign,optional"`                 // 群简介
+	IsSearch           *bool     `json:"is_search,optional"`            // is搜索
+	IsInvite           *bool     `json:"is_invite,optional"`            // is邀请
+	IsTemporarySession *bool     `json:"is_temporary_session,optional"` // is临时会话
+	IsBan              *bool     `json:"is_time,optional"`              // is禁言
 	Valid              int8      `json:"valid，optional"`
 	ValidInfo          ValidInfo `json:"valid_info,optional"`
 }
@@ -318,6 +320,6 @@ type UserInfo struct {
 }
 
 type ValidInfo struct {
-	Issue  []string `json:"issue,optional"`
-	Answer []string `json:"answer,optional"`
+	Issue  mgorm.String `json:"issue,optional"`
+	Answer mgorm.String `json:"answer,optional"`
 }

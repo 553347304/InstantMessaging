@@ -4,7 +4,6 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fim_server/utils/stores/method"
-	"fmt"
 	"time"
 )
 
@@ -45,7 +44,6 @@ var MessageType = struct {
 type MessageArray []Message
 
 func (s MessageArray) Value() (driver.Value, error) {
-	fmt.Println(s)
 	if s == nil {
 		return "[]", nil
 	}
