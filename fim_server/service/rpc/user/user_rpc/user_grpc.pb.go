@@ -181,7 +181,6 @@ func _User_UserCreate_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _User_UserInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UserInfoRequest)
 	if err := dec(in); err != nil {
@@ -199,7 +198,6 @@ func _User_UserInfo_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _User_UserBaseInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UserBaseInfoRequest)
 	if err := dec(in); err != nil {
@@ -217,7 +215,6 @@ func _User_UserBaseInfo_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _User_UserListInfo_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UserListInfoRequest)
 	if err := dec(in); err != nil {
@@ -235,7 +232,6 @@ func _User_UserListInfo_Handler(srv interface{}, ctx context.Context, dec func(i
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _User_IsFriend_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(IsFriendRequest)
 	if err := dec(in); err != nil {
@@ -253,7 +249,6 @@ func _User_IsFriend_Handler(srv interface{}, ctx context.Context, dec func(inter
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _User_FriendList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(FriendListRequest)
 	if err := dec(in); err != nil {
@@ -271,7 +266,6 @@ func _User_FriendList_Handler(srv interface{}, ctx context.Context, dec func(int
 	}
 	return interceptor(ctx, in, info, handler)
 }
-
 func _User_UserOnlineList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(UserOnlineListRequest)
 	if err := dec(in); err != nil {

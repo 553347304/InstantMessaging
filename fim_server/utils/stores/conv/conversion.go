@@ -17,7 +17,7 @@ type serverInterfaceType interface {
 type serverType struct{ Value string }
 
 //goland:noinspection GoExportedFuncWithUnexportedType
-func Type[T cmp.Ordered](value T) serverInterfaceType {
+func Type[T cmp.Ordered | any](value T) serverInterfaceType {
 	return &serverType{Value: fmt.Sprint(value)}
 }
 

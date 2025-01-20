@@ -1,18 +1,21 @@
-package log_model
+package log_models
 
-import "fim_server/models"
+import (
+	"fim_server/models"
+)
 
 type LogModel struct {
 	models.Model
-	Type    int8   `json:"type"` // 日志类型  2 操作日志 3 运行日志
-	IP      string `gorm:"size:32" json:"ip"`
-	Addr    string `gorm:"size:64" json:"addr"`
-	UserID  uint   `json:"userID"`
+	UserId  uint   `json:"user_id"`
 	Name    string `gorm:"size:64" json:"name"`
 	Avatar  string `gorm:"size:256" json:"avatar"`
+	IP      string `gorm:"size:32" json:"ip"`
+	Addr    string `gorm:"size:64" json:"addr"`
+	Service string `gorm:"size:32" json:"service"` // 服务  记录微服务的名称
+	Type    string `json:"type"`                   // 日志类型  操作日志 | 运行日志
 	Level   string `gorm:"size:12" json:"level"`
 	Title   string `gorm:"size:32" json:"title"`
-	Content string `json:"content"`                // 日志详情
-	Service string `gorm:"size:32" json:"service"` // 服务  记录微服务的名称
+	Content string `json:"content"` // 日志详情
 	IsRead  bool   `json:"isRead"`
 }
+

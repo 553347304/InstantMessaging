@@ -1,6 +1,7 @@
 package response
 
 import (
+	"fim_server/utils/stores/logs"
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"net/http"
 )
@@ -21,6 +22,8 @@ func Response(r *http.Request, w http.ResponseWriter, resp interface{}, err erro
 		httpx.WriteJson(w, http.StatusOK, r)
 		return
 	}
+	logs.Info("-------------------------------")
+
 	// 错误返回
 	httpx.WriteJson(w, http.StatusOK, &Body{
 		Code:    7,

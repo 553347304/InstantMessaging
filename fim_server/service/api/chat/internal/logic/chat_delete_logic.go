@@ -37,7 +37,7 @@ func (l *ChatDeleteLogic) ChatDelete(req *types.ChatDeleteRequest) (resp *types.
 	for _, model := range userDeleteChatList {
 		chatDeleteMap[model.ChatId] = struct{}{}
 	}
-
+	
 	var deleteChatIdList []chat_models.UserChatDeleteModels
 	if len(chatList) > 0 {
 		for _, model := range chatList {

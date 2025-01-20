@@ -5,11 +5,11 @@ import (
 	"fim_server/utils/src/etcd"
 	"flag"
 	"fmt"
-
+	
 	"fim_server/service/api/chat/internal/config"
 	"fim_server/service/api/chat/internal/handler"
 	"fim_server/service/api/chat/internal/svc"
-
+	
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/rest"
 )
@@ -28,7 +28,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
 	
-	server.Use(middleware.LogMiddleware)
+	server.Use(middleware.UseMiddleware(ctx.Log))
 
 	etcd.DeliveryAddress(c.System.Etcd, c.Name+"_api", fmt.Sprintf("%s:%d", c.Host, c.Port))
 

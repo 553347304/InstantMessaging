@@ -6,7 +6,6 @@ package user
 
 import (
 	"context"
-
 	"fim_server/service/rpc/user/user_rpc"
 
 	"github.com/zeromicro/go-zero/zrpc"
@@ -51,37 +50,30 @@ func NewUser(cli zrpc.Client) User {
 		cli: cli,
 	}
 }
-
 func (m *defaultUser) UserCreate(ctx context.Context, in *UserCreateRequest, opts ...grpc.CallOption) (*UserCreateResponse, error) {
 	client := user_rpc.NewUserClient(m.cli.Conn())
 	return client.UserCreate(ctx, in, opts...)
 }
-
 func (m *defaultUser) UserInfo(ctx context.Context, in *UserInfoRequest, opts ...grpc.CallOption) (*UserInfoResponse, error) {
 	client := user_rpc.NewUserClient(m.cli.Conn())
 	return client.UserInfo(ctx, in, opts...)
 }
-
 func (m *defaultUser) UserBaseInfo(ctx context.Context, in *UserBaseInfoRequest, opts ...grpc.CallOption) (*UserBaseInfoResponse, error) {
 	client := user_rpc.NewUserClient(m.cli.Conn())
 	return client.UserBaseInfo(ctx, in, opts...)
 }
-
 func (m *defaultUser) UserListInfo(ctx context.Context, in *UserListInfoRequest, opts ...grpc.CallOption) (*UserListInfoResponse, error) {
 	client := user_rpc.NewUserClient(m.cli.Conn())
 	return client.UserListInfo(ctx, in, opts...)
 }
-
 func (m *defaultUser) IsFriend(ctx context.Context, in *IsFriendRequest, opts ...grpc.CallOption) (*IsFriendResponse, error) {
 	client := user_rpc.NewUserClient(m.cli.Conn())
 	return client.IsFriend(ctx, in, opts...)
 }
-
 func (m *defaultUser) FriendList(ctx context.Context, in *FriendListRequest, opts ...grpc.CallOption) (*FriendListResponse, error) {
 	client := user_rpc.NewUserClient(m.cli.Conn())
 	return client.FriendList(ctx, in, opts...)
 }
-
 func (m *defaultUser) UserOnlineList(ctx context.Context, in *UserOnlineListRequest, opts ...grpc.CallOption) (*UserOnlineListResponse, error) {
 	client := user_rpc.NewUserClient(m.cli.Conn())
 	return client.UserOnlineList(ctx, in, opts...)

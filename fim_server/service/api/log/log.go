@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fim_server/common/middleware"
+	"fim_server/common/service/log_service"
 	"fim_server/service/api/log/internal/config"
 	"fim_server/service/api/log/internal/handler"
 	"fim_server/service/api/log/internal/mqs"
@@ -31,7 +32,8 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
 	// 设置全局中间件
-	server.Use(middleware.LogMiddleware)
+	log_service.DB = ctx.DB
+	server.Use(middleware.UseMiddleware(ctx.Log))
 	serviceGroup := service.NewServiceGroup()
 	defer serviceGroup.Stop()
 	

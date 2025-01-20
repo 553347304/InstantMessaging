@@ -10,32 +10,17 @@ info (
 
 type (
 	Empty  {}
+	PageInfo {
+		Key   string `form:"key,optional"`
+		Page  int    `form:"page,optional"`
+		Limit int    `form:"limit,optional"`
+	}
 )
 
 type (
-	LogListRequest {
-		Page  int `form:"page,optional"`
-		Limit int `form:"limit,optional"`
-		Key   int `form:"key,optional"`
-	}
-	LogInfoResponse {
-		ID           uint   `json:"id"`
-		CreatedAt    string `json:"createdAt"`
-		LogType      int8   `json:"logType"` // 日志类型  2 操作日志 3 运行日志
-		IP           string `json:"ip"`
-		Addr         string `json:"addr"`
-		UserID       uint   `json:"userID"`
-		UserNickname string `json:"userNickname"`
-		UserAvatar   string `json:"userAvatar"`
-		Level        string `json:"level"`
-		Title        string `json:"title"`
-		Content      string `json:"content"` // 日志详情
-		Service      string `json:"service"` // 服务  记录微服务的名称
-		IsRead       bool   `json:"isRead"`
-	}
 	LogListResponse {
-		List  []LogInfoResponse `json:"list"`
-		Count int               `json:"count"`
+		List  []Empty `json:"list"`
+		Total int     `json:"total"`
 	}
 )
 
@@ -44,7 +29,7 @@ type (
 		ID uint `path:"id"`
 	}
 	LogRemoveRequest {
-		IdList []uint `json:"idList"`
+		IdList []uint `json:"id_list"`
 	}
 )
 
@@ -53,7 +38,7 @@ type (
 )
 service log {
 	@handler LogList
-	get /api/log/logs (LogListRequest) returns (LogListResponse) // 日志列表
+	get /api/log/logs (PageInfo) returns (LogListResponse) // 日志列表
 
 	@handler LogRead
 	get /api/log/logs/:id (LogReadRequest) returns (Empty) // 日志读取
