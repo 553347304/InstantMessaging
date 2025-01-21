@@ -138,7 +138,6 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			response.Response(r, w, nil, err)
 			return
 		}
-		
 		// 获取用户信息
 		res, err := svcCtx.UserRpc.UserInfo(context.Background(), &user_rpc.UserInfoRequest{UserId: uint32(req.UserId)})
 		if err != nil {

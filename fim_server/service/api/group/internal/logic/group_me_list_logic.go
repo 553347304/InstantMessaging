@@ -6,7 +6,6 @@ import (
 	"fim_server/service/api/group/internal/svc"
 	"fim_server/service/api/group/internal/types"
 	"fim_server/utils/src"
-	"fim_server/utils/src/sqls"
 	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -35,12 +34,12 @@ func (l *GroupMeListLogic) GroupMeList(req *types.GroupMeListRequest) (resp *typ
 		query.Where("role = ?", 1) // 我创建的群聊
 	}
 	query.Select("group_id").Scan(&groupIdList)
-
-	groups := sqls.GetList(group_models.GroupModel{}, sqls.Mysql{
+	
+	groups := src.Mysql(src.ServiceMysql[group_models.GroupModel]{
 		DB:       l.svcCtx.DB.Where("id in ?", groupIdList),
 		PageInfo: conv.Struct(src.PageInfo{}).Type(req.PageInfo),
-	})
-
+	}).GetList()
+	
 	resp = new(types.GroupMeListResponse)
 	for _, model := range groups.List {
 		var role int8
@@ -58,8 +57,8 @@ func (l *GroupMeListLogic) GroupMeList(req *types.GroupMeListRequest) (resp *typ
 			Mode:        req.Mode,
 		})
 	}
-
+	
 	logs.Info(groups)
-
+	
 	return
 }

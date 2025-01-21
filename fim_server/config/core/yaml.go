@@ -2,10 +2,8 @@ package core
 
 import (
 	"fim_server/config"
-	"fim_server/utils/src"
 	"fim_server/utils/stores/logs"
 	"gopkg.in/yaml.v3"
-	"io/fs"
 	"io/ioutil"
 )
 
@@ -25,12 +23,12 @@ func Yaml() *config.Config {
 
 // SetYaml 修改yaml文件
 func SetYaml() {
-	byteData, err := yaml.Marshal(src.Config)
-	if err != nil {
-		logs.Fatal("配置修改失败", err.Error())
-	}
-	err = ioutil.WriteFile(configFile, byteData, fs.ModePerm)
-	if err != nil {
-		logs.Fatal("配置修改失败", err.Error())
-	}
+	// byteData, err := yaml.Marshal(src.Config)
+	// if err != nil {
+	// 	logs.Fatal("配置修改失败", err.Error())
+	// }
+	// err = ioutil.WriteFile(configFile, byteData, fs.ModePerm)
+	// if err != nil {
+	// 	logs.Fatal("配置修改失败", err.Error())
+	// }
 }

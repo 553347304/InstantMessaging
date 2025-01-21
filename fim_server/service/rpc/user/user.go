@@ -6,8 +6,8 @@ import (
 	"fim_server/service/rpc/user/internal/server"
 	"fim_server/service/rpc/user/internal/svc"
 	"fim_server/service/rpc/user/user_rpc"
-	"fim_server/utils/stores/logs"
 	"flag"
+	"fmt"
 	
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
@@ -34,7 +34,6 @@ func main() {
 	})
 	defer s.Stop()
 	s.AddUnaryInterceptors(middleware.ServerInterceptor)
-	
-	logs.Info("Starting rpc server at %s...\n", c.ListenOn)
+	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()
 }

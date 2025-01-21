@@ -7,7 +7,6 @@ import (
 	"fim_server/service/api/group/internal/types"
 	"fim_server/service/rpc/user/user_rpc"
 	"fim_server/utils/src"
-	"fim_server/utils/src/sqls"
 	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -39,23 +38,22 @@ func (l *GroupValidListLogic) GroupValidList(req *types.GroupValidListRequest) (
 	if len(groupIdList) == 0 {
 		return nil, logs.Error("用户不在群内")
 	}
-
-	groups := sqls.GetList(group_models.GroupValidModel{},
-		sqls.Mysql{
-			DB:      l.svcCtx.DB.Where("group_id in ? or user_id = ?", groupIdList, req.UserId),
-			Preload: []string{"GroupModel"},
-			PageInfo: src.PageInfo{
-				Page:  req.Page,
-				Limit: req.Limit,
-			},
-		})
+	
+	groups := src.Mysql(src.ServiceMysql[group_models.GroupValidModel]{
+		DB:      l.svcCtx.DB.Where("group_id in ? or user_id = ?", groupIdList, req.UserId),
+		Preload: []string{"GroupModel"},
+		PageInfo: src.PageInfo{
+			Page:  req.Page,
+			Limit: req.Limit,
+		},
+	}).GetList()
 
 	// 用户列表
 	var userIdList []uint32
 	for _, group := range groups.List {
 		userIdList = append(userIdList, uint32(group.UserId))
 	}
-	userList, err1 := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
+	userList, err1 := l.svcCtx.UserRpc.UserListInfo(l.ctx, &user_rpc.UserListInfoRequest{
 		UserIdList: userIdList,
 	})
 	if err1 != nil {

@@ -5,7 +5,7 @@ import (
 	"fim_server/models/user_models"
 	"fim_server/service/rpc/user/internal/svc"
 	"fim_server/service/rpc/user/user_rpc"
-	"fim_server/utils/src/sqls"
+	"fim_server/utils/src"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -25,16 +25,13 @@ func NewFriendListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Friend
 
 func (l *FriendListLogic) FriendList(in *user_rpc.FriendListRequest) (*user_rpc.FriendListResponse, error) {
 	// todo: add your logic here and delete this line
-
-	// l.svcCtx.DB.Preload("SendUserModel").Preload("ReceiveUserModel").Model(user_models.Friend{}).
-	// 	Where("send_user_id = ? or receive_user_id = ?", req.UserId, req.UserId).Count(&total).
-	// 	Find(&friends)
-
-	friend := sqls.GetList(user_models.FriendModel{}, sqls.Mysql{
+	
+	friend := src.Mysql(src.ServiceMysql[user_models.FriendModel]{
+		Model:   user_models.FriendModel{},
 		DB:      l.svcCtx.DB.Where("send_user_id = ? or receive_user_id = ?", in.UserId, in.UserId),
 		Preload: []string{"SendUserModel", "ReceiveUserModel"},
-	})
-
+	}).GetList()
+	
 	// 查哪些用户在线
 	var list []*user_rpc.FriendInfo
 	for _, fv := range friend.List {

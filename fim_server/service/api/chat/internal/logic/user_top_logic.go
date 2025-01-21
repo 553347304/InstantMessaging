@@ -27,7 +27,7 @@ func NewUserTopLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserTopLo
 func (l *UserTopLogic) UserTop(req *types.UserTopRequest) (resp *types.UserTopResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	_, err = l.svcCtx.UserRpc.IsFriend(context.Background(), &user_rpc.IsFriendRequest{User1: uint32(req.UserId), User2: uint32(req.FriendId)})
+	_, err = l.svcCtx.UserRpc.IsFriend(l.ctx, &user_rpc.IsFriendRequest{User1: uint32(req.UserId), User2: uint32(req.FriendId)})
 	if err != nil {
 		return nil, logs.Error("不是好友")
 	}

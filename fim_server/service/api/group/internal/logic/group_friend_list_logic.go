@@ -29,7 +29,7 @@ func NewGroupFriendListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 func (l *GroupFriendListLogic) GroupFriendList(req *types.GroupFriendsListRequest) (resp *types.GroupFriendsListResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	friendListResponse, err := l.svcCtx.UserRpc.FriendList(context.Background(), &user_rpc.FriendListRequest{
+	friendListResponse, err := l.svcCtx.UserRpc.FriendList(l.ctx, &user_rpc.FriendListRequest{
 		UserId: uint32(req.UserId),
 	})
 	if err != nil {

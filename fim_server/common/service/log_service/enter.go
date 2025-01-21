@@ -1,11 +1,14 @@
 package log_service
 
-import (
-	"gorm.io/gorm"
-)
-
 const (
+	Login  = "登录日志"
 	Action = "操作日志"
 )
 
-var DB *gorm.DB
+type Config struct {
+	System struct {
+		Mysql string `yaml:"Mysql"`
+		Redis string `yaml:"Redis"`
+		Etcd  string `yaml:"Etcd"`
+	} `yaml:"System"`
+}

@@ -7,7 +7,6 @@ import (
 	"fim_server/service/api/group/internal/types"
 	"fim_server/service/rpc/user/user_rpc"
 	"fim_server/utils/src"
-	"fim_server/utils/src/sqls"
 	"fim_server/utils/stores/method"
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -30,18 +29,18 @@ func (l *GroupSearchLogic) GroupSearch(req *types.GroupSearchListRequest) (resp 
 	// todo: add your logic here and delete this line
 
 	// IsSearch 是否搜索
-	groupListResponse := sqls.GetList(group_models.GroupModel{}, sqls.Mysql{
+	groupListResponse := src.Mysql(src.ServiceMysql[group_models.GroupModel]{
 		DB:      l.svcCtx.DB.Where("is_search = 1 and (id = ? or name like ?)", req.Id, "%"+req.Key+"%"),
 		Preload: []string{"MemberList"},
 		PageInfo: src.PageInfo{
 			Page:  req.Page,
 			Limit: req.Limit,
 		},
-	})
+	}).GetList()
 
 	// 用户在线总数
 	var userOnlineIdList []uint
-	userOnlineResponse, err := l.svcCtx.UserRpc.UserOnlineList(context.Background(), &user_rpc.UserOnlineListRequest{})
+	userOnlineResponse, err := l.svcCtx.UserRpc.UserOnlineList(l.ctx, &user_rpc.UserOnlineListRequest{})
 	if err == nil {
 		for _, u := range userOnlineResponse.UserIdList {
 			userOnlineIdList = append(userOnlineIdList, uint(u))

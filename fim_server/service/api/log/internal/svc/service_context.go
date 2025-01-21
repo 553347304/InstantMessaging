@@ -20,7 +20,6 @@ type ServiceContext struct {
 	AdminMiddleware func(next http.HandlerFunc) http.HandlerFunc
 	Log             log_service.PusherServerInterface
 	KqPusherClient  *kq.Pusher
-	// ActionLogs      *log_stash.Pusher
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
@@ -32,6 +31,5 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		AdminMiddleware: middleware.NewAdminMiddleware().Handle,
 		Log:             log_service.NewPusher(c.Name, log_service.Action),
 		KqPusherClient:  kqClient,
-		// ActionLogs:      log_stash.NewActionPusher(kqClient, c.Name),
 	}
 }

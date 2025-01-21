@@ -3,42 +3,51 @@ package log_service
 import (
 	"bytes"
 	"context"
+	"fim_server/config/core"
 	"fim_server/models/log_models"
 	"fim_server/models/user_models"
 	"fim_server/utils/stores/conv"
-	"fim_server/utils/stores/logs"
 	"fim_server/utils/stores/method"
 	"fmt"
+	"gopkg.in/yaml.v3"
+	"gorm.io/gorm"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"sync"
 )
 
 type PusherServerInterface interface {
 	Response(http.ResponseWriter, *http.Request, []byte) string
-	Info(context.Context, string, string)
+	Info(context.Context, string)
+	Warn(context.Context, string)
+	Error(context.Context, string)
 }
 type pusherServer struct {
+	DB      *gorm.DB
 	UserId  string `json:"user_id"`
 	IP      string `json:"ip"`
 	Type    string `json:"type"`
-	Level   string `json:"level"`
-	Title   string `json:"title"`
-	Content string `json:"content"`
 	Service string `json:"service"`
+	method  string
+	url     string
 }
 
 //goland:noinspection GoExportedFuncWithUnexportedType
 func NewPusher(serviceName, _type string) PusherServerInterface {
+	var c Config
+	config, _ := ioutil.ReadFile("../../service.yaml")
+	yaml.Unmarshal(config, &c)
 	return &pusherServer{
 		Service: serviceName,
 		Type:    _type,
+		DB:      core.Mysql(c.System.Mysql),
 	}
 }
 
 func (p *pusherServer) Response(w http.ResponseWriter, r *http.Request, body []byte) string {
-	_method := r.Method
-	url := r.URL.String()
+	p.method = r.Method
+	p.url = r.URL.String()
 	header := string(conv.Json().Marshal(r.Header))
 	request, _ := io.ReadAll(r.Body)
 	response := string(body)
@@ -54,32 +63,33 @@ func (p *pusherServer) Response(w http.ResponseWriter, r *http.Request, body []b
 			<div class="response">
 				<pre class="body">%s</pre>
 			</div>
-		</div>`, _method, url, header, request, response)
+		</div>`, p.method, p.url, header, request, response)
 }
-func (p *pusherServer) Info(ctx context.Context, title, content string) {
-	p.Save(ctx, "info", title, content)
+func (p *pusherServer) Info(ctx context.Context, content string) {
+	go p.Save(ctx, "info", content)
 }
-func (p *pusherServer) Error(ctx context.Context, title, content string) {
-	p.Save(ctx, "error", title, content)
+func (p *pusherServer) Error(ctx context.Context, content string) {
+	go p.Save(ctx, "error", content)
 }
-func (p *pusherServer) Warn(ctx context.Context, title, content string) {
-	p.Save(ctx, "warn", title, content)
+func (p *pusherServer) Warn(ctx context.Context, content string) {
+	go p.Save(ctx, "warn", content)
 }
-func (p *pusherServer) Save(ctx context.Context, level, title, content string) {
-	p.IP = ctx.Value("ip").(string)
+func (p *pusherServer) Save(ctx context.Context, level, content string) {
+	if p.Service == "log" && p.method == "GET" {
+		return
+	}
 	p.UserId = ctx.Value("user_id").(string)
-	p.Level = level
-	p.Title = title
-	p.Content = content
+	if p.UserId == "" {
+		return
+	}
+	p.IP = ctx.Value("ip").(string)
 	addr := method.Addr().GetAddr(p.IP)
 	userId := conv.Type(p.UserId).Uint()
-	
-	mutex := sync.Mutex{}
-	mutex.Lock()
 	var user user_models.UserModel
-	logs.Info(userId)
-	DB.Take(&user,  userId)
-	DB.Create(log_models.LogModel{
+	mutex := sync.Mutex{}
+	mutex.Lock() // 加锁
+	p.DB.Take(&user, userId)
+	p.DB.Create(&log_models.LogModel{
 		UserId:  userId,
 		Name:    user.Name,
 		Avatar:  user.Avatar,
@@ -87,9 +97,8 @@ func (p *pusherServer) Save(ctx context.Context, level, title, content string) {
 		Addr:    addr,
 		Service: p.Service,
 		Type:    p.Type,
-		Level:   p.Level,
-		Title:   p.Title,
-		Content: p.Content,
+		Level:   level,
+		Content: content,
 	})
-	mutex.Unlock()
+	mutex.Unlock() // 解锁
 }

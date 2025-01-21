@@ -25,7 +25,7 @@ func DeliveryAddress(etcdAddr string, serviceName string, addr string) {
 		logs.Error("地址上送失败", err)
 		return
 	}
-	logs.Info("地址上送成功   %s:%s -> %s", serviceName, addr, ip)
+	logs.InfoF("地址上送成功   %s:%s -> %s", serviceName, addr, ip)
 }
 
 func GetServiceAddr(etcdAddr string, serviceName string) string {

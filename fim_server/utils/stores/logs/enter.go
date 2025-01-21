@@ -29,7 +29,7 @@ func logColor(s any, hex ...string) string {
 			s = fmt.Sprintf("\033[3m%s", s) // 斜体
 		}
 	}
-
+	
 	r, g, b := hexToRgb(hex[0])
 	if len(hex) >= 2 {
 		br, bg, bb := hexToRgb(hex[1])
@@ -38,40 +38,35 @@ func logColor(s any, hex ...string) string {
 	return fmt.Sprintf("\033[38;2;%d;%d;%dm%s\033[0m", r, g, b, s)
 }
 
-// getLine 获取路径行号
-func getLine(skip int) string {
-	_, callPath, callLine, _ := runtime.Caller(skip) // 获取调用者信息
+func getLine() []string {
 	// 获取当前根目录名
 	output, _ := exec.Command("go", "list", "-m").CombinedOutput()
 	name := strings.TrimSpace(string(output)) + "/"
-	index := strings.Index(callPath, name)
-	path := strings.Replace(callPath[index:], name, "", 1)
-	return fmt.Sprintf(" %s:%d ", path, callLine)
-}
-
-func isSprintf(s ...interface{}) string {
-
-	str := fmt.Sprint(s[0])
-
-	is := strings.Contains(str, "%s") || strings.Contains(str, "%d") || strings.Contains(str, "%v")
-
-	message := ""
-	for i, i2 := range s {
-		message += fmt.Sprint(i2)
-		if i < len(s)-1 {
-			message += " "
+	
+	// 获取路径行号
+	var pathList = make([]string, 0)
+	pc := make([]uintptr, 32)
+	n := runtime.Callers(2, pc)
+	cf := runtime.CallersFrames(pc[:n])
+	for {
+		frame, more := cf.Next()
+		if !more {
+			break
+		} else {
+			index := strings.Index(frame.File, name)
+			// 只返回当前项目的路径
+			if index != -1 {
+				path := strings.Replace(frame.File[index:], name, "", 1)
+				pathList = append(pathList, fmt.Sprintf("%s:%d", path, frame.Line))
+			}
 		}
 	}
-
-	if is {
-		message = fmt.Sprintf(str, s[1:]...)
-	}
-	return message
+	return pathList
 }
 
 func isFieldColor(s string) string {
 	var message = s
-
+	
 	// 是否为IP地址
 	isIP := regexp.MustCompile(`.(\d{1,3}\.){3}\d{1,3}(:\d+)?`).FindAllString(s, -1)
 	for _, match := range isIP {
@@ -83,9 +78,9 @@ func isFieldColor(s string) string {
 		color := logColor(ip, "#FFFFFF", "#288F6A", "斜体")
 		message = strings.ReplaceAll(message, ip, color)
 	}
-
+	
 	return message
 }
 
-const line = 3
+const line = 1
 const times = "15:04:05"

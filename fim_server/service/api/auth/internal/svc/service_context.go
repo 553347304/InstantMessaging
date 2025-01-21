@@ -30,6 +30,6 @@ func NewServiceContext(c config.Config) *ServiceContext {
 		Redis:           core.Redis(c.System.Redis),
 		UserRpc:         user.NewUser(zrpc.MustNewClient(c.UserRpc, zrpc.WithUnaryClientInterceptor(middleware.ClientInterceptor))),
 		AdminMiddleware: middleware.NewAdminMiddleware().Handle,
-		Log:             log_service.NewPusher(c.Name, log_service.Action),
+		Log:             log_service.NewPusher(c.Name, log_service.Login),
 	}
 }

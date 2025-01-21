@@ -60,7 +60,7 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 			groupUserList = append(groupUserList, u)
 		}
 
-		userListResponse, err2 := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
+		userListResponse, err2 := l.svcCtx.UserRpc.UserListInfo(l.ctx, &user_rpc.UserListInfoRequest{
 			UserIdList: userIdList,
 		})
 		if err2 != nil {
@@ -77,7 +77,7 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 
 		groupModel.Name = strings.Join(nameList, "、") + "的群聊"
 
-		userFriendList, err1 := l.svcCtx.UserRpc.FriendList(context.Background(), &user_rpc.FriendListRequest{
+		userFriendList, err1 := l.svcCtx.UserRpc.FriendList(l.ctx, &user_rpc.FriendListRequest{
 			UserId: uint32(req.UserId),
 		})
 		if err1 != nil {

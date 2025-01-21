@@ -11,10 +11,6 @@ type LogListResponse struct {
 	Total int     `json:"total"`
 }
 
-type LogReadRequest struct {
-	ID uint `path:"id"`
-}
-
 type LogRemoveRequest struct {
 	IdList []uint `json:"id_list"`
 }

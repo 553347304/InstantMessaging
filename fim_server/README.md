@@ -18,7 +18,7 @@ $p="auth";      # 校验
 $p="file";      # 文件
 $p="setting";   # 设置
 $p="group";     # 群聊
-$p="log";     # 群聊
+$p="log";       # 日志
 
 $v="rpc/$p"; goctl rpc protoc "$v.proto" --go_out=$v --zrpc_out=$v --go-grpc_out=$v $t   # 生成RPC
 $v="api/$p"; goctl api go -api "$v.api" -dir "$v" $t                                     # 生成API

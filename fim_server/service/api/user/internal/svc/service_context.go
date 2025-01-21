@@ -22,17 +22,17 @@ type ServiceContext struct {
 	UserRpc user_rpc.UserClient
 	ChatRpc chat_rpc.ChatClient
 		AdminMiddleware func(next http.HandlerFunc) http.HandlerFunc
-	Log             log_service.PusherServerInterface
+	Log                 log_service.PusherServerInterface
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
-		Config:  c,
-		DB:      core.Mysql(c.System.Mysql),
-		Redis:   core.Redis(c.System.Redis),
-		UserRpc: user.NewUser(zrpc.MustNewClient(c.UserRpc, zrpc.WithUnaryClientInterceptor(middleware.ClientInterceptor))),
-		ChatRpc: chat.NewChat(zrpc.MustNewClient(c.ChatRpc, zrpc.WithUnaryClientInterceptor(middleware.ClientInterceptor))),
+		Config:                  c,
+		DB:                      core.Mysql(c.System.Mysql),
+		Redis:                   core.Redis(c.System.Redis),
+		UserRpc:                 user.NewUser(zrpc.MustNewClient(c.UserRpc, zrpc.WithUnaryClientInterceptor(middleware.ClientInterceptor))),
+		ChatRpc:                 chat.NewChat(zrpc.MustNewClient(c.ChatRpc, zrpc.WithUnaryClientInterceptor(middleware.ClientInterceptor))),
 				AdminMiddleware: middleware.NewAdminMiddleware().Handle,
-		Log:             log_service.NewPusher(c.Name, log_service.Action),
+		Log:                     log_service.NewPusher(c.Name, log_service.Action),
 	}
 }

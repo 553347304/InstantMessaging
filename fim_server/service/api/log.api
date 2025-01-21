@@ -22,12 +22,6 @@ type (
 		List  []Empty `json:"list"`
 		Total int     `json:"total"`
 	}
-)
-
-type (
-	LogReadRequest {
-		ID uint `path:"id"`
-	}
 	LogRemoveRequest {
 		IdList []uint `json:"id_list"`
 	}
@@ -39,9 +33,6 @@ type (
 service log {
 	@handler LogList
 	get /api/log/logs (PageInfo) returns (LogListResponse) // 日志列表
-
-	@handler LogRead
-	get /api/log/logs/:id (LogReadRequest) returns (Empty) // 日志读取
 
 	@handler LogRemove
 	delete /api/log/logs (LogRemoveRequest) returns (Empty) // 日志删除

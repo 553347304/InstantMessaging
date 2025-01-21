@@ -62,7 +62,7 @@ func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.L
 	err = l.svcCtx.DB.Take(&user, "open_id = ?", info.OpenId).Error
 	if err != nil {
 		fmt.Println("注册服务")
-		result, errs := l.svcCtx.UserRpc.UserCreate(context.Background(), &user_rpc.UserCreateRequest{
+		result, errs := l.svcCtx.UserRpc.UserCreate(l.ctx, &user_rpc.UserCreateRequest{
 			Name:           info.Name,
 			Password:       "",
 			Role:           2,

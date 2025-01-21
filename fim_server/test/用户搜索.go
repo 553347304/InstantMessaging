@@ -4,22 +4,22 @@ import (
 	"fim_server/config/core"
 	"fim_server/models/chat_models"
 	"fim_server/utils/src"
-	"fim_server/utils/src/sqls"
+	"fim_server/utils/src/service_mysql"
 	"fmt"
 )
 
 func main() {
 	core.Init()
-
+	
 	type Data struct {
 		SU         uint   `gorm:"column:s_u"`
 		RU         uint   `gorm:"column:r_u"`
 		MaxDate    string `gorm:"column:max_date"`
 		MaxPreview string `gorm:"column:max_preview"`
 	}
-
+	
 	var chatList []Data
-	sqls.GetListGroup(chat_models.ChatModel{}, sqls.Mysql{
+	service_mysql.GetListGroup(chat_models.ChatModel{}, service_mysql.Mysql{
 		DB: src.DB.
 			Select("least(send_user_id, receive_user_id) as s_u",
 				"greatest(send_user_id, receive_user_id) as r_u",
@@ -34,6 +34,6 @@ func main() {
 			Limit: 10,
 		},
 	}, &chatList)
-
+	
 	fmt.Println(chatList)
 }

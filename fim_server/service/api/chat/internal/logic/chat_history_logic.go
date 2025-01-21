@@ -8,7 +8,6 @@ import (
 	"fim_server/service/api/chat/internal/types"
 	"fim_server/service/rpc/user/user_rpc"
 	"fim_server/utils/src"
-	"fim_server/utils/src/sqls"
 	"fim_server/utils/stores/logs"
 	"fim_server/utils/stores/method"
 	
@@ -46,12 +45,13 @@ type ChatHistoryResponse struct {
 func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *ChatHistoryResponse, err error) {
 	// todo: add your logic here and delete this line
 	
-	_, err = l.svcCtx.UserRpc.IsFriend(context.Background(), &user_rpc.IsFriendRequest{User1: uint32(req.UserId), User2: uint32(req.FriendId)})
+	_, err = l.svcCtx.UserRpc.IsFriend(l.ctx, &user_rpc.IsFriendRequest{User1: uint32(req.UserId), User2: uint32(req.FriendId)})
 	if err != nil {
 		return nil, logs.Error("不是好友")
 	}
 	
-	chatList := sqls.GetList(chat_models.ChatModel{}, sqls.Mysql{
+	
+	chatList := src.Mysql(src.ServiceMysql[chat_models.ChatModel]{
 		DB: l.svcCtx.DB.Where("(send_user_id = ? and receive_user_id = ?) or "+
 			"(send_user_id = ? and receive_user_id = ?) and id not in "+
 			"(select chat_id from user_chat_delete_models where user_id = ?)",
@@ -61,7 +61,7 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 			Limit: req.Limit,
 			Sort:  "created_at desc",
 		},
-	})
+	}).GetList()
 	
 	var userIdList []uint32
 	for _, model := range chatList.List {
@@ -70,7 +70,7 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 	}
 	userIdList = method.List(userIdList).Unique() // 去重
 	// 调用户服务
-	response, err := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
+	response, err := l.svcCtx.UserRpc.UserListInfo(l.ctx, &user_rpc.UserListInfoRequest{
 		UserIdList: userIdList,
 	})
 	if err != nil {

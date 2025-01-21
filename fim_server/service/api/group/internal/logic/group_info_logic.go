@@ -33,7 +33,7 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 	if err != nil {
 		return nil, logs.Error("该用户不是群成员")
 	}
-	_, err = l.svcCtx.GroupRpc.IsInGroupMember(context.Background(), &group_rpc.IsInGroupMemberRequest{
+	_, err = l.svcCtx.GroupRpc.IsInGroupMember(l.ctx, &group_rpc.IsInGroupMemberRequest{
 		UserId:  uint32(req.UserId),
 		GroupId: uint32(req.Id),
 	})
@@ -67,7 +67,7 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 		userAllIdList = append(userAllIdList, uint32(model.UserId))
 	}
 	
-	userListResponse, err := l.svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{
+	userListResponse, err := l.svcCtx.UserRpc.UserListInfo(l.ctx, &user_rpc.UserListInfoRequest{
 		UserIdList: userIdList,
 	})
 	if err != nil {
@@ -97,7 +97,7 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 	resp.AdminList = adminList
 	
 	// 用户在线总数
-	userOnlineResponse, err := l.svcCtx.UserRpc.UserOnlineList(context.Background(), &user_rpc.UserOnlineListRequest{})
+	userOnlineResponse, err := l.svcCtx.UserRpc.UserOnlineList(l.ctx, &user_rpc.UserOnlineListRequest{})
 	if err == nil {
 		slice := method.List(userOnlineResponse.UserIdList).Intersect(userAllIdList)
 		resp.MemberOnlinCount = len(slice)

@@ -7,7 +7,6 @@ import (
 	"fim_server/service/api/chat/internal/types"
 	"fim_server/service/rpc/user/user_rpc"
 	"fim_server/utils/src"
-	"fim_server/utils/src/sqls"
 	"fim_server/utils/stores/logs"
 	"fim_server/utils/stores/method"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -37,9 +36,8 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 		MaxPreview string `gorm:"column:max_preview"`
 		IsTop      bool   `gorm:"column:is_top"`
 	}
-	
-	var chatList []Data
-	chatResponse := sqls.GetListGroup(chat_models.ChatModel{}, sqls.Mysql{
+	chatResponse := src.Mysql(src.ServiceMysql[Data]{
+		Model: chat_models.ChatModel{},
 		DB: l.svcCtx.DB.
 			Select("least(send_user_id, receive_user_id) as s_u,"+
 				"greatest(send_user_id, receive_user_id) as r_u,"+
@@ -62,10 +60,10 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 			Page:  req.Page,
 			Limit: req.Limit,
 		},
-	}, &chatList)
+	}).GetListGroup()
 	
 	var userIdList []uint32
-	for _, data := range chatList {
+	for _, data := range chatResponse.List {
 		if data.RU != req.UserId {
 			userIdList = append(userIdList, uint32(data.RU))
 		}
@@ -89,7 +87,7 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 	}
 	
 	var list = make([]types.ChatSession, 0)
-	for _, data := range chatList {
+	for _, data := range chatResponse.List {
 		s := types.ChatSession{
 			CreatedAt:      data.MaxDate,
 			MessagePreview: data.MaxPreview,

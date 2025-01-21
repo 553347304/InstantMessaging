@@ -11,7 +11,7 @@ import (
 type serverInterfaceType interface {
 	String() string
 	Int() int   // 转换错误:-1
-	Uint() uint // 转换错误:-1
+	Uint() uint // 转换错误:0
 	Error() error
 }
 type serverType struct{ Value string }
@@ -33,7 +33,12 @@ func (s *serverType) Int() int {
 	return number
 }
 func (s *serverType) Uint() uint {
-	return uint(s.Int())
+	number, err := strconv.Atoi(s.Value)
+	if err != nil {
+		logs.Error("转换错误: ", err)
+		return 0
+	}
+	return uint(number)
 }
 func (s *serverType) Error() error {
 	return errors.New(s.Value)

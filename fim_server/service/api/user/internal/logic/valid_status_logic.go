@@ -56,7 +56,7 @@ func (l *ValidStatusLogic) ValidStatus(req *types.ValidStatusRequest) (resp *typ
 		byteData := conv.Json().Marshal(message)
 		
 		// 给对方发消息
-		_, err = l.svcCtx.ChatRpc.UserChat(context.Background(), &chat.UserChatRequest{
+		_, err = l.svcCtx.ChatRpc.UserChat(l.ctx, &chat.UserChatRequest{
 			SendUserId:    uint32(req.UserId),
 			ReceiveUserId: uint32(req.ValidId),
 			Message:       byteData,

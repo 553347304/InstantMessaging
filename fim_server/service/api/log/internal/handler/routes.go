@@ -26,11 +26,6 @@ func RegisterHandlers(src *rest.Server, serverCtx *svc.ServiceContext) {
 					Path:    "/api/log/logs",
 					Handler: LogRemoveHandler(serverCtx),
 				},
-				{
-					Method:  http.MethodGet,
-					Path:    "/api/log/logs/:id",
-					Handler: LogReadHandler(serverCtx),
-				},
 			}...,
 		),
 	)

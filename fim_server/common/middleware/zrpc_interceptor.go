@@ -41,7 +41,7 @@ func UseMiddleware(pusher log_service.PusherServerInterface) func(next http.Hand
 			
 			writer := Writer{ResponseWriter: w}
 			next(&writer, r.WithContext(ctx))
-			pusher.Info(ctx, "Response", pusher.Response(w, r, writer.Body))
+			pusher.Info(ctx, pusher.Response(w, r, writer.Body))
 		}
 	}
 	

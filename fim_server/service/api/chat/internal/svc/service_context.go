@@ -27,11 +27,11 @@ type ServiceContext struct {
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
-		Config:  c,
-		DB:      core.Mysql(c.System.Mysql),
-		Redis:   core.Redis(c.System.Redis),
-		UserRpc: user.NewUser(zrpc.MustNewClient(c.UserRpc, zrpc.WithUnaryClientInterceptor(middleware.ClientInterceptor))),
-		FileRpc: file.NewFile(zrpc.MustNewClient(c.FileRpc, zrpc.WithUnaryClientInterceptor(middleware.ClientInterceptor))),
+		Config:          c,
+		DB:              core.Mysql(c.System.Mysql),
+		Redis:           core.Redis(c.System.Redis),
+		UserRpc:         user.NewUser(zrpc.MustNewClient(c.UserRpc, zrpc.WithUnaryClientInterceptor(middleware.ClientInterceptor))),
+		FileRpc:         file.NewFile(zrpc.MustNewClient(c.FileRpc, zrpc.WithUnaryClientInterceptor(middleware.ClientInterceptor))),
 		AdminMiddleware: middleware.NewAdminMiddleware().Handle,
 		Log:             log_service.NewPusher(c.Name, log_service.Action),
 	}
