@@ -1,14 +1,16 @@
 package svc
 
 import (
-	"fim_server/common/middleware"
-	"fim_server/common/service/log_service"
-	"fim_server/config/core"
+	"fim_server/common/service/service_method"
+	"fim_server/common/zero_middleware"
 	"fim_server/service/api/user/internal/config"
+	"fim_server/service/api/user/internal/middleware"
 	"fim_server/service/rpc/chat/chat"
 	"fim_server/service/rpc/chat/chat_rpc"
-	"fim_server/service/rpc/user/user"
-	"fim_server/service/rpc/user/user_rpc"
+	"fim_server/service/rpc/group/group"
+	"fim_server/service/rpc/group/group_rpc"
+	"fim_server/service/rpc/user/client"
+	"fim_server/utils/src"
 	"github.com/go-redis/redis"
 	"github.com/zeromicro/go-zero/zrpc"
 	"gorm.io/gorm"
@@ -16,23 +18,25 @@ import (
 )
 
 type ServiceContext struct {
-	Config  config.Config
-	DB      *gorm.DB
-	Redis   *redis.Client
-	UserRpc user_rpc.UserClient
-	ChatRpc chat_rpc.ChatClient
-		AdminMiddleware func(next http.HandlerFunc) http.HandlerFunc
-	Log                 log_service.PusherServerInterface
+	Config          config.Config
+	DB              *gorm.DB
+	Redis           *redis.Client
+	UserRpc         client.UserRpc
+	ChatRpc         chat_rpc.ChatClient
+	GroupRpc        group_rpc.GroupClient
+	AdminMiddleware func(next http.HandlerFunc) http.HandlerFunc
+	RpcLog          service_method.ServerInterfaceLog
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
-		Config:                  c,
-		DB:                      core.Mysql(c.System.Mysql),
-		Redis:                   core.Redis(c.System.Redis),
-		UserRpc:                 user.NewUser(zrpc.MustNewClient(c.UserRpc, zrpc.WithUnaryClientInterceptor(middleware.ClientInterceptor))),
-		ChatRpc:                 chat.NewChat(zrpc.MustNewClient(c.ChatRpc, zrpc.WithUnaryClientInterceptor(middleware.ClientInterceptor))),
-				AdminMiddleware: middleware.NewAdminMiddleware().Handle,
-		Log:                     log_service.NewPusher(c.Name, log_service.Action),
+		Config:          c,
+		DB:              src.Client().Mysql(c.System.Mysql),
+		Redis:           src.Client().Redis(c.System.Redis),
+		UserRpc:         client.UserClient(c.UserRpc),
+		ChatRpc:         chat.NewChat(zrpc.MustNewClient(c.ChatRpc, zrpc.WithUnaryClientInterceptor(zero_middleware.ClientInterceptor))),
+		GroupRpc:        group.NewGroup(zrpc.MustNewClient(c.GroupRpc, zrpc.WithUnaryClientInterceptor(zero_middleware.ClientInterceptor))),
+		AdminMiddleware: middleware.NewAdminMiddleware().Handle,
+		RpcLog:          service_method.Log(c.Name, 2),
 	}
 }

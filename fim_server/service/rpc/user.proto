@@ -3,6 +3,18 @@ syntax = "proto3";
 package user_rpc;
 option go_package = "./user_rpc";
 
+message Empty{}
+message ID {
+  uint32  id = 1;
+}
+message IdList {
+  repeated uint32 id = 2;
+}
+message IsResponse{
+  bool is = 1;
+  string error = 2;
+}
+
 message UserCreateRequest {
   string name = 1;
   string password = 2;
@@ -11,71 +23,57 @@ message UserCreateRequest {
   string open_id = 5;
   string register_source = 6;
 }
-
 message UserCreateResponse {
   int32 user_id = 1;
 }
 
-message UserInfoRequest {
-  uint32 user_id = 1;
+message UserInfo {
+  uint32 id = 1;
+  string name = 2;
+  string password = 3;
+  string sign = 4;
+  string avatar = 5;
+  string ip = 6;
+  string  addr = 7;
+  int32  role = 8;
+  bytes user_config_model = 9;
+  string   created_at = 10;
 }
 message UserInfoResponse {
-  bytes data = 1; // 用户和用户配置的json
+  int64 total = 1;
+  UserInfo info = 2; // 用户和用户配置的json
+  map<uint32, UserInfo> info_list = 3; // 用户列表信息
 }
-
-
-
-message UserInfo {
-  string name = 1;
-  string avatar = 2;
-}
-message UserListInfoRequest {
-  repeated uint32 user_id_list = 1;  // 用户ID列表
-}
-message UserListInfoResponse {
-  map<uint32, UserInfo> user_info = 1; // 用户列表信息
-}
-
-message IsFriendRequest {
-  uint32 user1 = 1;
-  uint32 user2 = 2;
-}
-message IsFriendResponse {}
-
-
-
-message FriendListRequest {
-  uint32 user_id = 1;
-}
-message FriendInfo {
-  uint32 user_id = 1;
-  string name = 2;
-  string avatar = 3;
-}
-message FriendListResponse {
-  repeated FriendInfo friend_list = 1;
-}
-
-message UserBaseInfoRequest {
-  uint32 user_id = 1;
-}
-message UserBaseInfoResponse {
-  uint32 user_id = 1;
-  string name = 2;
-  string avatar = 3;
-}
-
-message UserOnlineListRequest{}
 message UserOnlineListResponse{
   repeated uint32 user_id_list = 1;
 }
 
 service User {
   rpc UserCreate(UserCreateRequest) returns(UserCreateResponse);  // 创建用户
-  rpc UserInfo(UserInfoRequest) returns(UserInfoResponse);  // 用户信息
-  rpc UserBaseInfo(UserBaseInfoRequest) returns(UserBaseInfoResponse);  // 用户信息
-  rpc UserListInfo(UserListInfoRequest) returns(UserListInfoResponse);  // 用户列表信息
-  rpc IsFriend(IsFriendRequest) returns(IsFriendResponse);  // 是否是好友
-  rpc FriendList(FriendListRequest) returns(FriendListResponse);  // 好友列表
-  rpc UserOnlineList(UserOnlineListRequest) returns(UserOnlineListResponse);  // 在线用户ID列表
+  rpc UserInfo(IdList) returns(UserInfoResponse);                     // 用户信息
+  rpc UserOnlineList(Empty) returns(UserOnlineListResponse);      // 在线用户ID列表
+}
+
+message IsFriendRequest {
+  uint32 user1 = 1;
+  uint32 user2 = 2;
+}
+message FriendListResponse {
+  repeated UserInfo friend_list = 1;
+}
+
+service Friend {
+  rpc IsFriend(IsFriendRequest) returns(Empty);              // 是否是好友
+  rpc FriendList(ID) returns(FriendListResponse);            // 好友列表
+}
+
+message CurtailResponse{
+  IsResponse curtail_chat = 1;
+  IsResponse curtail_add_user = 2;
+  IsResponse curtail_create_group = 3;
+  IsResponse curtail_add_group = 4;
+}
+
+service UserCurtail {
+  rpc IsCurtail(ID) returns(CurtailResponse);                 // 限制建群
 }

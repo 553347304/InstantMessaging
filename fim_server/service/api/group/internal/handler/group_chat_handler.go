@@ -2,12 +2,12 @@ package handler
 
 import (
 	"context"
-	"fim_server/config/core"
 	"fim_server/models/group_models"
 	"fim_server/models/mtype"
 	"fim_server/service/api/group/internal/svc"
 	"fim_server/service/api/group/internal/types"
 	"fim_server/service/rpc/user/user_rpc"
+	"fim_server/utils/src"
 	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
 	"github.com/gorilla/websocket"
@@ -46,6 +46,7 @@ type sendMessage struct {
 	Member  group_models.GroupMemberModel
 	Err     error
 }
+
 func (s *sendMessage) Error(err string) error {
 	s.Err = conv.Type(err).Error()
 	return s.Err
@@ -196,18 +197,16 @@ func (s *sendMessage) Init(p []byte) error {
 	}
 	
 	// 获取用户信息
-	baseInfoResponse, err := s.SvcCtx.UserRpc.UserBaseInfo(context.Background(),
-		&user_rpc.UserBaseInfoRequest{UserId: uint32(s.Req.UserId)})
+	userResponse, err := s.SvcCtx.UserRpc.User.UserInfo(context.Background(), &user_rpc.IdList{Id: []uint32{uint32(s.Req.UserId)}})
 	if err != nil {
 		return s.Error("获取用户信息失败" + err.Error())
 	}
-	userInfo := mtype.UserInfo{
-		ID:     s.Req.UserId,
-		Name:   baseInfoResponse.Name,
-		Avatar: baseInfoResponse.Avatar,
-	}
 	UserOnlineMapWebsocket[s.Req.UserId] = &UserInfoWebsocket{
-		UserInfo: userInfo,
+		UserInfo: mtype.UserInfo{
+			ID:     s.Req.UserId,
+			Name:   userResponse.Info.Name,
+			Avatar: userResponse.Info.Avatar,
+		},
 		ConnMap: map[string]*websocket.Conn{
 			s.Conn.RemoteAddr().String(): s.Conn,
 		},
@@ -223,7 +222,7 @@ func GroupChatHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 		
-		conn := core.Websocket(w, r)
+		conn := src.Client().Websocket(w, r)
 		if conn == nil {
 			response.Response(r, w, nil, logs.Error("websocket连接失败"))
 			return

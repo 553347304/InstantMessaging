@@ -25,7 +25,7 @@ func NewGroupHistoryDeleteLogic(ctx context.Context, svcCtx *svc.ServiceContext)
 	}
 }
 
-func (l *GroupHistoryDeleteLogic) GroupHistoryDelete(req *types.GroupHistoryDeleteRequest) (resp *types.EmptyResponse, err error) {
+func (l *GroupHistoryDeleteLogic) GroupHistoryDelete(req *types.GroupHistoryDeleteRequest) (resp *types.Empty, err error) {
 	// todo: add your logic here and delete this line
 
 	var member1 group_models.GroupMemberModel

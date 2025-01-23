@@ -28,13 +28,13 @@ func NewGroupValidListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Gr
 
 func (l *GroupValidListLogic) GroupValidList(req *types.GroupValidListRequest) (resp *types.GroupValidListResponse, err error) {
 	// todo: add your logic here and delete this line
-
+	
 	// 是不是群主/管理员
 	var groupIdList []uint
 	l.svcCtx.DB.Model(group_models.GroupMemberModel{}).
 		Where("user_id = ? and (role = 1 or role = 2)", req.UserId).
 		Select("group_id").Scan(&groupIdList)
-
+	
 	if len(groupIdList) == 0 {
 		return nil, logs.Error("用户不在群内")
 	}
@@ -47,22 +47,20 @@ func (l *GroupValidListLogic) GroupValidList(req *types.GroupValidListRequest) (
 			Limit: req.Limit,
 		},
 	}).GetList()
-
+	
 	// 用户列表
 	var userIdList []uint32
 	for _, group := range groups.List {
 		userIdList = append(userIdList, uint32(group.UserId))
 	}
-	userList, err1 := l.svcCtx.UserRpc.UserListInfo(l.ctx, &user_rpc.UserListInfoRequest{
-		UserIdList: userIdList,
-	})
+	userResponse, err1 := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: userIdList})
 	if err1 != nil {
 		return nil, logs.Error("用户服务错误")
 	}
-
+	
 	resp = new(types.GroupValidListResponse)
 	resp.Total = groups.Total
-
+	
 	for _, group := range groups.List {
 		resp.List = append(resp.List, types.GroupValidInfo{
 			ID:         group.ID,
@@ -74,8 +72,8 @@ func (l *GroupValidListLogic) GroupValidList(req *types.GroupValidListRequest) (
 			ValidInfo:  conv.Struct(types.ValidInfo{}).Type(group.ValidInfo),
 			Type:       group.Type,
 			CreatedAt:  group.CreatedAt.String(),
-			UserName:   userList.UserInfo[uint32(group.UserId)].Name,
-			UserAvatar: userList.UserInfo[uint32(group.UserId)].Avatar,
+			UserName:   userResponse.InfoList[uint32(group.UserId)].Name,
+			UserAvatar: userResponse.InfoList[uint32(group.UserId)].Avatar,
 		})
 	}
 	return

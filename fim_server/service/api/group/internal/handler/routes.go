@@ -6,6 +6,7 @@ package handler
 import (
 	"net/http"
 
+	Admin "fim_server/service/api/group/internal/handler/Admin"
 	"fim_server/service/api/group/internal/svc"
 
 	"github.com/zeromicro/go-zero/rest"
@@ -125,5 +126,28 @@ func RegisterHandlers(src *rest.Server, serverCtx *svc.ServiceContext) {
 				Handler: GroupChatHandler(serverCtx),
 			},
 		},
+	)
+
+	src.AddRoutes(
+		rest.WithMiddlewares(
+			[]rest.Middleware{serverCtx.AdminMiddleware},
+			[]rest.Route{
+				{
+					Method:  http.MethodGet,
+					Path:    "/api/group/group",
+					Handler: Admin.GroupListHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodGet,
+					Path:    "/api/group/message",
+					Handler: Admin.GroupMessageListHandler(serverCtx),
+				},
+				{
+					Method:  http.MethodDelete,
+					Path:    "/api/group/message",
+					Handler: Admin.GroupMessageDeleteHandler(serverCtx),
+				},
+			}...,
+		),
 	)
 }

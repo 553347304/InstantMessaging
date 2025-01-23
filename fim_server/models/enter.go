@@ -3,7 +3,6 @@ package models
 import (
 	"database/sql/driver"
 	"encoding/json"
-	"fmt"
 	"time"
 )
 
@@ -16,7 +15,6 @@ type Model struct {
 type ContentArray []Content
 
 func (s ContentArray) Value() (driver.Value, error) {
-	fmt.Println(s)
 	if s == nil {
 		return "[]", nil
 	}
@@ -43,25 +41,3 @@ type Content struct {
 	Size    int    `json:"size,omitempty"`
 }
 
-// func (s Interface) Value() (driver.Value, error) {
-// 	
-// 	
-// 	fmt.Println(s)
-// 	
-// 	
-// 	if s == nil {
-// 		return "[]", nil
-// 	}
-// 	return json.Marshal(s)
-// }
-// 
-// 
-// 
-// func (s *Interface) Scan(value interface{}) error {
-// 	bytes, _ := value.([]byte)
-// 	if len(bytes) > 0 {
-// 		return json.Unmarshal(bytes, s)
-// 	}
-// 	*s = make(Interface, 0)
-// 	return nil
-// }

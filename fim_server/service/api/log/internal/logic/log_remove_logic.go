@@ -27,6 +27,6 @@ func (l *LogRemoveLogic) LogRemove(req *types.LogRemoveRequest) (resp *types.Emp
 	if len(logList) > 0 {
 		l.svcCtx.DB.Delete(&logList)
 	}
-	l.svcCtx.Log.Info(l.ctx,logs.Info("删除日志条数", len(logList)))
+	l.svcCtx.RpcLog.Info(l.ctx,logs.Info("删除日志条数", len(logList)))
 	return
 }

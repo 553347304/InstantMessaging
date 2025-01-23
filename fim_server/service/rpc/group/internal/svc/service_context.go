@@ -1,8 +1,8 @@
 package svc
 
 import (
-	"fim_server/config/core"
 	"fim_server/service/rpc/group/internal/config"
+	"fim_server/utils/src"
 	"github.com/go-redis/redis"
 	"gorm.io/gorm"
 )
@@ -16,7 +16,7 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config: c,
-		DB:     core.Mysql(c.System.Mysql),
-		Redis:  core.Redis(c.System.Redis),
+		DB:     src.Client().Mysql(c.System.Mysql),
+		Redis:  src.Client().Redis(c.System.Redis),
 	}
 }

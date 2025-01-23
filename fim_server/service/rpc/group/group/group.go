@@ -14,12 +14,15 @@ import (
 )
 
 type (
-	EmptyResponse          = group_rpc.EmptyResponse
-	GroupMemberListRequest = group_rpc.GroupMemberListRequest
-	IsInGroupMemberRequest = group_rpc.IsInGroupMemberRequest
+	EmptyResponse           = group_rpc.EmptyResponse
+	GroupMemberListRequest  = group_rpc.GroupMemberListRequest
+	IsInGroupMemberRequest  = group_rpc.IsInGroupMemberRequest
+	UserGroupSearchRequest  = group_rpc.UserGroupSearchRequest
+	UserGroupSearchResponse = group_rpc.UserGroupSearchResponse
 
 	Group interface {
 		IsInGroupMember(ctx context.Context, in *IsInGroupMemberRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+		UserGroupSearch(ctx context.Context, in *UserGroupSearchRequest, opts ...grpc.CallOption) (*UserGroupSearchResponse, error)
 	}
 
 	defaultGroup struct {
@@ -36,4 +39,9 @@ func NewGroup(cli zrpc.Client) Group {
 func (m *defaultGroup) IsInGroupMember(ctx context.Context, in *IsInGroupMemberRequest, opts ...grpc.CallOption) (*EmptyResponse, error) {
 	client := group_rpc.NewGroupClient(m.cli.Conn())
 	return client.IsInGroupMember(ctx, in, opts...)
+}
+
+func (m *defaultGroup) UserGroupSearch(ctx context.Context, in *UserGroupSearchRequest, opts ...grpc.CallOption) (*UserGroupSearchResponse, error) {
+	client := group_rpc.NewGroupClient(m.cli.Conn())
+	return client.UserGroupSearch(ctx, in, opts...)
 }

@@ -4,41 +4,30 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"time"
 )
 
-func String(_color string, s ...interface{}) (string, string, string) {
-	_source := ""
-	for i := 0; i < len(s); i++ {
-		_source += " " + fmt.Sprint(s[i])
-	}
-	_source = _source[1:]
-	_string := logColor(isFieldColor(_source), _color)
-	_time := logColor(fmt.Sprintf("[%v]", time.Now().Format(times)), "#ffffff")
-	return _time, _string, _source
+var c = struct {
+	Line  int
+	Info  string
+	Error string
+	Time  string
+}{
+	Line:  1,
+	Time:  "15:04:05",
+	Info:  "#80ffff",
+	Error: "#F75464",
 }
 
 func Info(s ...interface{}) string {
-	_time, _string, _source := String("#80ffff", s...)
-	fmt.Println(_time, getLine()[line], _string)
-	return _source
+	return log(getLine(), c.Info, s...).Info()
 }
 func InfoF(sf string, s ...interface{}) string {
-	_time, _string, _source := String("#80ffff", fmt.Sprintf(sf, s...))
-	fmt.Println(_time, getLine()[line], _string)
-	return _source
+	return log(getLine(), c.Info, fmt.Sprintf(sf, s...)).Info()
 }
 func Error(s ...interface{}) error {
-	_time, _string, _source := String("#F75464", s...)
-	fmt.Println(_time, _string)
-	row := getLine()
-	for i := line; i < len(row); i++ {
-		fmt.Println(row[i])
-	}
-	return errors.New(_source)
+	return errors.New(log(getLine(), c.Error, s...).Error())
 }
 func Fatal(s ...interface{}) {
-	_time, _string, _ := String("#F75464", s...)
-	fmt.Println(_time, getLine()[line], _string)
-	os.Exit(1)
+	log(getLine(), c.Error, s...).Error()
+	os.Exit(0)
 }

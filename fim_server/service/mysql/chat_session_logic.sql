@@ -2,7 +2,7 @@ select *
 from (select least(send_user_id, receive_user_id) as s_u,
              greatest(send_user_id, receive_user_id) as r_u,
              max(created_at) as max_date,
-             (select message_preview
+             (select preview
               from chat_models
               where ((send_user_id = s_u and receive_user_id = r_u)
                   or (send_user_id = r_u and receive_user_id = s_u))
@@ -24,3 +24,8 @@ select *
 from chat_models
 where send_user_id = 1 and receive_user_id = 2
    and id not in (select chat_id from user_chat_delete_models where user_id = 1);
+
+
+# 用户发送消息总数
+select send_user_id,count(id) from chat_models group by send_user_id;
+select receive_user_id,count(id) from chat_models group by receive_user_id;

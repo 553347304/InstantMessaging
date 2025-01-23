@@ -1,8 +1,8 @@
 package svc
 
 import (
-	"fim_server/config/core"
 	"fim_server/service/rpc/file/internal/config"
+	"fim_server/utils/src"
 	"gorm.io/gorm"
 )
 
@@ -14,6 +14,6 @@ type ServiceContext struct {
 func NewServiceContext(c config.Config) *ServiceContext {
 	return &ServiceContext{
 		Config: c,
-		DB:     core.Mysql(c.System.Mysql),
+		DB:     src.Client().Mysql(c.System.Mysql),
 	}
 }

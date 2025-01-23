@@ -2,7 +2,7 @@ Name: user.rpc
 ListenOn: 0.0.0.0:30022
 Etcd:
   Hosts:
-  - 127.0.0.1:2379
+    - 127.0.0.1:2379
   Key: user.rpc
 Log:
   Encoding: plain
@@ -10,7 +10,7 @@ Log:
   Stat: false
 System:
   Mysql: root:baiyin@tcp(127.0.0.1:3306)/fim_db?charset=utf8mb4&parseTime=True&loc=Local
-  Redis: 127.0.0.1:6379 baiyin 0
+  Redis: 127.0.0.1:6379 baiyin 0 100
   Etcd: 127.0.0.1:2379
 OpenLoginList:
   - name: QQ登录

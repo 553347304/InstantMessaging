@@ -40,7 +40,7 @@ func (l *GroupSearchLogic) GroupSearch(req *types.GroupSearchListRequest) (resp 
 
 	// 用户在线总数
 	var userOnlineIdList []uint
-	userOnlineResponse, err := l.svcCtx.UserRpc.UserOnlineList(l.ctx, &user_rpc.UserOnlineListRequest{})
+	userOnlineResponse, err := l.svcCtx.UserRpc.User.UserOnlineList(l.ctx, &user_rpc.Empty{})
 	if err == nil {
 		for _, u := range userOnlineResponse.UserIdList {
 			userOnlineIdList = append(userOnlineIdList, uint(u))

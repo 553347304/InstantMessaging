@@ -10,6 +10,7 @@ import (
 type sliceServerInterface interface {
 	String() []string
 	Int() []int
+	Uint32() []uint32
 }
 type sliceServer struct {
 	Slice []string
@@ -43,6 +44,14 @@ func (s *sliceServer) Int() []int {
 			continue
 		}
 		slice[i] = int(intVal)
+	}
+	return slice
+}
+func (s *sliceServer) Uint32() []uint32 {
+	slice := make([]uint32, len(s.Slice))
+	sliceInt := s.Int()
+	for i, v := range sliceInt {
+		slice[i] = uint32(v)
 	}
 	return slice
 }

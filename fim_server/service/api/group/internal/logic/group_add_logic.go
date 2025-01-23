@@ -4,6 +4,7 @@ import (
 	"context"
 	"fim_server/models"
 	"fim_server/models/group_models"
+	"fim_server/service/rpc/user/user_rpc"
 	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
 	
@@ -29,6 +30,11 @@ func NewGroupAddLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GroupAdd
 
 func (l *GroupAddLogic) GroupAdd(req *types.GroupAddRequest) (resp *types.GroupAddResponse, err error) {
 	// todo: add your logic here and delete this line
+	
+	is, err1 := l.svcCtx.UserRpc.Curtail.IsCurtail(l.ctx, &user_rpc.ID{Id: uint32(req.UserId)})
+	if err1 != nil || !is.CurtailAddGroup.Is {
+		return nil, conv.Type(is.CurtailAddGroup.Error).Error()
+	}
 	
 	var member group_models.GroupMemberModel
 	err = l.svcCtx.DB.Take(&member, "group_id = ? and user_id = ?", req.GroupId, req.UserId).Error

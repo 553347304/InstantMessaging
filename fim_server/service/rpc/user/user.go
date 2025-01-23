@@ -1,14 +1,16 @@
 package main
 
 import (
-	"fim_server/common/middleware"
-	"fim_server/service/rpc/user/internal/config"
-	"fim_server/service/rpc/user/internal/server"
-	"fim_server/service/rpc/user/internal/svc"
-	"fim_server/service/rpc/user/user_rpc"
 	"flag"
 	"fmt"
-	
+
+	"fim_server/service/rpc/user/internal/config"
+	friendServer "fim_server/service/rpc/user/internal/server/friend"
+	userServer "fim_server/service/rpc/user/internal/server/user"
+	usercurtailServer "fim_server/service/rpc/user/internal/server/usercurtail"
+	"fim_server/service/rpc/user/internal/svc"
+	"fim_server/service/rpc/user/user_rpc"
+
 	"github.com/zeromicro/go-zero/core/conf"
 	"github.com/zeromicro/go-zero/core/service"
 	"github.com/zeromicro/go-zero/zrpc"
@@ -20,20 +22,22 @@ var configFile = flag.String("f", "etc/user.yaml", "the config file")
 
 func main() {
 	flag.Parse()
-	
+
 	var c config.Config
 	conf.MustLoad(*configFile, &c)
 	ctx := svc.NewServiceContext(c)
-	
+
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		user_rpc.RegisterUserServer(grpcServer, server.NewUserServer(ctx))
-		
+		user_rpc.RegisterUserServer(grpcServer, userServer.NewUserServer(ctx))
+		user_rpc.RegisterFriendServer(grpcServer, friendServer.NewFriendServer(ctx))
+		user_rpc.RegisterUserCurtailServer(grpcServer, usercurtailServer.NewUserCurtailServer(ctx))
+
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)
 		}
 	})
 	defer s.Stop()
-	s.AddUnaryInterceptors(middleware.ServerInterceptor)
+
 	fmt.Printf("Starting rpc server at %s...\n", c.ListenOn)
 	s.Start()
 }

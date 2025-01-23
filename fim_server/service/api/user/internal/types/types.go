@@ -13,6 +13,9 @@ type AddFriendRequest struct {
 type AddFriendResponse struct {
 }
 
+type Empty struct {
+}
+
 type FriendDeleteRequest struct {
 	UserId   uint `header:"User-Id"`
 	FriendId uint `json:"friend_id"` // 好友ID
@@ -81,6 +84,29 @@ type FriendValidListResponse struct {
 	Total int64             `json:"total"`
 }
 
+type Header struct {
+	UserId uint `header:"User-Id"`
+}
+
+type ParamsPath struct {
+	Id uint `path:"id"`
+}
+
+type RequestDelete struct {
+	IdList []uint `json:"id_list"`
+}
+
+type RequestPageInfo struct {
+	Key   string `form:"key,optional"`
+	Page  int    `form:"page,optional"`
+	Limit int    `form:"limit,optional"`
+}
+
+type ResponseList struct {
+	Total int64   `json:"total"`
+	List  []Empty `json:"list"`
+}
+
 type SearchInfo struct {
 	UserId   uint   `json:"user_id"`
 	Name     string `json:"name"`
@@ -102,6 +128,14 @@ type SearchResponse struct {
 	Total int64        `json:"total"`
 }
 
+type UserCurtailRequest struct {
+	UserId             uint `json:"user_id"`              // 限制的用户
+	CurtailChat        bool `json:"curtail_chat"`         // 限制聊天
+	CurtailAddUser     bool `json:"curtail_add_user"`     // 限制加人
+	CurtailCreateGroup bool `json:"curtail_create_group"` // 限制建群
+	CurtailAddGroup    bool `json:"curtail_add_group"`    // 限制加群
+}
+
 type UserInfoRequest struct {
 	UserId uint `header:"User-Id"`
 	Role   int8 `header:"Role"`
@@ -120,6 +154,28 @@ type UserInfoResponse struct {
 	SearchUser    int8      `json:"search_user"`    // 别人查找到你的方式
 	Valid         int8      `json:"valid,optional"`
 	ValidInfo     ValidInfo `json:"valid_info,optional"`
+}
+
+type UserListInfoResponse struct {
+	ID                 uint   `json:"id"`
+	CreatedAt          string `json:"created_at"`
+	Name               string `json:"name"`
+	Avatar             string `json:"avatar"`
+	IP                 string `json:"ip"`
+	Addr               string `json:"addr"`
+	IsOnline           bool   `json:"is_online"`
+	SendMsgCount       int    `json:"send_msg_count"`       // 发送消息个数
+	GroupAdminCount    int    `json:"group_admin_count"`    // 建群数量
+	GroupCount         int    `json:"group_count"`          // 进群数量
+	CurtailChat        bool   `json:"curtail_chat"`         // 限制聊天
+	CurtailAddUser     bool   `json:"curtail_add_user"`     // 限制加人
+	CurtailCreateGroup bool   `json:"curtail_create_group"` // 限制建群
+	CurtailAddGroup    bool   `json:"curtail_add_group"`    // 限制加群
+}
+
+type UserListResponse struct {
+	Total int64                  `json:"total"`
+	List  []UserListInfoResponse `json:"list"`
 }
 
 type UserUpdateRequest struct {

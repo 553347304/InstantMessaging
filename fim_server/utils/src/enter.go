@@ -17,3 +17,4 @@ func (o *PageInfo) param() {
 		o.Page = (o.Page - 1) * o.Limit
 	}
 }
+

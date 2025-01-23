@@ -8,10 +8,10 @@ import (
 	"fim_server/utils/open_login"
 	"fim_server/utils/stores/logs"
 	"fmt"
-
+	
 	"fim_server/service/api/auth/internal/svc"
 	"fim_server/service/api/auth/internal/types"
-
+	
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -31,18 +31,18 @@ func NewOpen_loginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Open_l
 
 func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.LoginResponse, err error) {
 	// todo: add your logic here and delete this line
-
+	
 	type OpenInfo struct {
 		Name   string
 		OpenId string
 		Avatar string
 	}
-
+	
 	var info OpenInfo
 	switch req.Flag {
 	case "qq":
 		qqInfo, errs := open_login.NewQQLogin(req.Code)
-
+		
 		info = OpenInfo{
 			OpenId: qqInfo.OpenID,
 			Name:   qqInfo.Name,
@@ -50,10 +50,10 @@ func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.L
 		}
 		err = errs
 	default:
-
+		
 		err = logs.Error("不支持的第三方登录")
 	}
-
+	
 	if err != nil {
 		logs.Error("登录失败", err)
 		return nil, logs.Error("登录失败")
@@ -62,7 +62,7 @@ func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.L
 	err = l.svcCtx.DB.Take(&user, "open_id = ?", info.OpenId).Error
 	if err != nil {
 		fmt.Println("注册服务")
-		result, errs := l.svcCtx.UserRpc.UserCreate(l.ctx, &user_rpc.UserCreateRequest{
+		result, errs := l.svcCtx.UserRpc.User.UserCreate(l.ctx, &user_rpc.UserCreateRequest{
 			Name:           info.Name,
 			Password:       "",
 			Role:           2,
@@ -88,5 +88,5 @@ func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.L
 		return nil, logs.Error("服务器内部错误")
 	}
 	return &types.LoginResponse{Token: token}, nil
-
+	
 }

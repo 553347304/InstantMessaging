@@ -14,3 +14,4 @@ func Command() {
 		logs.Fatal("->生成数据库表结构", MigrationTable() == nil)
 	}
 }
+

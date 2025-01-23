@@ -2,7 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fim_server/utils/src/etcd"
+	"fim_server/utils/src"
 	"fim_server/utils/stores/logs"
 	"flag"
 	"fmt"
@@ -34,7 +34,7 @@ func WriteJson(res http.ResponseWriter, message string) {
 }
 
 func auth(req *http.Request) error {
-	authAddr := etcd.GetServiceAddr(config.Etcd, "auth_api")
+	authAddr := src.Etcd().GetServiceAddress(config.Etcd, "auth_api")
 	authUrl := fmt.Sprintf("http://%s/api/auth/authentication", authAddr)
 
 	// 认证请求
@@ -83,7 +83,7 @@ func (Proxy) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 	}
 	service := addrList[1]
 
-	addr := etcd.GetServiceAddr(config.Etcd, service+"_api")
+	addr := src.Etcd().GetServiceAddress(config.Etcd, service+"_api")
 	if addr == "" {
 		WriteJson(res, logs.Error("不匹配的服务", service).Error())
 		return

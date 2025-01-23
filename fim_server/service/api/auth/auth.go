@@ -1,8 +1,8 @@
 package main
 
 import (
-	"fim_server/common/middleware"
-	"fim_server/utils/src/etcd"
+	"fim_server/common/zero_middleware"
+	"fim_server/utils/src"
 	"flag"
 	"fmt"
 	
@@ -28,9 +28,9 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
 	
-	server.Use(middleware.UseMiddleware(ctx.Log))
-
-	etcd.DeliveryAddress(c.System.Etcd, c.Name+"_api", fmt.Sprintf("%s:%d", c.Host, c.Port))
+	server.Use(zero_middleware.UseMiddleware(ctx.RpcLog))
+	
+	src.Etcd().DeliveryAddress(c.System.Etcd, c.Name+"_api", fmt.Sprintf("%s:%d", c.Host, c.Port))
 	
 	fmt.Printf("Starting server at %s:%d...\n", c.Host, c.Port)
 	server.Start()

@@ -42,21 +42,9 @@ func (m *ServiceMysql[T]) where() {
 	m.DB = m.DB.Where(m.Where, quest...)
 }
 func (m *ServiceMysql[T]) preload() {
-	if m.PageInfo.Key == "" {
-		return
+	for _, preload := range m.Preload {
+		m.DB = m.DB.Preload(preload)
 	}
-	split := strings.Split(m.Where, " ?")
-	var quest []interface{}
-	for _, s := range split {
-		if strings.ReplaceAll(s, " ", "") != "" {
-			key := m.PageInfo.Key
-			if strings.Contains(s, "like") {
-				key = fmt.Sprintf("%%%s%%", m.PageInfo.Key)
-			}
-			quest = append(quest, key)
-		}
-	}
-	m.DB = m.DB.Where(m.Where, quest...)
 }
 func (m *ServiceMysql[T]) param() {
 	m.PageInfo.param()
@@ -79,6 +67,9 @@ func (m *ServiceMysql[T]) isFieldExist() bool {
 
 //goland:noinspection GoExportedFuncWithUnexportedType	忽略警告
 func Mysql[T interface{}](m ServiceMysql[T]) serviceInterfaceMysql[T] {
+	if m.DB == nil {
+		logs.Fatal("数据库不存在")
+	}
 	if m.Model == nil {
 		m.Model = new(T)
 	}

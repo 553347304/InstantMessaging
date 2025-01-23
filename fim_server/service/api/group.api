@@ -10,7 +10,7 @@ info (
 
 // 通用
 type (
-	EmptyResponse  {}
+	Empty  {}
 	Header {
 		UserId uint `header:"User-Id"`
 	}
@@ -25,6 +25,13 @@ type (
 		Key   string `form:"key,optional"`
 		Page  int    `form:"page,optional"`
 		Limit int    `form:"limit,optional"`
+	}
+	RequestDelete {
+		IdList []uint `json:"id_list"`
+	}
+	ResponseList {
+		List  []Empty `json:"list"`
+		Total int64   `json:"total"`
 	}
 )
 
@@ -363,7 +370,7 @@ service group {
 	get /api/group/history/:id (GroupHistoryRequest) returns (GroupHistoryResponse) // 群聊天记录  /群ID
 
 	@handler GroupHistoryDelete
-	delete /api/group/history/:id (GroupHistoryDeleteRequest) returns (EmptyResponse) // 删除聊天记录  /群ID
+	delete /api/group/history/:id (GroupHistoryDeleteRequest) returns (Empty) // 删除聊天记录  /群ID
 
 	@handler GroupSession
 	get /api/group/session (GroupSessionRequest) returns (GroupSessionResponse) // 群会话列表
@@ -378,5 +385,37 @@ service group {
 	get /api/group/ws/chat (GroupChatRequest) returns (GroupChatResponse) // 群聊
 }
 
+type (
+	GroupListInfoResponse {
+		ID                uint       `json:"id"`
+		CreatedAt         string     `json:"created_at"`
+		Name              string     `json:"name"`
+		Sign              string     `json:"sign"`
+		Avatar            string     `json:"avatar"`
+		Leader            UserInfo   `json:"leader"` // 群主
+		AdminList         []UserInfo `json:"admin_list"` // 管理员列表
+		MessageTotal      int        `json:"message_total"` // 群消息条数
+		MemberTotal       int        `json:"member_total"` // 群成员人数
+		MemberOnlineTotal int        `json:"member_online_total"` // 群成员在线人数
+	}
+	GroupListResponse {
+		List  []GroupListInfoResponse `json:"list"`
+		Total int64                   `json:"total"`
+	}
+)
 
+@server (
+	group:      Admin
+	middleware: AdminMiddleware
+)
+service group {
+	@handler GroupList //群聊列表
+	get /api/group/group (PageInfo) returns (GroupListResponse)
+
+	@handler GroupMessageList // 群消息列表
+	get /api/group/message (PageInfo) returns (ResponseList)
+
+	@handler GroupMessageDelete // 群聊删除
+	delete /api/group/message (RequestDelete) returns (Empty)
+}
 

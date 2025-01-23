@@ -75,7 +75,7 @@ func (l *GroupHistoryLogic) GroupHistory(req *types.GroupHistoryRequest) (resp *
 	}
 	
 	userIdList = method.List(userIdList).Unique() // 去重
-	userInfoList, err := l.svcCtx.UserRpc.UserListInfo(l.ctx, &user_rpc.UserListInfoRequest{UserIdList: userIdList})
+	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: userIdList})
 	if err != nil {
 		return nil, err
 	}
@@ -84,14 +84,15 @@ func (l *GroupHistoryLogic) GroupHistory(req *types.GroupHistoryRequest) (resp *
 	var list = make([]HistoryResponse, 0)
 	for _, info := range groupMessageList.List {
 		// 群备注名称
+		
 		memberName := memberMap[info.SendUserId].MemberName
 		if memberName == "" {
-			memberName = userInfoList.UserInfo[uint32(info.SendUserId)].Name
+			memberName = userResponse.InfoList[uint32(info.SendUserId)].Name
 		}
 		list = append(list, HistoryResponse{
 			ID:         info.ID,
 			UserId:     info.SendUserId,
-			UserAvatar: userInfoList.UserInfo[uint32(info.SendUserId)].Avatar,
+			UserAvatar: userResponse.InfoList[uint32(info.SendUserId)].Avatar,
 			CreatedAt:  info.CreatedAt,
 			MemberId:   info.MemberId,
 			MemberName: memberName,

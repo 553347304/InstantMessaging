@@ -54,7 +54,7 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 		Avatar:      groupModel.Avatar,
 		Role:        member.Role,
 		IsBan:       groupModel.IsBan,
-		BanTime:     member.GetBanTime(l.svcCtx.DB,l.svcCtx.Redis),
+		BanTime:     member.GetBanTime(l.svcCtx.DB, l.svcCtx.Redis),
 	}
 	
 	// 查用户列表信息
@@ -67,9 +67,7 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 		userAllIdList = append(userAllIdList, uint32(model.UserId))
 	}
 	
-	userListResponse, err := l.svcCtx.UserRpc.UserListInfo(l.ctx, &user_rpc.UserListInfoRequest{
-		UserIdList: userIdList,
-	})
+	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: userIdList})
 	if err != nil {
 		return nil, err
 	}
@@ -81,8 +79,8 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 		}
 		userInfo := types.UserInfo{
 			UserId: model.UserId,
-			Avatar: userListResponse.UserInfo[uint32(model.UserId)].Avatar,
-			Name:   userListResponse.UserInfo[uint32(model.UserId)].Name,
+			Avatar: userResponse.InfoList[uint32(model.UserId)].Avatar,
+			Name:   userResponse.InfoList[uint32(model.UserId)].Name,
 		}
 		if model.Role == 1 {
 			leader = userInfo
@@ -97,7 +95,7 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 	resp.AdminList = adminList
 	
 	// 用户在线总数
-	userOnlineResponse, err := l.svcCtx.UserRpc.UserOnlineList(l.ctx, &user_rpc.UserOnlineListRequest{})
+	userOnlineResponse, err := l.svcCtx.UserRpc.User.UserOnlineList(l.ctx, &user_rpc.Empty{})
 	if err == nil {
 		slice := method.List(userOnlineResponse.UserIdList).Intersect(userAllIdList)
 		resp.MemberOnlinCount = len(slice)

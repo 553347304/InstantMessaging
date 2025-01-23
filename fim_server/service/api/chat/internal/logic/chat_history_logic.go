@@ -45,11 +45,10 @@ type ChatHistoryResponse struct {
 func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *ChatHistoryResponse, err error) {
 	// todo: add your logic here and delete this line
 	
-	_, err = l.svcCtx.UserRpc.IsFriend(l.ctx, &user_rpc.IsFriendRequest{User1: uint32(req.UserId), User2: uint32(req.FriendId)})
+	_, err = l.svcCtx.UserRpc.Friend.IsFriend(l.ctx, &user_rpc.IsFriendRequest{User1: uint32(req.UserId), User2: uint32(req.FriendId)})
 	if err != nil {
 		return nil, logs.Error("不是好友")
 	}
-	
 	
 	chatList := src.Mysql(src.ServiceMysql[chat_models.ChatModel]{
 		DB: l.svcCtx.DB.Where("(send_user_id = ? and receive_user_id = ?) or "+
@@ -70,9 +69,7 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 	}
 	userIdList = method.List(userIdList).Unique() // 去重
 	// 调用户服务
-	response, err := l.svcCtx.UserRpc.UserListInfo(l.ctx, &user_rpc.UserListInfoRequest{
-		UserIdList: userIdList,
-	})
+	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: userIdList})
 	if err != nil {
 		return nil, logs.Error("用户服务错误")
 	}
@@ -84,13 +81,13 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 		if i == 0 {
 			sendUser = mtype.UserInfo{
 				ID:     model.SendUserId,
-				Name:   response.UserInfo[uint32(model.SendUserId)].Name,
-				Avatar: response.UserInfo[uint32(model.SendUserId)].Avatar,
+				Name:   userResponse.InfoList[uint32(model.SendUserId)].Name,
+				Avatar: userResponse.InfoList[uint32(model.SendUserId)].Avatar,
 			}
 			receiveUser = mtype.UserInfo{
 				ID:     model.ReceiveUserId,
-				Name:   response.UserInfo[uint32(model.ReceiveUserId)].Name,
-				Avatar: response.UserInfo[uint32(model.ReceiveUserId)].Avatar,
+				Name:   userResponse.InfoList[uint32(model.ReceiveUserId)].Name,
+				Avatar: userResponse.InfoList[uint32(model.ReceiveUserId)].Avatar,
 			}
 		}
 		

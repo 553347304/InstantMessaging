@@ -14,4 +14,5 @@ type Config struct {
 	}
 	UserRpc  zrpc.RpcClientConf
 	GroupRpc zrpc.RpcClientConf
+	RpcUser  zrpc.RpcClientConf
 }

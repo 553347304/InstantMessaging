@@ -1,14 +1,12 @@
 package svc
 
 import (
-	"fim_server/common/middleware"
-	"fim_server/common/service/log_service"
-	"fim_server/config/core"
+	"fim_server/common/service/service_method"
 	"fim_server/service/api/log/internal/config"
-	"fim_server/service/rpc/user/user"
-	"fim_server/service/rpc/user/user_rpc"
+	"fim_server/service/api/log/internal/middleware"
+	"fim_server/service/rpc/user/client"
+	"fim_server/utils/src"
 	"github.com/zeromicro/go-queue/kq"
-	"github.com/zeromicro/go-zero/zrpc"
 	"gorm.io/gorm"
 	"net/http"
 )
@@ -16,20 +14,19 @@ import (
 type ServiceContext struct {
 	Config          config.Config
 	DB              *gorm.DB
-	UserRpc         user_rpc.UserClient
-	AdminMiddleware func(next http.HandlerFunc) http.HandlerFunc
-	Log             log_service.PusherServerInterface
+	UserRpc         client.UserRpc
 	KqPusherClient  *kq.Pusher
+	AdminMiddleware func(next http.HandlerFunc) http.HandlerFunc
+	RpcLog          service_method.ServerInterfaceLog
 }
 
 func NewServiceContext(c config.Config) *ServiceContext {
-	kqClient := kq.NewPusher(c.KqPusherConf.Brokers, c.KqPusherConf.Topic)
 	return &ServiceContext{
 		Config:          c,
-		DB:              core.Mysql(c.System.Mysql),
-		UserRpc:         user.NewUser(zrpc.MustNewClient(c.UserRpc, zrpc.WithUnaryClientInterceptor(middleware.ClientInterceptor))),
+		DB:              src.Client().Mysql(c.System.Mysql),
+		UserRpc:         client.UserClient(c.UserRpc),
+		KqPusherClient:  kq.NewPusher(c.KqPusherConf.Brokers, c.KqPusherConf.Topic),
 		AdminMiddleware: middleware.NewAdminMiddleware().Handle,
-		Log:             log_service.NewPusher(c.Name, log_service.Action),
-		KqPusherClient:  kqClient,
+		RpcLog:          service_method.Log(c.Name, 2),
 	}
 }

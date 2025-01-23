@@ -139,23 +139,20 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 		// 获取用户信息
-		res, err := svcCtx.UserRpc.UserInfo(context.Background(), &user_rpc.UserInfoRequest{UserId: uint32(req.UserId)})
+		userResponse, err := svcCtx.UserRpc.User.UserInfo(context.Background(), &user_rpc.IdList{Id: []uint32{uint32(req.UserId)}})
 		if err != nil {
-			logs.Error("连接失败", err)
+			logs.Info("用户服务错误", err)
 			response.Response(r, w, nil, err)
 			return
 		}
-		
-		var userInfo user_models.UserModel
-		if !conv.Json().Unmarshal(res.Data, &userInfo) {
-			return
-		}
+		var userConfigModel user_models.UserConfigModel
+		conv.Json().Unmarshal(userResponse.Info.UserConfigModel, &userConfigModel)
 		
 		// 将用户信息存入map
 		addr := conn.RemoteAddr().String()
 		UserOnlineWebsocketMap[req.UserId] = &UserWebsocketInfo{
 			Conn:     conn,
-			UserInfo: userInfo,
+			UserInfo: conv.Struct(user_models.UserModel{}).Type(userResponse.Info),
 			WebsocketClientMap: map[string]*websocket.Conn{
 				conn.RemoteAddr().String(): conn,
 			},
@@ -163,16 +160,16 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		
 		svcCtx.Redis.HSet("user_online", fmt.Sprint(req.UserId), req.UserId) // Redis存入在线用户
 		
-		friendRes, err := svcCtx.UserRpc.FriendList(context.Background(), &user_rpc.FriendListRequest{UserId: uint32(req.UserId)})
+		friendResponse, err := svcCtx.UserRpc.Friend.FriendList(context.Background(), &user_rpc.ID{Id: uint32(req.UserId)})
 		if err != nil {
 			response.Response(r, w, nil, logs.Error("获取好友列表失败", err))
 			return
 		}
 		
-		logs.Info("用户上线", req.UserId, userInfo.Name)
+		logs.Info("用户上线", req.UserId, userResponse.Info.Name)
 		
-		for _, info := range friendRes.FriendList {
-			friend, ok := UserOnlineWebsocketMap[uint(info.UserId)]
+		for _, f := range friendResponse.FriendList {
+			friend, ok := UserOnlineWebsocketMap[uint(f.Id)]
 			if ok {
 				// 好友上线了
 				if friend.UserInfo.UserConfigModel.FriendOnline {
@@ -190,6 +187,12 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				break
 			}
 			
+			is, err1 := svcCtx.UserRpc.Curtail.IsCurtail(r.Context(), &user_rpc.ID{Id: uint32(req.UserId)})
+			if err1 != nil || !is.CurtailChat.Is {
+				SendTipErrorMessage(conn, is.CurtailChat.Error)
+				continue
+			}
+			
 			// 处理消息
 			var request chatRequest
 			if !conv.Json().Unmarshal(p, &request) {
@@ -200,7 +203,7 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			// 自己和自己聊
 			
 			// 判断是否为好友
-			_, err = svcCtx.UserRpc.IsFriend(context.Background(), &user_rpc.IsFriendRequest{User1: uint32(req.UserId), User2: uint32(request.ReceiveId)})
+			_, err = svcCtx.UserRpc.Friend.IsFriend(context.Background(), &user_rpc.IsFriendRequest{User1: uint32(req.UserId), User2: uint32(request.ReceiveId)})
 			if err != nil {
 				SendTipErrorMessage(conn, "你们不是好友哦")
 				continue
@@ -238,8 +241,8 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 					
 					// 撤回消息
 					var content = "撤回了一条消息"
-					if userInfo.UserConfigModel.RecallMessage != nil {
-						content = *userInfo.UserConfigModel.RecallMessage
+					if userConfigModel.RecallMessage != nil {
+						content = *userConfigModel.RecallMessage
 					}
 					
 					svcCtx.DB.Model(&messageModel).Updates(chat_models.ChatModel{

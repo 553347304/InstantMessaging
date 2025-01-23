@@ -25,21 +25,21 @@ func FileHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			response.Response(r, w, nil, err)
 			return
 		}
-
+		
 		// 文件上传
 		file := files.File{
 			// WhiteEXT: svcCtx.Config.File.WhiteEXT,
 			// BlackEXT: svcCtx.Config.File.BlackEXT,
 		}.FormFile(r.FormFile("file"))
-
+		
 		if file.Error != "" {
 			response.Response(r, w, nil, logs.Error(file.Error))
 			return
 		}
-
+		
 		l := logic.NewFileLogic(r.Context(), svcCtx)
 		resp, err := l.File(&req)
-
+		
 		// 图片已存在
 		fileHash := md5s.Hash(file.Byte)
 		var fileModel file_models.FileModel
@@ -50,14 +50,14 @@ func FileHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			response.Response(r, w, resp, err)
 			return
 		}
-
+		
 		// 用户信息
-		userResponse, err := svcCtx.UserRpc.UserListInfo(context.Background(), &user_rpc.UserListInfoRequest{UserIdList: []uint32{uint32(req.UserId)}})
+		userResponse, err := svcCtx.UserRpc.User.UserInfo(context.Background(), &user_rpc.IdList{Id: []uint32{uint32(req.UserId)}})
 		if err != nil {
 			response.Response(r, w, nil, err)
 			return
 		}
-
+		
 		newFileModel := file_models.FileModel{
 			Uid:    uuid.New(),
 			UserId: req.UserId,
@@ -65,25 +65,25 @@ func FileHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			Size:   file.Size,
 			Hash:   md5s.Hash(file.Byte),
 		}
-
+		
 		newFileModel.Path = path.Join(svcCtx.Config.File.Path, "user",
-			fmt.Sprintf("%d_%s", req.UserId, userResponse.UserInfo[uint32(req.UserId)].Name),
+			fmt.Sprintf("%d_%s", req.UserId, userResponse.InfoList[uint32(req.UserId)].Name),
 			fmt.Sprint(newFileModel.Uid, file.Ext))
-
+		
 		// 写入文件
 		err = files.WriteFile(newFileModel.Path, file.Byte)
 		if err != nil {
 			response.Response(r, w, nil, err)
 			return
 		}
-
+		
 		// 文件入库
 		err = svcCtx.DB.Create(&newFileModel).Error
 		if err != nil {
 			response.Response(r, w, nil, err)
 			return
 		}
-
+		
 		resp.Src = newFileModel.WebPath()
 		response.Response(r, w, resp, err)
 	}

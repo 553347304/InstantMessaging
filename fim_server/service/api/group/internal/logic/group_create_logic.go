@@ -6,6 +6,7 @@ import (
 	"fim_server/service/api/group/internal/svc"
 	"fim_server/service/api/group/internal/types"
 	"fim_server/service/rpc/user/user_rpc"
+	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
 	"fim_server/utils/stores/method"
 	"fmt"
@@ -30,7 +31,7 @@ func NewGroupCreateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Group
 
 func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *types.GroupCreateResponse, err error) {
 	// todo: add your logic here and delete this line
-
+	
 	var groupModel = group_models.GroupModel{
 		Leader:   req.UserId,
 		IsSearch: false,
@@ -39,6 +40,10 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 		Sign:     fmt.Sprintf("本群创建于%s  群主很聪明,什么都没有留下", method.Time().Now()),
 	}
 	
+	is, err := l.svcCtx.UserRpc.Curtail.IsCurtail(l.ctx, &user_rpc.ID{Id: uint32(req.UserId)})
+	if err != nil || !is.CurtailCreateGroup.Is {
+		return nil, conv.Type(is.CurtailCreateGroup.Error).Error()
+	}
 	
 	var groupUserList = []uint{req.UserId}
 	switch req.Mode {
@@ -53,52 +58,48 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 		if len(req.UserIdList) == 0 {
 			return nil, logs.Error("没有选择的好友")
 		}
-
+		
 		var userIdList = []uint32{uint32(req.UserId)} // 先把自己放进去
 		for _, u := range req.UserIdList {
 			userIdList = append(userIdList, uint32(u))
 			groupUserList = append(groupUserList, u)
 		}
-
-		userListResponse, err2 := l.svcCtx.UserRpc.UserListInfo(l.ctx, &user_rpc.UserListInfoRequest{
-			UserIdList: userIdList,
-		})
+		
+		userResponse, err2 := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: userIdList})
 		if err2 != nil {
 			return nil, logs.Error(err2)
 		}
-
+		
 		var nameList []string
-		for _, info := range userListResponse.UserInfo {
+		for _, info := range userResponse.InfoList {
 			if len(strings.Join(nameList, ".")) >= 29 {
 				break
 			}
 			nameList = append(nameList, info.Name)
 		}
-
+		
 		groupModel.Name = strings.Join(nameList, "、") + "的群聊"
-
-		userFriendList, err1 := l.svcCtx.UserRpc.FriendList(l.ctx, &user_rpc.FriendListRequest{
-			UserId: uint32(req.UserId),
-		})
+		
+		userFriendList, err1 := l.svcCtx.UserRpc.Friend.FriendList(l.ctx, &user_rpc.ID{Id: uint32(req.UserId)})
 		if err1 != nil {
 			return nil, logs.Error(err1)
 		}
 		var friendList []uint
 		for _, i2 := range userFriendList.FriendList {
-			friendList = append(friendList, uint(i2.UserId))
+			friendList = append(friendList, uint(i2.Id))
 		}
 		slice := method.List(req.UserIdList).Difference(friendList)
 		if len(slice) != 0 {
 			return nil, logs.Error("列表中有人不是好友")
 		}
-
+	
 	default:
 		return nil, logs.Error("不支持的模式")
 	}
-
+	
 	groupModel.Avatar = string([]rune(groupModel.Name)[0])
 	err = l.svcCtx.DB.Create(&groupModel).Error
-
+	
 	if err != nil {
 		return nil, logs.Error("群创建失败")
 	}
@@ -115,10 +116,10 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 		members = append(members, memBerModel)
 	}
 	err = l.svcCtx.DB.Create(&members).Error
-
+	
 	if err != nil {
 		return nil, logs.Error("群成员添加失败")
 	}
-
+	
 	return
 }

@@ -58,13 +58,13 @@ func (l *GroupMemberLogic) GroupMember(req *types.GroupMemberRequest) (resp *typ
 	}
 	
 	// 关于降级
-	userListResponse, err := l.svcCtx.UserRpc.UserListInfo(l.ctx, &user_rpc.UserListInfoRequest{UserIdList: userIdList})
+	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: userIdList})
 	if err != nil {
 		logs.Error(err)
 	}
 	
 	var userInfoMap = map[uint]mtype.UserInfo{}
-	for u, info := range userListResponse.UserInfo {
+	for u, info := range userResponse.InfoList {
 		userInfoMap[uint(u)] = mtype.UserInfo{
 			ID:     uint(u),
 			Name:   info.Name,
@@ -72,10 +72,8 @@ func (l *GroupMemberLogic) GroupMember(req *types.GroupMemberRequest) (resp *typ
 		}
 	}
 	
-	userListResponse.UserInfo = map[uint32]*user_rpc.UserInfo{}
-	
 	var userOnlineMap = map[uint]bool{}
-	userOnlineResponse, err := l.svcCtx.UserRpc.UserOnlineList(l.ctx, &user_rpc.UserOnlineListRequest{})
+	userOnlineResponse, err := l.svcCtx.UserRpc.User.UserOnlineList(l.ctx, &user_rpc.Empty{})
 	if err != nil {
 		logs.Error(err)
 	}

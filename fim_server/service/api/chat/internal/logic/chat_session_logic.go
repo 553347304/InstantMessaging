@@ -78,10 +78,7 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 	
 	userIdList = method.List(userIdList).Unique() // 去重
 	// 调用户服务
-	response, err := l.svcCtx.UserRpc.UserListInfo(l.ctx, &user_rpc.UserListInfoRequest{
-		UserIdList: userIdList,
-	})
-	
+	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: userIdList})
 	if err != nil {
 		return nil, logs.Error("用户服务错误")
 	}
@@ -102,8 +99,8 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 		if data.SU == req.UserId && req.UserId == data.RU {
 			s.UserId = data.SU
 		}
-		s.Avatar = response.UserInfo[uint32(s.UserId)].Avatar
-		s.Name = response.UserInfo[uint32(s.UserId)].Name
+		s.Avatar = userResponse.InfoList[uint32(s.UserId)].Avatar
+		s.Name = userResponse.InfoList[uint32(s.UserId)].Name
 		list = append(list, s)
 	}
 	return &types.ChatSessionResponse{List: list, Total: chatResponse.Total}, nil

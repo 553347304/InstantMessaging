@@ -197,3 +197,70 @@ service user {
 	delete /api/user/friend (FriendDeleteRequest) returns (FriendDeleteResponse) // 删除好友
 }
 
+type (
+	Empty  {}
+	Header {
+		UserId uint `header:"User-Id"`
+	}
+	ParamsPath {
+		Id uint `path:"id"`
+	}
+	RequestPageInfo {
+		Key   string `form:"key,optional"`
+		Page  int    `form:"page,optional"`
+		Limit int    `form:"limit,optional"`
+	}
+	RequestDelete {
+		IdList []uint `json:"id_list"`
+	}
+	ResponseList {
+		Total int64   `json:"total"`
+		List  []Empty `json:"list"`
+	}
+)
+
+type (
+	UserListInfoResponse {
+		ID                 uint   `json:"id"`
+		CreatedAt          string `json:"created_at"`
+		name               string `json:"name"`
+		Avatar             string `json:"avatar"`
+		IP                 string `json:"ip"`
+		Addr               string `json:"addr"`
+		IsOnline           bool   `json:"is_online"`
+		SendMsgCount       int    `json:"send_msg_count"` // 发送消息个数
+		GroupAdminCount    int    `json:"group_admin_count"` // 建群数量
+		GroupCount         int    `json:"group_count"` // 进群数量
+		CurtailChat        bool   `json:"curtail_chat"` // 限制聊天
+		CurtailAddUser     bool   `json:"curtail_add_user"` // 限制加人
+		CurtailCreateGroup bool   `json:"curtail_create_group"` // 限制建群
+		CurtailAddGroup    bool   `json:"curtail_add_group"` // 限制加群
+	}
+	UserListResponse {
+		Total int64                  `json:"total"`
+		List  []UserListInfoResponse `json:"list"`
+	}
+	UserCurtailRequest {
+		UserId             uint `json:"user_id"` // 限制的用户
+		CurtailChat        bool `json:"curtail_chat"` // 限制聊天
+		CurtailAddUser     bool `json:"curtail_add_user"` // 限制加人
+		CurtailCreateGroup bool `json:"curtail_create_group"` // 限制建群
+		CurtailAddGroup    bool `json:"curtail_add_group"` // 限制加群
+	}
+)
+
+@server (
+	middleware: AdminMiddleware
+	group:      Admin
+)
+service user {
+	@handler UserList // 用户列表
+	get /api/user/user (RequestPageInfo) returns (UserListResponse)
+
+	@handler UserCurtail // 用户限制
+	post /api/user/curtail (UserCurtailRequest) returns (Empty)
+
+	@handler UserDelete // 删除用户
+	delete /api/user/user (RequestDelete) returns (Empty)
+}
+

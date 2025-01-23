@@ -3,9 +3,7 @@
 
 package types
 
-import "fim_server/models/mgorm"
-
-type EmptyResponse struct {
+type Empty struct {
 }
 
 type GroupAddRequest struct {
@@ -103,6 +101,24 @@ type GroupInfoResponse struct {
 	Role             int8       `json:"role"`     // 角色   1 群主 2 群管理员 3 群成员
 	IsBan            bool       `json:"is_time"`  // is禁言
 	BanTime          *int       `json:"ban_time"` // 禁言时间 单位分钟
+}
+
+type GroupListInfoResponse struct {
+	ID                uint       `json:"id"`
+	CreatedAt         string     `json:"created_at"`
+	Name              string     `json:"name"`
+	Sign              string     `json:"sign"`
+	Avatar            string     `json:"avatar"`
+	Leader            UserInfo   `json:"creater"`             // 群主
+	AdminList         []UserInfo `json:"admin_list"`          // 管理员列表
+	MessageTotal      int        `json:"message_total"`       // 群消息条数
+	MemberTotal       int        `json:"member_total"`        // 群成员人数
+	MemberOnlineTotal int        `json:"member_online_total"` // 群成员在线人数
+}
+
+type GroupListResponse struct {
+	List  []GroupListInfoResponse `json:"list"`
+	Total int64                   `json:"total"`
 }
 
 type GroupMeInfo struct {
@@ -240,13 +256,13 @@ type GroupTopResponse struct {
 type GroupUpdateRequest struct {
 	UserId             uint      `header:"User-Id"`
 	Id                 int8      `json:"id"`
-	Name               string    `json:"name,optional"`                 // 群名
-	Avatar             string    `json:"avatar,optional"`               // 群头像
-	Sign               string    `json:"sign,optional"`                 // 群简介
-	IsSearch           *bool     `json:"is_search,optional"`            // is搜索
-	IsInvite           *bool     `json:"is_invite,optional"`            // is邀请
-	IsTemporarySession *bool     `json:"is_temporary_session,optional"` // is临时会话
-	IsBan              *bool     `json:"is_time,optional"`              // is禁言
+	Name               string    `json:"name,optional" conf:"name"`                                 // 群名
+	Avatar             string    `json:"avatar,optional" conf:"avatar"`                             // 群头像
+	Sign               string    `json:"sign,optional" conf:"sign"`                                 // 群简介
+	IsSearch           *bool     `json:"is_search,optional" conf:"is_search"`                       // is搜索
+	IsInvite           *bool     `json:"is_invite,optional" conf:"is_invite"`                       // is邀请
+	IsTemporarySession *bool     `json:"is_temporary_session,optional" conf:"is_temporary_session"` // is临时会话
+	IsBan              *bool     `json:"is_time,optional" conf:"is_time"`                           // is禁言
 	Valid              int8      `json:"valid，optional"`
 	ValidInfo          ValidInfo `json:"valid_info,optional"`
 }
@@ -313,6 +329,15 @@ type ParamsPath struct {
 	Id uint `path:"id"`
 }
 
+type RequestDelete struct {
+	IdList []uint `json:"id_list"`
+}
+
+type ResponseList struct {
+	List  []Empty `json:"list"`
+	Total int64   `json:"total"`
+}
+
 type UserInfo struct {
 	UserId uint   `json:"user_id"`
 	Name   string `json:"name"`
@@ -320,6 +345,6 @@ type UserInfo struct {
 }
 
 type ValidInfo struct {
-	Issue  mgorm.String `json:"issue,optional"`
-	Answer mgorm.String `json:"answer,optional"`
+	Issue  []string `json:"issue,optional"`
+	Answer []string `json:"answer,optional"`
 }

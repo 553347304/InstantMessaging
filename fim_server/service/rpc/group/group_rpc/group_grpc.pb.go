@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion7
 
 const (
 	Group_IsInGroupMember_FullMethodName = "/user_rpc.Group/IsInGroupMember"
+	Group_UserGroupSearch_FullMethodName = "/user_rpc.Group/UserGroupSearch"
 )
 
 // GroupClient is the client API for Group service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type GroupClient interface {
 	IsInGroupMember(ctx context.Context, in *IsInGroupMemberRequest, opts ...grpc.CallOption) (*EmptyResponse, error)
+	UserGroupSearch(ctx context.Context, in *UserGroupSearchRequest, opts ...grpc.CallOption) (*UserGroupSearchResponse, error)
 }
 
 type groupClient struct {
@@ -46,11 +48,21 @@ func (c *groupClient) IsInGroupMember(ctx context.Context, in *IsInGroupMemberRe
 	return out, nil
 }
 
+func (c *groupClient) UserGroupSearch(ctx context.Context, in *UserGroupSearchRequest, opts ...grpc.CallOption) (*UserGroupSearchResponse, error) {
+	out := new(UserGroupSearchResponse)
+	err := c.cc.Invoke(ctx, Group_UserGroupSearch_FullMethodName, in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // GroupServer is the server API for Group service.
 // All implementations must embed UnimplementedGroupServer
 // for forward compatibility
 type GroupServer interface {
 	IsInGroupMember(context.Context, *IsInGroupMemberRequest) (*EmptyResponse, error)
+	UserGroupSearch(context.Context, *UserGroupSearchRequest) (*UserGroupSearchResponse, error)
 	mustEmbedUnimplementedGroupServer()
 }
 
@@ -60,6 +72,9 @@ type UnimplementedGroupServer struct {
 
 func (UnimplementedGroupServer) IsInGroupMember(context.Context, *IsInGroupMemberRequest) (*EmptyResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method IsInGroupMember not implemented")
+}
+func (UnimplementedGroupServer) UserGroupSearch(context.Context, *UserGroupSearchRequest) (*UserGroupSearchResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UserGroupSearch not implemented")
 }
 func (UnimplementedGroupServer) mustEmbedUnimplementedGroupServer() {}
 
@@ -92,6 +107,24 @@ func _Group_IsInGroupMember_Handler(srv interface{}, ctx context.Context, dec fu
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Group_UserGroupSearch_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UserGroupSearchRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(GroupServer).UserGroupSearch(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Group_UserGroupSearch_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(GroupServer).UserGroupSearch(ctx, req.(*UserGroupSearchRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Group_ServiceDesc is the grpc.ServiceDesc for Group service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -102,6 +135,10 @@ var Group_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "IsInGroupMember",
 			Handler:    _Group_IsInGroupMember_Handler,
+		},
+		{
+			MethodName: "UserGroupSearch",
+			Handler:    _Group_UserGroupSearch_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
