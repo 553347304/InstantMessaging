@@ -30,8 +30,8 @@ func (s *ContentArray) Scan(value interface{}) error {
 }
 
 type Test struct {
-	ID  uint         `json:"id"`
-	Arr ContentArray `json:"arr"`
+	ID  uint         `gorm:"column:id" json:"id"`
+	Arr ContentArray `gorm:"column:arr" json:"arr"`
 }
 
 type Content struct {

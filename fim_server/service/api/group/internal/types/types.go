@@ -109,7 +109,7 @@ type GroupListInfoResponse struct {
 	Name              string     `json:"name"`
 	Sign              string     `json:"sign"`
 	Avatar            string     `json:"avatar"`
-	Leader            UserInfo   `json:"creater"`             // 群主
+	Leader            UserInfo   `json:"leader"`              // 群主
 	AdminList         []UserInfo `json:"admin_list"`          // 管理员列表
 	MessageTotal      int        `json:"message_total"`       // 群消息条数
 	MemberTotal       int        `json:"member_total"`        // 群成员人数

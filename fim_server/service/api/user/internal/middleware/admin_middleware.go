@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"fim_server/common/service/service_method"
+	"fim_server/common/zero_middleware"
 	"net/http"
 )
 
@@ -16,7 +16,7 @@ func (m *AdminMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// TODO generate middleware implement function, delete after code implementation
 		
-		if !service_method.Auth().IsAdmin(w, r) {
+		if !zero_middleware.IsAdmin(w, r) {
 			return
 		}
 		

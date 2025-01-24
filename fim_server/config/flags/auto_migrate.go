@@ -7,6 +7,7 @@ import (
 	"fim_server/models/file_models"
 	"fim_server/models/group_models"
 	"fim_server/models/log_models"
+	"fim_server/models/setting_models"
 	"fim_server/models/user_models"
 )
 
@@ -34,6 +35,8 @@ func MigrationTable() error {
 			&file_models.FileModel{},
 			
 			&log_models.LogModel{},
+			
+			&setting_models.ConfigModel{},
 			
 			&models.Test{},
 		)

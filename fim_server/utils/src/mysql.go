@@ -7,6 +7,8 @@ import (
 	"strings"
 )
 
+// 事务: DB.Transaction(func(tx *gorm.DB) error { return nil })
+
 // T = scan result type
 type serviceInterfaceMysql[T interface{}] interface {
 	GetList() serviceMysqlResponse[[]T]      // 获取列表
@@ -19,9 +21,9 @@ type ServiceMysql[T interface{}] struct {
 	PageInfo PageInfo    // 分页信息
 	Where    string      // 模糊匹配
 }
-type serviceMysqlResponse[R any] struct {
+type serviceMysqlResponse[T interface{}] struct {
 	Total int64
-	List  R
+	List  T
 }
 
 func (m *ServiceMysql[T]) where() {
@@ -65,7 +67,6 @@ func (m *ServiceMysql[T]) isFieldExist() bool {
 	return is
 }
 
-//goland:noinspection GoExportedFuncWithUnexportedType	忽略警告
 func Mysql[T interface{}](m ServiceMysql[T]) serviceInterfaceMysql[T] {
 	if m.DB == nil {
 		logs.Fatal("数据库不存在")
@@ -82,7 +83,6 @@ func Mysql[T interface{}](m ServiceMysql[T]) serviceInterfaceMysql[T] {
 	}
 }
 
-//goland:noinspection GoExportedFuncWithUnexportedType	忽略警告
 func (m *ServiceMysql[T]) GetList() serviceMysqlResponse[[]T] {
 	var total int64
 	var scan = make([]T, 0)
@@ -92,8 +92,6 @@ func (m *ServiceMysql[T]) GetList() serviceMysqlResponse[[]T] {
 		Limit(m.PageInfo.Limit).Offset(m.PageInfo.Page).Find(&scan)
 	return serviceMysqlResponse[[]T]{Total: total, List: scan}
 }
-
-//goland:noinspection GoExportedFuncWithUnexportedType	忽略警告
 func (m *ServiceMysql[T]) GetListGroup() serviceMysqlResponse[[]T] {
 	var total int64
 	var scan = make([]T, 0)

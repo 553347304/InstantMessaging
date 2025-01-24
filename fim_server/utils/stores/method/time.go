@@ -1,22 +1,53 @@
 package method
 
-import "time"
+import (
+	"fmt"
+	"time"
+)
 
-type serverInterfaceTime interface {
-	Now() string // 返回指定长度字符串 超出边界全部
+// time.DateTime = "2006-01-02 15:04:05"
+// time.DateOnly = "2006-01-02"
+// time.TimeOnly = "15:04:05"
+type serverTimeDate struct {
+	Year      int
+	Month     int
+	Day       int
+	Hour      int
+	Minute    int
+	Second    int
+	Timestamp int64
 }
-
 type serverTime struct {
-	Format string
+	Now     string
+	NowDay  string
+	NowTime string
+	Date    serverTimeDate
 }
 
-//goland:noinspection GoExportedFuncWithUnexportedType	忽略警告
-func Time() serverInterfaceTime {
+func Time() *serverTime {
+	now := time.Now()
+	year := now.Year()
+	month := int(now.Month())
+	day := now.Day()
+	hour := now.Hour()
+	minute := now.Minute()
+	second := now.Second()
+	timestamp := now.Unix()
+	nowDay := fmt.Sprintf("%d-%d-%d", year, month, day)
+	nowTime := fmt.Sprintf("%d:%d:%d", hour, minute, second)
+	
 	return &serverTime{
-		Format: "2006-01-02 15:04:05",
+		Now:     nowDay + " " + nowTime,
+		NowDay:  nowDay,
+		NowTime: nowTime,
+		Date: serverTimeDate{
+			Year:      year,
+			Month:     month,
+			Day:       day,
+			Hour:      hour,
+			Minute:    minute,
+			Second:    second,
+			Timestamp: timestamp,
+		},
 	}
-}
-
-func (s *serverTime) Now() string {
-	return time.Now().Format(s.Format)
 }

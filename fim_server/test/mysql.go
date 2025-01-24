@@ -1,10 +1,9 @@
 package main
 
 import (
-	"fim_server/config/core"
+	"fim_server/config"
 	"fim_server/models"
-	"fim_server/utils/src"
-	"fim_server/utils/stores/logs"
+	"fmt"
 )
 
 type Content struct {
@@ -24,17 +23,23 @@ type Size struct {
 
 func main() {
 
-	core.Init()
+	config.Init()
 	
-	src.DB.Create(&models.Test{
-		Arr: []models.Content{
-			{Title: "13", Content: "你好你好", Size: 100},
-			{Title: "22"},
-			{Title: "33"},
-		},
-	})
-	var cr models.Test
-	src.DB.Take(&cr, 0)
-	logs.Info(cr.Arr[0].Title)
 	
+	var scan *[]models.Test
+	
+	find(&scan)
+	
+	// for _, test := range scan {
+	// 	fmt.Println("t",test)
+	// }
+	fmt.Println(scan)
+
+
+	
+}
+
+func find(scan interface{})  {
+	
+	config.DB.Find(scan)
 }

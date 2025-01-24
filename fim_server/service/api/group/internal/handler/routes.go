@@ -138,6 +138,11 @@ func RegisterHandlers(src *rest.Server, serverCtx *svc.ServiceContext) {
 					Handler: Admin.GroupListHandler(serverCtx),
 				},
 				{
+					Method:  http.MethodDelete,
+					Path:    "/api/group/group",
+					Handler: Admin.GroupListRemoveHandler(serverCtx),
+				},
+				{
 					Method:  http.MethodGet,
 					Path:    "/api/group/message",
 					Handler: Admin.GroupMessageListHandler(serverCtx),

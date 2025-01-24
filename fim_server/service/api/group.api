@@ -412,10 +412,13 @@ service group {
 	@handler GroupList //群聊列表
 	get /api/group/group (PageInfo) returns (GroupListResponse)
 
+	@handler groupListRemove // 群聊删除
+	delete /api/group/group (RequestDelete) returns (Empty)
+
 	@handler GroupMessageList // 群消息列表
 	get /api/group/message (PageInfo) returns (ResponseList)
 
-	@handler GroupMessageDelete // 群聊删除
+	@handler GroupMessageDelete // 群聊消息删除
 	delete /api/group/message (RequestDelete) returns (Empty)
 }
 

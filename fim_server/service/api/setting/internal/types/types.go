@@ -3,6 +3,9 @@
 
 package types
 
+type Empty struct {
+}
+
 type OpenLoginInfoResponse struct {
 	Name string `json:"name"`
 	Icon string `json:"icon"`

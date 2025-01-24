@@ -37,9 +37,9 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 		IsSearch: false,
 		Valid:    2,
 		Size:     50,
-		Sign:     fmt.Sprintf("本群创建于%s  群主很聪明,什么都没有留下", method.Time().Now()),
+		Sign:     fmt.Sprintf("本群创建于%s  群主很聪明,什么都没有留下", method.Time().Now),
 	}
-	
+
 	is, err := l.svcCtx.UserRpc.Curtail.IsCurtail(l.ctx, &user_rpc.ID{Id: uint32(req.UserId)})
 	if err != nil || !is.CurtailCreateGroup.Is {
 		return nil, conv.Type(is.CurtailCreateGroup.Error).Error()

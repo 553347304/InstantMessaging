@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package log_rpc;
+option go_package = "./log_rpc";
+
+enum Mode_TYPE {
+  LOGIN = 0;
+  OPERATE = 1;
+  RUN = 2;
+}
+
+enum Mode_LEVEL {
+  INFO = 0;
+  ERROR = 1;
+  WARN = 2;
+}
+message Request {
+  Mode_TYPE mode_type = 1;
+  Mode_LEVEL mode_level = 2;
+
+  string service_name = 3;
+  string content = 5;
+}
+message Empty {}
+
+service Log {
+  rpc Print(Request) returns (Empty);
+}

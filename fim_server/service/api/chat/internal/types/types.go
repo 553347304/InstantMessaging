@@ -11,14 +11,19 @@ type ChatDeleteRequest struct {
 type ChatDeleteResponse struct {
 }
 
+type ChatHistoryAdminRequest struct {
+	SendUserID    uint   `form:"send_user_id"`
+	ReceiveUserID uint   `form:"receive_user_id"`
+	Key           string `form:"key,optional"`
+	Page          int    `form:"page,optional"`
+	Limit         int    `form:"limit,optional"`
+}
+
 type ChatHistoryRequest struct {
 	UserId   uint `header:"User-Id"`
 	Page     int  `form:"page,optional"`
 	Limit    int  `form:"limit,optional"`
 	FriendId uint `form:"friend_id"`
-}
-
-type ChatHistoryResponse struct {
 }
 
 type ChatRequest struct {
@@ -37,6 +42,10 @@ type ChatSession struct {
 	IsTop          bool   `json:"is_top"`
 }
 
+type ChatSessionAdminRequest struct {
+	ReceiveUserID uint `form:"receive_user_id"`
+}
+
 type ChatSessionRequest struct {
 	UserId uint   `header:"User-Id"`
 	Page   int    `form:"page,optional"`
@@ -47,6 +56,30 @@ type ChatSessionRequest struct {
 type ChatSessionResponse struct {
 	List  []ChatSession `json:"list"`
 	Total int64         `json:"total"`
+}
+
+type Empty struct {
+}
+
+type PageInfo struct {
+	Key   string `form:"key,optional"`
+	Page  int    `form:"page,optional"`
+	Limit int    `form:"limit,optional"`
+}
+
+type RequestDelete struct {
+	IdList []uint `json:"id_list"`
+}
+
+type UserInfo struct {
+	UserId uint   `json:"user_id"`
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
+}
+
+type UserInfoListResponse struct {
+	List  []UserInfo `json:"list"`
+	Total int64      `json:"total"`
 }
 
 type UserTopRequest struct {

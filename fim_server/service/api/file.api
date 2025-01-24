@@ -14,10 +14,46 @@ type (
 )
 
 service file {
-	@handler Show
-	get /api/file/:name (ShowRequest) returns (ShowResponse) // 图片预览
+	@handler Show // 图片预览
+	get /api/file/:name (ShowRequest) returns (ShowResponse)
 
-	@handler File
-	post /api/file/upload (FileRequest) returns (FileResponse) // 文件上传
+	@handler File // 文件上传
+	post /api/file/upload (FileRequest) returns (FileResponse)
+}
+
+// 通用
+type (
+	Empty  {}
+	PageInfo {
+		Key   string `form:"key,optional"`
+		Page  int    `form:"page,optional"`
+		Limit int    `form:"limit,optional"`
+	}
+	FileInfo {
+		ID   uint32 `json:"id"`
+		Name string `json:"name"`
+		Size int64  `json:"size"`
+		Path string `json:"path"`
+		Hash string `json:"hash"`
+	}
+	FileListResponse {
+		List  []FileInfo `json:"list"`
+		Total int64      `json:"total"`
+	}
+	RequestDelete {
+		IdList []uint `json:"id_list"`
+	}
+)
+
+@server (
+	group:      admin
+	middleware: AdminMiddleware
+)
+service file {
+	@handler FileList
+	get /api/file/admin/file (PageInfo) returns (FileListResponse)
+
+	@handler FileDelete
+	delete /api/file/admin/file (RequestDelete) returns (Empty)
 }
 

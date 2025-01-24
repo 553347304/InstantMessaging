@@ -1,5 +1,18 @@
 syntax = "v2"
 
+// 通用
+type (
+	Empty  {}
+	PageInfo {
+		Key   string `form:"key,optional"`
+		Page  int    `form:"page,optional"`
+		Limit int    `form:"limit,optional"`
+	}
+	RequestDelete {
+		IdList []uint `json:"id_list"`
+	}
+)
+
 type (
 	ChatHistoryRequest {
 		UserId   uint `header:"User-Id"`
@@ -7,7 +20,6 @@ type (
 		limit    int  `form:"limit,optional"`
 		FriendId uint `form:"friend_id"`
 	}
-	ChatHistoryResponse  {}
 )
 
 type (
@@ -56,7 +68,7 @@ type (
 
 service chat {
 	@handler ChatHistory
-	get /api/chat/history (ChatHistoryRequest) returns (ChatHistoryResponse) // 聊天记录
+	get /api/chat/history (ChatHistoryRequest) returns (Empty) // 聊天记录
 
 	@handler ChatSession
 	get /api/chat/session (ChatSessionRequest) returns (ChatSessionResponse) // 最近会话列表
@@ -69,5 +81,42 @@ service chat {
 
 	@handler ChatWebsocket
 	get /api/chat/ws/chat (ChatRequest) returns (ChatResponse) // 删除聊天记录
+}
+
+type (
+	UserInfo {
+		UserId uint   `json:"user_id"`
+		Name   string `json:"name"`
+		Avatar string `json:"avatar"`
+	}
+	ChatHistoryAdminRequest {
+		SendUserID    uint   `form:"send_user_id"`
+		ReceiveUserID uint   `form:"receive_user_id"`
+		Key           string `form:"key,optional"`
+		Page          int    `form:"page,optional"`
+		Limit         int    `form:"limit,optional"`
+	}
+	UserInfoListResponse {
+		List  []UserInfo `json:"list"`
+		Total int64      `json:"total"`
+	}
+	ChatSessionAdminRequest {
+		ReceiveUserID uint `form:"receive_user_id"`
+	}
+)
+
+@server (
+	group:      admin
+	middleware: AdminMiddleware
+)
+service chat {
+	@handler ChatHistoryAdmin // 用户与用户的聊天记录
+	get /api/chat/admin/history (ChatHistoryAdminRequest) returns (UserInfoListResponse)
+
+	@handler ChatSessionAdmin // 做为接受者的用户，哪些人和他聊过天
+	get /api/chat/admin/session (ChatSessionAdminRequest) returns (UserInfoListResponse)
+
+	@handler ChatHistoryDeleteAdmin // 删除聊天记录
+	delete /api/chat/admin/history (RequestDelete) returns (Empty)
 }
 
