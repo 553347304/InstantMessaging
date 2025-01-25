@@ -5,7 +5,7 @@ import (
 	"fim_server/models/log_models"
 	"fim_server/service/server/response"
 	"fim_server/utils/src"
-	
+
 	"fim_server/service/api/log/internal/svc"
 	"fim_server/service/api/log/internal/types"
 )
@@ -23,7 +23,7 @@ func NewLogListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LogListLo
 }
 
 func (l *LogListLogic) LogList(req *types.PageInfo) (resp *response.List[log_models.LogModel], err error) {
-	
+
 	log := src.Mysql(src.ServiceMysql[log_models.LogModel]{
 		DB:    l.svcCtx.DB,
 		Where: "name like ? or type like ?",

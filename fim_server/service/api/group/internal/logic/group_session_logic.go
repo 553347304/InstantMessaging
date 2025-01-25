@@ -5,10 +5,10 @@ import (
 	"fim_server/models/group_models"
 	"fim_server/utils/src"
 	"fim_server/utils/stores/logs"
-	
+
 	"fim_server/service/api/group/internal/svc"
 	"fim_server/service/api/group/internal/types"
-	
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -42,7 +42,7 @@ func (l *GroupSessionLogic) GroupSession(req *types.GroupSessionRequest) (resp *
 			Where("group_id in (?)", req.UserId).
 			Group("group_id"),
 	}).GetListGroup()
-	
+
 	resp = new(types.GroupSessionResponse)
 	logs.Info(response)
 	return

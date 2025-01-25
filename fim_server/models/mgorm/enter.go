@@ -8,7 +8,6 @@ import (
 type Int []int
 type String []string
 
-
 func (s String) Value() (driver.Value, error) {
 	if s == nil {
 		return "[]", nil

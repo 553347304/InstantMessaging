@@ -16,7 +16,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
-	
+
 	"github.com/gorilla/websocket"
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"gorm.io/gorm"
@@ -45,13 +45,13 @@ type chatResponse struct {
 
 // MessageInsertDatabaseChatModel 消息入库
 func MessageInsertDatabaseChatModel(receiveUserId uint, sendUserId uint, message mtype.MessageArray, db *gorm.DB) uint {
-	
+
 	chatModel := chat_models.ChatModel{
 		SendUserId:    sendUserId,
 		ReceiveUserId: receiveUserId,
 		Message:       message,
 	}
-	
+
 	chatModel.Preview = chatModel.PreviewMethod()
 	err := db.Create(&chatModel).Error
 	if err != nil {
@@ -65,17 +65,17 @@ func MessageInsertDatabaseChatModel(receiveUserId uint, sendUserId uint, message
 
 // SendMessageByUser 给谁发消息
 func SendMessageByUser(svcCtx *svc.ServiceContext, receiveUserId uint, sendUserId uint, message mtype.MessageArray, messageId uint) {
-	
+
 	receiveUser, ok1 := UserOnlineWebsocketMap[receiveUserId]
 	sendUser, _ := UserOnlineWebsocketMap[sendUserId]
-	
+
 	// 用户信息
 	userBaseInfo, err5 := redis_service.GetUserInfo(svcCtx.Redis, svcCtx.UserRpc, receiveUserId)
 	if err5 != nil {
 		logs.Error(err5)
 		return
 	}
-	
+
 	resp := chatResponse{
 		ReceiveUserId: mtype.UserInfo{
 			ID:     receiveUserId,
@@ -87,12 +87,12 @@ func SendMessageByUser(svcCtx *svc.ServiceContext, receiveUserId uint, sendUserI
 			Name:   sendUser.UserInfo.Name,
 			Avatar: sendUser.UserInfo.Avatar,
 		},
-		
+
 		MessageId: messageId,
 		Message:   message,
 		CreatedAt: time.Now(),
 	}
-	
+
 	resp.IsMe = true
 	sendUser.Conn.WriteMessage(websocket.TextMessage, conv.Json().Marshal(resp)) // 给自己发
 	if ok1 && receiveUserId != sendUserId {
@@ -125,7 +125,7 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			response.Response(r, w, nil, err)
 			return
 		}
-		
+
 		var upGrader = websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
 				// 鉴权 true表示放行，false表示拦截
@@ -147,7 +147,7 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 		var userConfigModel user_models.UserConfigModel
 		conv.Json().Unmarshal(userResponse.Info.UserConfigModel, &userConfigModel)
-		
+
 		// 将用户信息存入map
 		addr := conn.RemoteAddr().String()
 		UserOnlineWebsocketMap[req.UserId] = &UserWebsocketInfo{
@@ -157,17 +157,17 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				conn.RemoteAddr().String(): conn,
 			},
 		}
-		
+
 		svcCtx.Redis.HSet("user_online", fmt.Sprint(req.UserId), req.UserId) // Redis存入在线用户
-		
+
 		friendResponse, err := svcCtx.UserRpc.Friend.FriendList(context.Background(), &user_rpc.ID{Id: uint32(req.UserId)})
 		if err != nil {
 			response.Response(r, w, nil, logs.Error("获取好友列表失败", err))
 			return
 		}
-		
+
 		logs.Info("用户上线", req.UserId, userResponse.Info.Name)
-		
+
 		for _, f := range friendResponse.FriendList {
 			friend, ok := UserOnlineWebsocketMap[uint(f.Id)]
 			if ok {
@@ -176,9 +176,9 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 					sendWsMapMessage(friend.WebsocketClientMap, []byte(UserOnlineWebsocketMap[req.UserId].UserInfo.Name+"上线了"))
 				}
 			}
-			
+
 		}
-		
+
 		logs.Info(UserOnlineWebsocketMap)
 		for {
 			// 消息类型，消息，错误
@@ -186,29 +186,29 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			if err != nil {
 				break
 			}
-			
+
 			is, err1 := svcCtx.UserRpc.Curtail.IsCurtail(r.Context(), &user_rpc.ID{Id: uint32(req.UserId)})
 			if err1 != nil || !is.CurtailChat.Is {
 				SendTipErrorMessage(conn, is.CurtailChat.Error)
 				continue
 			}
-			
+
 			// 处理消息
 			var request chatRequest
 			if !conv.Json().Unmarshal(p, &request) {
 				SendTipErrorMessage(conn, "参数解析失败")
 				continue
 			}
-			
+
 			// 自己和自己聊
-			
+
 			// 判断是否为好友
 			_, err = svcCtx.UserRpc.Friend.IsFriend(context.Background(), &user_rpc.IsFriendRequest{User1: uint32(req.UserId), User2: uint32(request.ReceiveId)})
 			if err != nil {
 				SendTipErrorMessage(conn, "你们不是好友哦")
 				continue
 			}
-			
+
 			for _, m := range request.Message {
 				// 文件消息
 				if m.Type == mtype.MessageType.File {
@@ -238,13 +238,13 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 						SendTipErrorMessage(conn, "只能撤回2分钟内的消息")
 						continue
 					}
-					
+
 					// 撤回消息
 					var content = "撤回了一条消息"
 					if userConfigModel.RecallMessage != nil {
 						content = *userConfigModel.RecallMessage
 					}
-					
+
 					svcCtx.DB.Model(&messageModel).Updates(chat_models.ChatModel{
 						Message: mtype.MessageArray{
 							{Type: mtype.MessageType.Withdraw, Content: content, MessageId: m.MessageId},
@@ -263,12 +263,12 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 						SendTipErrorMessage(conn, "消息不存在")
 						continue
 					}
-					
+
 					if messageModel.ID == conv.Type(mtype.MessageType.Withdraw).Uint() {
 						SendTipErrorMessage(conn, "该消息已撤回")
 						continue
 					}
-					
+
 					if !(messageModel.SendUserId == req.UserId && messageModel.ReceiveUserId == request.ReceiveId ||
 						messageModel.SendUserId == request.ReceiveId && messageModel.ReceiveUserId == req.UserId) {
 						SendTipErrorMessage(conn, "只能回复自己或者对方的消息")
@@ -280,7 +280,7 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 				SendMessageByUser(svcCtx, request.ReceiveId, req.UserId, request.Message, id)
 			}
 		}
-		
+
 		// 用户断开聊天
 		defer func() {
 			logs.Error("断开链接")

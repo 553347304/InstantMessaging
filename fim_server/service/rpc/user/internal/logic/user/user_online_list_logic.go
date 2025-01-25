@@ -4,10 +4,10 @@ import (
 	"context"
 	"fim_server/utils/stores/logs"
 	"strconv"
-	
+
 	"fim_server/service/rpc/user/internal/svc"
 	"fim_server/service/rpc/user/user_rpc"
-	
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -27,7 +27,7 @@ func NewUserOnlineListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Us
 
 func (l *UserOnlineListLogic) UserOnlineList(in *user_rpc.Empty) (*user_rpc.UserOnlineListResponse, error) {
 	// todo: add your logic here and delete this line
-	
+
 	resp := new(user_rpc.UserOnlineListResponse)
 	onlineMap := l.svcCtx.Redis.HGetAll("user_online").Val()
 	for key, _ := range onlineMap {
@@ -38,6 +38,6 @@ func (l *UserOnlineListLogic) UserOnlineList(in *user_rpc.Empty) (*user_rpc.User
 		}
 		resp.UserIdList = append(resp.UserIdList, uint32(value))
 	}
-	
+
 	return resp, nil
 }

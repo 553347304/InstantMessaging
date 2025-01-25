@@ -5,10 +5,10 @@ import (
 	"fim_server/models/user_models"
 	"fim_server/utils/src"
 	"fmt"
-	
+
 	"fim_server/service/api/user/internal/svc"
 	"fim_server/service/api/user/internal/types"
-	
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -52,7 +52,7 @@ func (l *SearchLogic) Search(req *types.SearchRequest) (resp *types.SearchRespon
 			userMap[model.SendUserId] = true
 		}
 	}
-	
+
 	list := make([]types.SearchInfo, 0)
 	for _, userConfig := range userConfigs.List {
 		list = append(list, types.SearchInfo{

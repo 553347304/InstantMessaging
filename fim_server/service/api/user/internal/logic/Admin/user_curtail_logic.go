@@ -4,7 +4,7 @@ import (
 	"context"
 	"fim_server/models/user_models"
 	"fim_server/utils/stores/logs"
-	
+
 	"fim_server/service/api/user/internal/svc"
 	"fim_server/service/api/user/internal/types"
 )
@@ -23,7 +23,7 @@ func NewUserCurtailLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserC
 
 func (l *UserCurtailLogic) UserCurtail(req *types.UserCurtailRequest) (resp *types.Empty, err error) {
 	// todo: add your logic here and delete this line
-	
+
 	var user user_models.UserModel
 	err = l.svcCtx.DB.Preload("UserConfigModel").Take(&user, req.UserId).Error
 	if err != nil {

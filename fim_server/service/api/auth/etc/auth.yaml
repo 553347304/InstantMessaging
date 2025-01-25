@@ -18,6 +18,11 @@ UserRpc:
     Hosts:
       - 127.0.0.1:2379
     Key: user.rpc
+SettingRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: setting.rpc
 WhiteList:
   - /api/auth/authentication
   - /api/auth/login

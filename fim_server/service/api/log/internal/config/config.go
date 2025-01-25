@@ -13,9 +13,9 @@ type Config struct {
 		Redis string
 		Etcd  string
 	}
-	UserRpc      zrpc.RpcClientConf
+	UserRpc        zrpc.RpcClientConf
 	KqConsumerConf kq.KqConf
-	KqPusherConf struct {
+	KqPusherConf   struct {
 		Brokers []string
 		Topic   string
 	}

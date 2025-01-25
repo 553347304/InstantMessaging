@@ -40,7 +40,7 @@ func UseMiddleware(l service_method.ServerInterfaceLog) func(next http.HandlerFu
 			ctx := r.Context()
 			ctx = context.WithValue(ctx, ip, httpx.GetRemoteAddr(r))
 			ctx = context.WithValue(ctx, userId, r.Header.Get("User-Id"))
-			
+
 			writer := responseWriter{ResponseWriter: w}
 			next(&writer, r.WithContext(ctx))
 			l.Info(ctx, l.Response(w, r, writer.Body))

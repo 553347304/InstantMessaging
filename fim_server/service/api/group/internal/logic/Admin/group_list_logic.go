@@ -8,7 +8,7 @@ import (
 	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
 	"fim_server/utils/stores/method"
-	
+
 	"fim_server/service/api/group/internal/svc"
 	"fim_server/service/api/group/internal/types"
 )
@@ -51,25 +51,25 @@ func (l *GroupListLogic) UserOnlineMap() map[uint]bool {
 
 func (l *GroupListLogic) GroupList(req *types.PageInfo) (resp *types.GroupListResponse, err error) {
 	// todo: add your logic here and delete this line
-	
+
 	groupResponse := src.Mysql(src.ServiceMysql[group_models.GroupModel]{
 		DB:       l.svcCtx.DB,
 		Where:    "name like ?",
 		Preload:  []string{"MemberList", "GroupMessageModel"},
 		PageInfo: src.PageInfo{Page: req.Page, Limit: req.Limit, Key: req.Key, Sort: "created_at desc"},
 	}).GetList()
-	
+
 	userIdList := l.UserIdList(groupResponse.List)
 	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: userIdList})
 	if err != nil {
 		return nil, err
 	}
 	userOnlineMap := l.UserOnlineMap()
-	
+
 	// logs.Info(userResponse)
-	
+
 	resp = new(types.GroupListResponse)
-	
+
 	for _, g := range groupResponse.List {
 		info := types.GroupListInfoResponse{
 			ID:           g.ID,
@@ -85,9 +85,9 @@ func (l *GroupListLogic) GroupList(req *types.PageInfo) (resp *types.GroupListRe
 				Name:   userResponse.InfoList[uint32(g.Leader)].Name,
 			},
 		}
-		
+
 		var adminList []types.UserInfo
-		
+
 		for _, m := range g.MemberList {
 			_, ok := userOnlineMap[m.UserId]
 			if ok {
@@ -102,9 +102,9 @@ func (l *GroupListLogic) GroupList(req *types.PageInfo) (resp *types.GroupListRe
 			}
 		}
 		info.AdminList = adminList
-		
+
 		resp.List = append(resp.List, info)
 	}
-	
+
 	return
 }

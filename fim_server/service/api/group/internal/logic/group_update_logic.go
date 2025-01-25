@@ -8,7 +8,7 @@ import (
 	"fim_server/service/api/group/internal/types"
 	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
-	
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -28,7 +28,7 @@ func NewGroupUpdateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Group
 
 func (l *GroupUpdateLogic) GroupUpdate(req *types.GroupUpdateRequest) (resp *types.GroupUpdateResponse, err error) {
 	// todo: add your logic here and delete this line
-	
+
 	resp = new(types.GroupUpdateResponse)
 	var groupMember group_models.GroupMemberModel
 	err = l.svcCtx.DB.Preload("GroupModel").Take(&groupMember, "group_id = ? and user_id = ?", req.Id, req.UserId).Error

@@ -40,4 +40,3 @@ type Content struct {
 	Content string `json:"content"`
 	Size    int    `json:"size,omitempty"`
 }
-

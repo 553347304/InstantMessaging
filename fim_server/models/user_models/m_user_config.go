@@ -14,13 +14,13 @@ type UserConfigModel struct {
 	Sound         bool      `json:"sound"`                         // 好友上线声音
 	SecureLink    bool      `json:"secure_link"`                   // 安全链接
 	SavePassword  bool      `json:"save_password"`                 // 保存密码
-	
+
 	// 防骚扰
 	SearchUser int8             `json:"search_user"` // 别人查找到你的方式
 	Valid      int8             `json:"valid"`       // 好友验证
 	ValidInfo  models.ValidInfo `json:"valid_info"`  // 验证问题
 	Online     bool             `json:"online"`      // 是否在线
-	
+
 	// 限制
 	CurtailChat        bool `json:"curtail_chat"`         // 限制聊天
 	CurtailAddUser     bool `json:"curtail_add_user"`     // 限制加人

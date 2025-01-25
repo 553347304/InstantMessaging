@@ -2,10 +2,13 @@ package logic
 
 import (
 	"context"
+	"fim_server/models/setting_models"
 	"fim_server/models/user_models"
+	"fim_server/service/rpc/setting/setting_rpc"
 	"fim_server/service/rpc/user/user_rpc"
 	"fim_server/utils/encryption_and_decryptio/jwts"
-	"fim_server/utils/open_login"
+	"fim_server/utils/open_api/open_api_qq"
+	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
 	"fmt"
 	
@@ -16,41 +19,52 @@ import (
 )
 
 type Open_loginLogic struct {
-	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
 func NewOpen_loginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Open_loginLogic {
 	return &Open_loginLogic{
-		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
 }
 
+type OpenInfo struct {
+	OpenID string
+	Name   string
+	Avatar string
+}
+
 func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.LoginResponse, err error) {
 	// todo: add your logic here and delete this line
-	
-	type OpenInfo struct {
-		Name   string
-		OpenId string
-		Avatar string
+	var conf setting_models.ConfigModel
+	settingRpc, _ := l.svcCtx.SettingRpc.SettingInfo(l.ctx, &setting_rpc.Empty{})
+	if !conv.Json().Unmarshal(settingRpc.Data, &conf) {
+		return nil, logs.Error("系统配置服务异常")
 	}
 	
 	var info OpenInfo
 	switch req.Flag {
 	case "qq":
-		qqInfo, errs := open_login.NewQQLogin(req.Code)
-		
-		info = OpenInfo{
-			OpenId: qqInfo.OpenID,
-			Name:   qqInfo.Name,
-			Avatar: qqInfo.Avatar,
+		r := open_api_qq.Login(open_api_qq.LoginConfig{
+			Code:     req.Code,
+			AppID:    conf.OpenLoginQQ.AppID,
+			AppKey:   conf.OpenLoginQQ.Key,
+			Redirect: conf.OpenLoginQQ.Redirect,
+		})
+		if r.Error != nil {
+			return nil, r.Error
 		}
-		err = errs
+		logs.Info(r)
+		return
+		// info = OpenInfo{
+		// 	OpenID: qqInfo.OpenID,
+		// 	Name:   qqInfo.Name,
+		// 	Avatar: qqInfo.Avatar,
+		// }
+		// err = openError
 	default:
-		
 		err = logs.Error("不支持的第三方登录")
 	}
 	
@@ -59,7 +73,7 @@ func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.L
 		return nil, logs.Error("登录失败")
 	}
 	var user user_models.UserModel
-	err = l.svcCtx.DB.Take(&user, "open_id = ?", info.OpenId).Error
+	err = l.svcCtx.DB.Take(&user, "open_id = ?", info.OpenID).Error
 	if err != nil {
 		fmt.Println("注册服务")
 		result, errs := l.svcCtx.UserRpc.User.UserCreate(l.ctx, &user_rpc.UserCreateRequest{
@@ -67,7 +81,7 @@ func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.L
 			Password:       "",
 			Role:           2,
 			Avatar:         info.Avatar,
-			OpenId:         info.OpenId,
+			OpenId:         info.OpenID,
 			RegisterSource: "qq",
 		})
 		if errs != nil {

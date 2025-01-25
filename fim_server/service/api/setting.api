@@ -8,7 +8,18 @@ type (
 	Empty  {}
 )
 
+type SendEmailResponse {
+	Code        string `json:"code"`
+	SendUser    string `json:"send_user"`
+	ReceiveUser string `json:"receive_user"`
+	Title       string `json:"title"`
+	Content     string `json:"content"`
+}
+
 service setting {
+	@handler SendEmail
+	post /api/setting/send_email (SendEmailResponse) returns (Empty)
+
 	@handler open_login_info
 	get /api/setting/open_login returns ([]OpenLoginInfoResponse) // 第三方登录的信息
 
@@ -22,6 +33,6 @@ service setting {
 )
 service setting {
 	@handler SettingInfoUpdate // 网站信息
-	put /api/setting/info (Empty) returns (Empty)
+	put /api/setting/admin/info (Empty) returns (Empty)
 }
 

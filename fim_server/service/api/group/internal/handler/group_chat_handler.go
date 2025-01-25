@@ -14,7 +14,7 @@ import (
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"net/http"
 	"time"
-	
+
 	"fim_server/service/server/response"
 )
 
@@ -76,19 +76,19 @@ func (s *sendMessage) TipError(message string) {
 	s.Conn.WriteMessage(websocket.TextMessage, conv.Json().Marshal(resp))
 }
 func (s *sendMessage) GroupOnlineUser(messageId uint) {
-	
+
 	// 用户在线列表
 	var userOnlineIdList []uint
 	for u, _ := range UserOnlineMapWebsocket {
 		userOnlineIdList = append(userOnlineIdList, u)
 	}
-	
+
 	// 群成员在线列表
 	var groupMemberOnlineIdList []uint
 	s.SvcCtx.DB.Model(&group_models.GroupMemberModel{}).
 		Where("group_id = ? and user_id in ?", s.Request.GroupId, userOnlineIdList).
 		Select("user_id").Scan(&groupMemberOnlineIdList)
-	
+
 	info, _ := UserOnlineMapWebsocket[s.Req.UserId]
 	var chatResponse = ChatResponse{
 		UserId:    s.Req.UserId,
@@ -98,14 +98,14 @@ func (s *sendMessage) GroupOnlineUser(messageId uint) {
 		Id:        messageId,
 		CreatedAt: time.Now(),
 	}
-	
+
 	for _, u := range groupMemberOnlineIdList {
 		wsUserInfo, ok := UserOnlineMapWebsocket[u]
 		if !ok {
 			continue
 		}
 		chatResponse.IsMe = wsUserInfo.UserInfo.ID == s.Req.UserId
-		
+
 		for _, w2 := range wsUserInfo.ConnMap {
 			w2.WriteMessage(websocket.TextMessage, conv.Json().Marshal(chatResponse))
 		}
@@ -126,7 +126,7 @@ func (s *sendMessage) IsMessage(member group_models.GroupMemberModel) error {
 			if groupMessage.Type == mtype.MessageType.IsWithdraw {
 				return s.Error("消息已经被撤回了")
 			}
-			
+
 			// 管理员和群主撤回
 			if member.Role == 1 || member.Role == 2 {
 				var messageUserRole int8 = 3
@@ -137,7 +137,7 @@ func (s *sendMessage) IsMessage(member group_models.GroupMemberModel) error {
 					return s.Error("管理员只能撤回自己或普通用户的消息")
 				}
 			}
-			
+
 			// 自己撤回
 			if s.Req.UserId == groupMessage.SendUserId {
 				now := time.Now()
@@ -145,7 +145,7 @@ func (s *sendMessage) IsMessage(member group_models.GroupMemberModel) error {
 					return s.Error("撤回消息时间超过两分钟")
 				}
 			}
-			
+
 			// 撤回消息
 			s.SvcCtx.DB.Model(&groupMessage).Update("type", mtype.MessageType.IsWithdraw)
 			s.Request.Message[0].Content = "你撤回了一条消息"
@@ -163,10 +163,10 @@ func (s *sendMessage) IsMessage(member group_models.GroupMemberModel) error {
 			if groupMessage.Type == mtype.MessageType.IsWithdraw {
 				return s.Error("消息已经被撤回了")
 			}
-			
+
 		}
 	}
-	
+
 	return nil
 }
 func (s *sendMessage) IsBan() error {
@@ -183,7 +183,7 @@ func (s *sendMessage) Init(p []byte) error {
 	if !conv.Json().Unmarshal(p, &s.Request) {
 		return s.Error("消息格式错误")
 	}
-	
+
 	// 检查用户是否在群聊中
 	var member group_models.GroupMemberModel
 	err := s.SvcCtx.DB.Preload("GroupModel").Take(&member, "group_id = ? and user_id = ?", s.Request.GroupId, s.Req.UserId).Error
@@ -191,11 +191,11 @@ func (s *sendMessage) Init(p []byte) error {
 		return s.Error("用户不是群成员")
 	}
 	s.Member = member
-	
+
 	if s.IsBan() != nil || s.IsMessage(member) != nil {
 		return s.Err
 	}
-	
+
 	// 获取用户信息
 	userResponse, err := s.SvcCtx.UserRpc.User.UserInfo(context.Background(), &user_rpc.IdList{Id: []uint32{uint32(s.Req.UserId)}})
 	if err != nil {
@@ -221,14 +221,14 @@ func GroupChatHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			response.Response(r, w, nil, err)
 			return
 		}
-		
+
 		conn := src.Client().Websocket(w, r)
 		if conn == nil {
 			response.Response(r, w, nil, logs.Error("websocket连接失败"))
 			return
 		}
 		var SendMessage = sendMessage{SvcCtx: svcCtx, Conn: conn, Req: req}
-		
+
 		defer func() { conn.Close() }()
 		for {
 			// 用户断开聊天
@@ -236,7 +236,7 @@ func GroupChatHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			if err != nil {
 				return
 			}
-			
+
 			err = SendMessage.Init(p)
 			if err != nil {
 				SendMessage.TipError(err.Error())
@@ -245,6 +245,6 @@ func GroupChatHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			messageId := SendMessage.InsertDatabase()
 			SendMessage.GroupOnlineUser(messageId)
 		}
-		
+
 	}
 }

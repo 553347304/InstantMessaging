@@ -9,19 +9,15 @@ import (
 	
 	"fim_server/service/api/auth/internal/svc"
 	"fim_server/service/api/auth/internal/types"
-	
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type LoginLogic struct {
-	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
 func NewLoginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LoginLogic {
 	return &LoginLogic{
-		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
@@ -35,12 +31,12 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 		l.svcCtx.RpcLog.Info(l.ctx, "用户名错误: "+req.Name)
 		return nil, logs.Error("用户名错误")
 	}
-	
+
 	if !bcrypts.Check(user.Password, req.Password) {
 		l.svcCtx.RpcLog.Info(l.ctx, "密码错误: "+req.Password)
 		return nil, logs.Error("密码错误")
 	}
-	
+
 	token, err := jwts.GenToken(jwts.PayLoad{
 		UserId: user.ID,
 		Name:   user.Name,
@@ -51,8 +47,6 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 		return nil, logs.Error("登录服务内部错误")
 	}
 	l.svcCtx.RpcLog.Info(l.ctx, "用户登录成功")
-	
 
-	
 	return &types.LoginResponse{Token: token}, nil
 }

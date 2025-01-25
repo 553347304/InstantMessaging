@@ -7,7 +7,7 @@ import (
 	"fim_server/service/api/group/internal/types"
 	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
-	
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -27,7 +27,7 @@ func NewGroupValidIssueLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 
 func (l *GroupValidIssueLogic) GroupValidIssue(req *types.GroupValidIssueRequest) (resp *types.GroupValidIssueResponse, err error) {
 	// todo: add your logic here and delete this line
-	
+
 	var groupModel group_models.GroupModel
 	err = l.svcCtx.DB.Take(&groupModel, "id = ?", req.Id).Error
 	if err != nil {

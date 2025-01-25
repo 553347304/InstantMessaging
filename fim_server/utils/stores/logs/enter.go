@@ -51,7 +51,7 @@ func (l *logServer) color(s any, hex ...string) string {
 }
 func (l *logServer) isIP() string {
 	var message = l.Source
-	
+
 	// 是否为IP地址
 	isIP := regexp.MustCompile(`.(\d{1,3}\.){3}\d{1,3}(:\d+)?`).FindAllString(l.Source, -1)
 	for _, match := range isIP {
@@ -89,7 +89,7 @@ func log(line []string, color string, source ...interface{}) logServerInterface 
 	for i := 0; i < len(source); i++ {
 		_source += " " + fmt.Sprint(source[i])
 	}
-	
+
 	return &logServer{
 		Source: _source[1:],
 		Color:  color,
@@ -101,7 +101,7 @@ func getLine() []string {
 	// 获取当前根目录名
 	output, _ := exec.Command("go", "list", "-m").CombinedOutput()
 	name := strings.TrimSpace(string(output)) + "/"
-	
+
 	// 获取路径行号
 	var pathList = make([]string, 0)
 	pc := make([]uintptr, 32)

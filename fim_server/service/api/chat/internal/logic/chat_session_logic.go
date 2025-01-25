@@ -28,7 +28,7 @@ func NewChatSessionLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ChatS
 
 func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *types.ChatSessionResponse, err error) {
 	// todo: add your logic here and delete this line
-	
+
 	type Data struct {
 		SU         uint   `gorm:"column:s_u"`
 		RU         uint   `gorm:"column:r_u"`
@@ -61,7 +61,7 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 			Limit: req.Limit,
 		},
 	}).GetListGroup()
-	
+
 	var userIdList []uint32
 	for _, data := range chatResponse.List {
 		if data.RU != req.UserId {
@@ -75,14 +75,14 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 			userIdList = append(userIdList, uint32(req.UserId))
 		}
 	}
-	
+
 	userIdList = method.List(userIdList).Unique() // 去重
 	// 调用户服务
 	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: userIdList})
 	if err != nil {
 		return nil, logs.Error("用户服务错误")
 	}
-	
+
 	var list = make([]types.ChatSession, 0)
 	for _, data := range chatResponse.List {
 		s := types.ChatSession{

@@ -18,28 +18,22 @@ type Size struct {
 	Size    string `json:"size"`
 }
 
-
-
-
 func main() {
 
 	config.Init()
-	
-	
+
 	var scan *[]models.Test
-	
+
 	find(&scan)
-	
+
 	// for _, test := range scan {
 	// 	fmt.Println("t",test)
 	// }
 	fmt.Println(scan)
 
-
-	
 }
 
-func find(scan interface{})  {
-	
+func find(scan interface{}) {
+
 	config.DB.Find(scan)
 }

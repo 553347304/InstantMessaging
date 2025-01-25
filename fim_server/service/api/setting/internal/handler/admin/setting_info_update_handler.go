@@ -3,11 +3,11 @@ package admin
 import (
 	"fim_server/models/setting_models"
 	"net/http"
-	
+
 	"fim_server/service/api/setting/internal/logic/admin"
 	"fim_server/service/api/setting/internal/svc"
 	"github.com/zeromicro/go-zero/rest/httpx"
-	
+
 	"fim_server/service/server/response"
 )
 

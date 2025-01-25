@@ -4,10 +4,10 @@ import (
 	"context"
 	"fim_server/models/user_models"
 	"fim_server/utils/stores/conv"
-	
+
 	"fim_server/service/rpc/user/internal/svc"
 	"fim_server/service/rpc/user/user_rpc"
-	
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -27,12 +27,12 @@ func NewUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserInfo
 
 func (l *UserInfoLogic) UserInfo(in *user_rpc.IdList) (*user_rpc.UserInfoResponse, error) {
 	// todo: add your logic here and delete this line
-	
+
 	var userList = make([]user_models.UserModel, 0)
 	l.svcCtx.DB.Preload("UserConfigModel").Find(&userList, in.Id)
-	
+
 	resp := new(user_rpc.UserInfoResponse)
-	
+
 	resp.InfoList = make(map[uint32]*user_rpc.UserInfo)
 	for i, user := range userList {
 		info := conv.Struct(user_rpc.UserInfo{}).Type(user)
@@ -45,6 +45,6 @@ func (l *UserInfoLogic) UserInfo(in *user_rpc.IdList) (*user_rpc.UserInfoRespons
 	if resp.Total == 0 {
 		return resp, conv.Type("用户服务错误").Error()
 	}
-	
+
 	return resp, nil
 }

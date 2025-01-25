@@ -9,7 +9,8 @@ System:
   Mysql: root:baiyin@tcp(127.0.0.1:3306)/fim_db?charset=utf8mb4&parseTime=True&loc=Local
   Redis: 127.0.0.1:6379 baiyin 0 100
   Etcd: 127.0.0.1:2379
-OpenLoginList:
-  - name: QQ登录
-    icon:
-    href:
+SettingRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: setting.rpc

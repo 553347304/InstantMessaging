@@ -3,10 +3,10 @@ package logic
 import (
 	"context"
 	"fim_server/models/setting_models"
-	"fim_server/utils/stores/method"
-	
 	"fim_server/service/api/setting/internal/svc"
 	"fim_server/service/api/setting/internal/types"
+	"fim_server/service/rpc/setting/setting_rpc"
+	"fim_server/utils/stores/conv"
 )
 
 type SettingInfoLogic struct {
@@ -23,24 +23,11 @@ func NewSettingInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Setti
 
 func (l *SettingInfoLogic) SettingInfo(req *types.Empty) (resp *setting_models.ConfigModel, err error) {
 	// todo: add your logic here and delete this line
-	
-	var setting setting_models.ConfigModel
-	if l.svcCtx.DB.First(&setting).Error == nil {
-		return &setting, nil
+	resp = new(setting_models.ConfigModel)
+	info, err := l.svcCtx.SettingRpc.SettingInfo(l.ctx, &setting_rpc.Empty{})
+	if err != nil {
+		return nil, err
 	}
-	init := setting_models.ConfigModel{
-		Site: setting_models.Site{
-			CreatedAt:   method.Time().NowDay,
-			BeiAn:       "津ICP备2024017367号-1",
-			Version:     "1.0.0",
-			ImageQQ:     "https://vip.123pan.cn/1821560246/website/image/code/QQ%E4%BA%8C%E7%BB%B4%E7%A0%81.jpg",
-			ImageWechat: "https://vip.123pan.cn/1821560246/website/image/code/%E5%BE%AE%E4%BF%A1%E4%BA%8C%E7%BB%B4%E7%A0%81.jpg",
-			UrlBiliBili: "https://space.bilibili.com/59452692",
-			UrlGitee:    "https://gitee.com/baiyins",
-			UrlGithub:   "https://github.com/553347304",
-		},
-	}
-	go l.svcCtx.DB.Create(&init)
-	
-	return &init, nil
+	conv.Json().Unmarshal(info.Data, &resp)
+	return resp, nil
 }

@@ -4,10 +4,10 @@ import (
 	"context"
 	"fim_server/models/chat_models"
 	"fim_server/utils/stores/logs"
-	
+
 	"fim_server/service/rpc/chat/chat_rpc"
 	"fim_server/service/rpc/chat/internal/svc"
-	
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -37,16 +37,16 @@ func (l *UserListChatTotalLogic) UserListChatTotal(in *chat_rpc.UserListChatTota
 		Where("send_user_id in ?", in.UserIdList).
 		Group("send_user_id").
 		Select("send_user_id as user_id", "count(id) as count").Scan(&sendScan)
-	
+
 	var receiveScan []Data
 	l.svcCtx.DB.Model(chat_models.ChatModel{}).
 		Where("send_user_id in ?", in.UserIdList).
 		Group("send_user_id").
 		Select("send_user_id as user_id", "count(id) as count").Scan(&receiveScan)
-	
+
 	resp = new(chat_rpc.UserListChatTotalResponse)
 	resp.Result = map[uint32]*chat_rpc.ChatTotalMessage{}
-	
+
 	for _, data := range sendScan {
 		result, ok := resp.Result[data.UserId]
 		if !ok {

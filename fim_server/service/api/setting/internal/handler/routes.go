@@ -25,6 +25,11 @@ func RegisterHandlers(src *rest.Server, serverCtx *svc.ServiceContext) {
 				Path:    "/api/setting/open_login",
 				Handler: open_login_infoHandler(serverCtx),
 			},
+			{
+				Method:  http.MethodPost,
+				Path:    "/api/setting/send_email",
+				Handler: SendEmailHandler(serverCtx),
+			},
 		},
 	)
 
@@ -34,7 +39,7 @@ func RegisterHandlers(src *rest.Server, serverCtx *svc.ServiceContext) {
 			[]rest.Route{
 				{
 					Method:  http.MethodPut,
-					Path:    "/api/setting/info",
+					Path:    "/api/setting/admin/info",
 					Handler: admin.SettingInfoUpdateHandler(serverCtx),
 				},
 			}...,

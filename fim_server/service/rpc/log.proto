@@ -1,6 +1,5 @@
 syntax = "proto3";
-
-package log_rpc;
+package main;
 option go_package = "./log_rpc";
 
 enum Mode_TYPE {

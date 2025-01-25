@@ -8,7 +8,7 @@ import (
 	"fim_server/service/rpc/user/user_rpc"
 	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
-	
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -28,15 +28,15 @@ func NewUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserInfo
 
 func (l *UserInfoLogic) UserInfo(req *types.UserInfoRequest) (resp *types.UserInfoResponse, err error) {
 	// todo: add your logic here and delete this line
-	
+
 	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: []uint32{uint32(req.UserId)}})
 	if err != nil {
 		return nil, logs.Error(err.Error())
 	}
-	
+
 	var userConfigModel user_models.UserConfigModel
 	conv.Json().Unmarshal(userResponse.Info.UserConfigModel, &userConfigModel)
-	
+
 	resp = &types.UserInfoResponse{
 		UserId:        uint(userResponse.Info.Id),
 		Name:          userResponse.Info.Name,

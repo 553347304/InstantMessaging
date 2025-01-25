@@ -1,6 +1,5 @@
 syntax = "proto3";
-
-package user_rpc;
+package main;
 option go_package = "./group_rpc";
 
 message EmptyResponse  {}

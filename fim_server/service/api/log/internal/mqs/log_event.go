@@ -17,8 +17,6 @@ func NewPaymentSuccess(ctx context.Context, svcCtx *svc.ServiceContext) *LogEven
 	}
 }
 
-
-
 func (l *LogEvent) Consume(ctx context.Context, key, val string) error {
 	return nil
 }

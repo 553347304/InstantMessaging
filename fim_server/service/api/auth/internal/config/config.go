@@ -17,6 +17,7 @@ type Config struct {
 		Icon string `yaml:"icon"`
 		Href string `yaml:"href"`
 	}
-	UserRpc   zrpc.RpcClientConf
-	WhiteList []string // 白名单
+	UserRpc    zrpc.RpcClientConf
+	SettingRpc zrpc.RpcClientConf
+	WhiteList  []string // 白名单
 }

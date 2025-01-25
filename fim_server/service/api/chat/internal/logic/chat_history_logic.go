@@ -10,7 +10,7 @@ import (
 	"fim_server/utils/src"
 	"fim_server/utils/stores/logs"
 	"fim_server/utils/stores/method"
-	
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -44,12 +44,12 @@ type ChatHistoryResponse struct {
 
 func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *ChatHistoryResponse, err error) {
 	// todo: add your logic here and delete this line
-	
+
 	_, err = l.svcCtx.UserRpc.Friend.IsFriend(l.ctx, &user_rpc.IsFriendRequest{User1: uint32(req.UserId), User2: uint32(req.FriendId)})
 	if err != nil {
 		return nil, logs.Error("不是好友")
 	}
-	
+
 	chatList := src.Mysql(src.ServiceMysql[chat_models.ChatModel]{
 		DB: l.svcCtx.DB.Where("(send_user_id = ? and receive_user_id = ?) or "+
 			"(send_user_id = ? and receive_user_id = ?) and id not in "+
@@ -61,7 +61,7 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 			Sort:  "created_at desc",
 		},
 	}).GetList()
-	
+
 	var userIdList []uint32
 	for _, model := range chatList.List {
 		userIdList = append(userIdList, uint32(model.SendUserId))
@@ -73,11 +73,11 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 	if err != nil {
 		return nil, logs.Error("用户服务错误")
 	}
-	
+
 	var list = make([]ChatHistory, 0)
 	var sendUser, receiveUser mtype.UserInfo
 	for i, model := range chatList.List {
-		
+
 		if i == 0 {
 			sendUser = mtype.UserInfo{
 				ID:     model.SendUserId,
@@ -90,7 +90,7 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 				Avatar: userResponse.InfoList[uint32(model.ReceiveUserId)].Avatar,
 			}
 		}
-		
+
 		info := ChatHistory{
 			ID:        model.ID,
 			CreatedAt: model.CreatedAt.String(),
@@ -100,7 +100,7 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 			info.IsMe = true
 		}
 		list = append(list, info)
-		
+
 	}
 	resp = &ChatHistoryResponse{
 		Total:       chatList.Total,
@@ -108,6 +108,6 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 		ReceiveUser: receiveUser,
 		List:        list,
 	}
-	
+
 	return
 }

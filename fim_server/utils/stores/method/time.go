@@ -35,7 +35,7 @@ func Time() *serverTime {
 	timestamp := now.Unix()
 	nowDay := fmt.Sprintf("%d-%d-%d", year, month, day)
 	nowTime := fmt.Sprintf("%d:%d:%d", hour, minute, second)
-	
+
 	return &serverTime{
 		Now:     nowDay + " " + nowTime,
 		NowDay:  nowDay,

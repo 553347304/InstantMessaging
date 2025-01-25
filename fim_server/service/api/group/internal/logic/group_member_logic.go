@@ -38,7 +38,7 @@ type mysqlSel struct {
 
 func (l *GroupMemberLogic) GroupMember(req *types.GroupMemberRequest) (resp *types.GroupMemberResponse, err error) {
 	// todo: add your logic here and delete this line
-	
+
 	if !method.List([]string{"", "role", "created_at"}).InRegex(req.Sort) {
 		return nil, logs.Error("不支持的排序模式")
 	}
@@ -51,18 +51,18 @@ func (l *GroupMemberLogic) GroupMember(req *types.GroupMemberRequest) (resp *typ
 			1),
 		PageInfo: src.PageInfo{Page: req.Page, Limit: req.Limit, Sort: req.Sort},
 	}).GetListGroup()
-	
+
 	var userIdList []uint32
 	for _, data := range member.List {
 		userIdList = append(userIdList, uint32(data.UserId))
 	}
-	
+
 	// 关于降级
 	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: userIdList})
 	if err != nil {
 		logs.Error(err)
 	}
-	
+
 	var userInfoMap = map[uint]mtype.UserInfo{}
 	for u, info := range userResponse.InfoList {
 		userInfoMap[uint(u)] = mtype.UserInfo{
@@ -71,7 +71,7 @@ func (l *GroupMemberLogic) GroupMember(req *types.GroupMemberRequest) (resp *typ
 			Avatar: info.Avatar,
 		}
 	}
-	
+
 	var userOnlineMap = map[uint]bool{}
 	userOnlineResponse, err := l.svcCtx.UserRpc.User.UserOnlineList(l.ctx, &user_rpc.Empty{})
 	if err != nil {
@@ -80,7 +80,7 @@ func (l *GroupMemberLogic) GroupMember(req *types.GroupMemberRequest) (resp *typ
 	for _, u := range userOnlineResponse.UserIdList {
 		userOnlineMap[uint(u)] = true
 	}
-	
+
 	resp = new(types.GroupMemberResponse)
 	for _, data := range member.List {
 		resp.List = append(resp.List, types.GroupMemberInfo{

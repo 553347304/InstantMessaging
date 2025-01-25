@@ -5,10 +5,10 @@ import (
 	"fim_server/models/group_models"
 	"fim_server/service/rpc/user/user_rpc"
 	"fim_server/utils/stores/logs"
-	
+
 	"fim_server/service/api/group/internal/svc"
 	"fim_server/service/api/group/internal/types"
-	
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -28,7 +28,7 @@ func NewGroupFriendListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 
 func (l *GroupFriendListLogic) GroupFriendList(req *types.GroupFriendsListRequest) (resp *types.GroupFriendsListResponse, err error) {
 	// todo: add your logic here and delete this line
-	
+
 	friendListResponse, err := l.svcCtx.UserRpc.Friend.FriendList(l.ctx, &user_rpc.ID{Id: uint32(req.UserId)})
 	if err != nil {
 		return nil, logs.Error(err)

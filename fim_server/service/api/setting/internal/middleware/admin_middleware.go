@@ -15,7 +15,7 @@ func NewAdminMiddleware() *AdminMiddleware {
 func (m *AdminMiddleware) Handle(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// TODO generate middleware implement function, delete after code implementation
-		
+
 		if !zero_middleware.IsAdmin(w, r) {
 			return
 		}

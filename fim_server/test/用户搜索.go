@@ -10,14 +10,14 @@ import (
 
 func main() {
 	core.Init()
-	
+
 	type Data struct {
 		SU         uint   `gorm:"column:s_u"`
 		RU         uint   `gorm:"column:r_u"`
 		MaxDate    string `gorm:"column:max_date"`
 		MaxPreview string `gorm:"column:max_preview"`
 	}
-	
+
 	var chatList []Data
 	service_mysql.GetListGroup(chat_models.ChatModel{}, service_mysql.Mysql{
 		DB: src.DB.
@@ -34,6 +34,6 @@ func main() {
 			Limit: 10,
 		},
 	}, &chatList)
-	
+
 	fmt.Println(chatList)
 }

@@ -6,7 +6,7 @@ import (
 	"fim_server/utils/stores/_sys"
 	"fim_server/utils/stores/logs"
 	"gorm.io/gorm"
-	
+
 	"fim_server/service/api/group/internal/svc"
 	"fim_server/service/api/group/internal/types"
 )
@@ -25,10 +25,10 @@ func NewGroupListRemoveLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 
 func (l *GroupListRemoveLogic) GroupListRemove(req *types.RequestDelete) (resp *types.Empty, err error) {
 	// todo: add your logic here and delete this line
-	
+
 	var groupList []group_models.GroupModel
 	l.svcCtx.DB.Preload("MemberList").Preload("GroupMessageModel").Find(&groupList, "id in ?", req.IdList)
-	
+
 	for _, model := range groupList {
 		var validList []group_models.GroupValidModel
 		err = l.svcCtx.DB.Transaction(func(tx *gorm.DB) error {
@@ -62,6 +62,6 @@ func (l *GroupListRemoveLogic) GroupListRemove(req *types.RequestDelete) (resp *
 		logs.Info("删除群消息总数", len(model.GroupMessageModel))
 		logs.Info("删除群用户总数", len(model.MemberList))
 	}
-	
+
 	return
 }

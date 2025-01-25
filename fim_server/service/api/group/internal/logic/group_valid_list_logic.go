@@ -28,17 +28,17 @@ func NewGroupValidListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Gr
 
 func (l *GroupValidListLogic) GroupValidList(req *types.GroupValidListRequest) (resp *types.GroupValidListResponse, err error) {
 	// todo: add your logic here and delete this line
-	
+
 	// 是不是群主/管理员
 	var groupIdList []uint
 	l.svcCtx.DB.Model(group_models.GroupMemberModel{}).
 		Where("user_id = ? and (role = 1 or role = 2)", req.UserId).
 		Select("group_id").Scan(&groupIdList)
-	
+
 	if len(groupIdList) == 0 {
 		return nil, logs.Error("用户不在群内")
 	}
-	
+
 	groups := src.Mysql(src.ServiceMysql[group_models.GroupValidModel]{
 		DB:      l.svcCtx.DB.Where("group_id in ? or user_id = ?", groupIdList, req.UserId),
 		Preload: []string{"GroupModel"},
@@ -47,7 +47,7 @@ func (l *GroupValidListLogic) GroupValidList(req *types.GroupValidListRequest) (
 			Limit: req.Limit,
 		},
 	}).GetList()
-	
+
 	// 用户列表
 	var userIdList []uint32
 	for _, group := range groups.List {
@@ -57,10 +57,10 @@ func (l *GroupValidListLogic) GroupValidList(req *types.GroupValidListRequest) (
 	if err1 != nil {
 		return nil, logs.Error("用户服务错误")
 	}
-	
+
 	resp = new(types.GroupValidListResponse)
 	resp.Total = groups.Total
-	
+
 	for _, group := range groups.List {
 		resp.List = append(resp.List, types.GroupValidInfo{
 			ID:         group.ID,

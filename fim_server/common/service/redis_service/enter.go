@@ -23,7 +23,7 @@ func GetUserInfo(rdb *redis.Client, UserRpc client.UserRpc, userId uint) (userIn
 		userInfo.ID = userId
 		userInfo.Avatar = userResponse.Info.Avatar
 		userInfo.Name = userResponse.Info.Name
-		
+
 		data := conv.Json().Marshal(userInfo)
 		rdb.Set(key, string(data), time.Hour) // 1个小时过期
 		return

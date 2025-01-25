@@ -4,10 +4,10 @@ import (
 	"context"
 	"fim_server/models/user_models"
 	"fmt"
-	
+
 	"fim_server/service/rpc/user/internal/svc"
 	"fim_server/service/rpc/user/user_rpc"
-	
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -27,9 +27,9 @@ func NewIsCurtailLogic(ctx context.Context, svcCtx *svc.ServiceContext) *IsCurta
 
 func (l *IsCurtailLogic) IsCurtail(in *user_rpc.ID) (*user_rpc.CurtailResponse, error) {
 	// todo: add your logic here and delete this line
-	
+
 	resp := new(user_rpc.CurtailResponse)
-	
+
 	var user user_models.UserConfigModel
 	err := l.svcCtx.DB.Take(&user, "user_id = ?", in.Id).Error
 	if err != nil {
@@ -40,7 +40,7 @@ func (l *IsCurtailLogic) IsCurtail(in *user_rpc.ID) (*user_rpc.CurtailResponse, 
 		resp.CurtailAddGroup.Error = tip
 		return resp, err
 	}
-	
+
 	resp.CurtailChat.Is = user.CurtailChat
 	resp.CurtailChat.Error = "当前用户被限制聊天"
 	resp.CurtailAddUser.Is = user.CurtailAddUser
@@ -49,6 +49,6 @@ func (l *IsCurtailLogic) IsCurtail(in *user_rpc.ID) (*user_rpc.CurtailResponse, 
 	resp.CurtailCreateGroup.Error = "当前用户被限制创建群聊"
 	resp.CurtailAddGroup.Is = user.CurtailAddGroup
 	resp.CurtailAddGroup.Error = "当前用户被限制加群"
-	
+
 	return resp, nil
 }

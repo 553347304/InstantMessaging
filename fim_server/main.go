@@ -12,4 +12,3 @@ func main() {
 	flags.Command()
 	logs.Info("初始化成功")
 }
-

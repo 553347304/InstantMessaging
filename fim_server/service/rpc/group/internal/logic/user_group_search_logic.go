@@ -4,10 +4,10 @@ import (
 	"context"
 	"fim_server/models/group_models"
 	"fim_server/utils/stores/logs"
-	
+
 	"fim_server/service/rpc/group/group_rpc"
 	"fim_server/service/rpc/group/internal/svc"
-	
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -43,7 +43,6 @@ func (l *UserGroupSearchLogic) UserGroupAddTotal(in *group_rpc.UserGroupSearchRe
 		Select("user_id", "count(id) as count").Scan(&scan)
 }
 
-
 func (l *UserGroupSearchLogic) UserGroupSearch(in *group_rpc.UserGroupSearchRequest) (resp *group_rpc.UserGroupSearchResponse, err error) {
 	// todo: add your logic here and delete this line
 	logs.Info("----------")
@@ -63,7 +62,7 @@ func (l *UserGroupSearchLogic) UserGroupSearch(in *group_rpc.UserGroupSearchRequ
 	for _, uid := range in.UserIdList {
 		resp.Result[uid] = int32(groupUserMap[uid])
 	}
-	
+
 	logs.Info(data)
 	return resp, nil
 }

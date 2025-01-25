@@ -22,7 +22,7 @@ var MessageType = struct {
 	Reply     Int8
 	At        Int8
 	Tip       Int8
-	
+
 	IsWithdraw Int8
 }{
 	Null:      0,  // 未知消息
@@ -37,7 +37,7 @@ var MessageType = struct {
 	Reply:     9,  // 回复消息
 	At:        11, // @用户的消息 群聊才有
 	Tip:       12, // 提示消息   不入库
-	
+
 	IsWithdraw: 51, // 已经被撤回的消息
 }
 
@@ -62,7 +62,7 @@ func (s *MessageArray) Scan(value interface{}) error {
 type Message struct {
 	Type    Int8   `json:"type"`
 	Content string `json:"content"`
-	
+
 	State     string `json:"state,omitempty"`      // 消息状态
 	Size      int64  `json:"size,omitempty"`       // 图片大小 | 文件大小
 	MessageId uint   `json:"message_id,omitempty"` // 撤回消息ID | 回复消息ID
@@ -89,21 +89,21 @@ func (m Message) GetPreview() string {
 // type Message struct {
 
 // MessageType      MessageType       `json:"message_type"`                // 消息类型 MessageType
-// MessageText      *MessageText      `json:"message_text,omitempty"`      // 
-// MessageImage     *MessageImage     `json:"message_image,omitempty"`     // 
-// MessageVideo     *MessageVideo     `json:"message_video,omitempty"`     // 
-// MessageFile      *MessageFile      `json:"message_file,omitempty"`      // 
-// MessageVoice     *MessageVoice     `json:"message_voice,omitempty"`     // 
-// MessageVoiceCall *MessageVoiceCall `json:"message_voiceCall,omitempty"` // 
-// MessageVideoCall *MessageVideoCall `json:"message_videoCall,omitempty"` // 
-// MessageWithdraw  *MessageWithdraw  `json:"message_withdraw,omitempty"`  // 
-// MessageReply     *MessageReply     `json:"message_reply,omitempty"`     // 
-// MessageQuote     *MessageQuote     `json:"message_quote,omitempty"`     // 
-// MessageAt        *MessageAt        `json:"message_at,omitempty"`        // 
-// MessageTip       *MessageTip       `json:"message_tip,omitempty"`       // 
+// MessageText      *MessageText      `json:"message_text,omitempty"`      //
+// MessageImage     *MessageImage     `json:"message_image,omitempty"`     //
+// MessageVideo     *MessageVideo     `json:"message_video,omitempty"`     //
+// MessageFile      *MessageFile      `json:"message_file,omitempty"`      //
+// MessageVoice     *MessageVoice     `json:"message_voice,omitempty"`     //
+// MessageVoiceCall *MessageVoiceCall `json:"message_voiceCall,omitempty"` //
+// MessageVideoCall *MessageVideoCall `json:"message_videoCall,omitempty"` //
+// MessageWithdraw  *MessageWithdraw  `json:"message_withdraw,omitempty"`  //
+// MessageReply     *MessageReply     `json:"message_reply,omitempty"`     //
+// MessageQuote     *MessageQuote     `json:"message_quote,omitempty"`     //
+// MessageAt        *MessageAt        `json:"message_at,omitempty"`        //
+// MessageTip       *MessageTip       `json:"message_tip,omitempty"`       //
 // }
 
-// 
+//
 // func (m *Message) Scan(value interface{}) error {
 // 	err := json.Unmarshal(value.([]byte), m)
 // 	if err != nil {

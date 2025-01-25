@@ -4,7 +4,7 @@ import (
 	"context"
 	log_model "fim_server/models/log_models"
 	"fim_server/utils/stores/logs"
-	
+
 	"fim_server/service/api/log/internal/svc"
 	"fim_server/service/api/log/internal/types"
 )
@@ -27,6 +27,6 @@ func (l *LogRemoveLogic) LogRemove(req *types.LogRemoveRequest) (resp *types.Emp
 	if len(logList) > 0 {
 		l.svcCtx.DB.Delete(&logList)
 	}
-	l.svcCtx.RpcLog.Info(l.ctx,logs.Info("删除日志条数", len(logList)))
+	l.svcCtx.RpcLog.Info(l.ctx, logs.Info("删除日志条数", len(logList)))
 	return
 }

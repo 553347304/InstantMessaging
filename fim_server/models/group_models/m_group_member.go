@@ -21,7 +21,7 @@ type GroupMemberModel struct {
 }
 
 func (g GroupMemberModel) GetBanTime(db *gorm.DB, rdb *redis.Client) *int {
-	
+
 	if g.BanTime == nil {
 		return nil
 	}

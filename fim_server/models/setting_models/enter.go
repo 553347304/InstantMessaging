@@ -15,10 +15,20 @@ type Site struct {
 	UrlGitee    string `json:"url_gitee"`
 	UrlGithub   string `json:"url_github"`
 }
+type OpenLoginQQ struct {
+	Enable   bool   `json:"enable"` // 是否启用
+	AppID    string `json:"app_id"`
+	Key      string `json:"key"`
+	Redirect string `json:"redirect"` // 登录之后的回调地址
+	WebPath  string `json:"webPath"`  // 点击跳转的路径
+}
 type ConfigModel struct {
-	ID   uint `json:"id"`
-	Site Site `json:"site"`
+	ID          uint        `json:"id"`
+	Site        Site        `json:"site"`
+	OpenLoginQQ OpenLoginQQ `json:"open_login_qq"`
 }
 
-func (v Site) Value() (driver.Value, error)  { return json.Marshal(v) }
-func (v *Site) Scan(value interface{}) error { return json.Unmarshal(value.([]byte), v) }
+func (v Site) Value() (driver.Value, error)         { return json.Marshal(v) }
+func (v *Site) Scan(value interface{}) error        { return json.Unmarshal(value.([]byte), v) }
+func (v OpenLoginQQ) Value() (driver.Value, error)  { return json.Marshal(v) }
+func (v *OpenLoginQQ) Scan(value interface{}) error { return json.Unmarshal(value.([]byte), v) }

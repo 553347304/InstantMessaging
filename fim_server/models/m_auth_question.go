@@ -25,4 +25,3 @@ func (v ValidInfo) Valid(v1 []string) bool {
 	}
 	return false
 }
-

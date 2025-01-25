@@ -9,7 +9,7 @@ import (
 	"fim_server/utils/src"
 	"fim_server/utils/stores/method"
 	"time"
-	
+
 	"fim_server/service/api/group/internal/svc"
 	"fim_server/service/api/group/internal/types"
 )
@@ -39,7 +39,7 @@ type HistoryResponse struct {
 
 func (l *GroupMessageListLogic) GroupMessageList(req *types.PageInfo) (resp *response.List[HistoryResponse], err error) {
 	// todo: add your logic here and delete this line
-	
+
 	groupMessageList := src.Mysql(src.ServiceMysql[group_models.GroupMessageModel]{
 		DB: l.svcCtx.DB,
 		PageInfo: src.PageInfo{
@@ -49,18 +49,18 @@ func (l *GroupMessageListLogic) GroupMessageList(req *types.PageInfo) (resp *res
 		},
 		Preload: []string{"MemberModel"},
 	}).GetList()
-	
+
 	var userIdList []uint32
 	for _, model := range groupMessageList.List {
 		userIdList = append(userIdList, uint32(model.SendUserId))
 	}
-	
+
 	userIdList = method.List(userIdList).Unique() // 去重
 	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: userIdList})
 	if err != nil {
 		return nil, err
 	}
-	
+
 	var list = make([]HistoryResponse, 0)
 	for _, info := range groupMessageList.List {
 		list = append(list, HistoryResponse{
@@ -73,10 +73,10 @@ func (l *GroupMessageListLogic) GroupMessageList(req *types.PageInfo) (resp *res
 			Message:    info.Message,
 		})
 	}
-	
+
 	resp = new(response.List[HistoryResponse])
 	resp.List = list
 	resp.Total = groupMessageList.Total
-	
+
 	return
 }

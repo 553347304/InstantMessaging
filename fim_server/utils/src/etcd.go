@@ -25,7 +25,7 @@ func (s *serviceEtcd) DeliveryAddress(c string, serviceName string, addr string)
 	if list[0] == "0.0.0.0" {
 		addr = strings.ReplaceAll(addr, "0.0.0.0", netx.InternalIp())
 	}
-	
+
 	etcd := Client().Etcd(c)
 	_, err := etcd.Put(context.Background(), serviceName, addr)
 	if err != nil {
@@ -37,7 +37,7 @@ func (s *serviceEtcd) DeliveryAddress(c string, serviceName string, addr string)
 func (s *serviceEtcd) GetServiceAddress(c string, serviceName string) string {
 	etcd := Client().Etcd(c)
 	result, err := etcd.Get(context.Background(), serviceName)
-	
+
 	if err == nil && len(result.Kvs) > 0 {
 		return string(result.Kvs[0].Value)
 	}

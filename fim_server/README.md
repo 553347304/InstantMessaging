@@ -23,7 +23,7 @@ $p="group";     # 群聊
 $p="log";       # 日志
 $p="test";       # 日志
 
-$v="rpc/$p"; goctl rpc protoc "$v.proto" --go_out=$v --zrpc_out=$v -m --go-grpc_out=$v $t -m   # 生成RPC
+$v="rpc/$p"; goctl rpc protoc "$v.proto" --go_out=$v --zrpc_out=$v --go-grpc_out=$v $t -m      # 生成RPC
 $v="api/$p"; goctl api go -api "$v.api" -dir "$v" $t                                           # 生成API
 ```
 

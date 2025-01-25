@@ -7,7 +7,7 @@ import (
 	"fim_server/service/api/user/internal/types"
 	"fim_server/utils/src"
 	"fim_server/utils/stores/conv"
-	
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -27,7 +27,7 @@ func NewValidListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ValidLi
 
 func (l *ValidListLogic) ValidList(req *types.FriendValidListRequest) (resp *types.FriendValidListResponse, err error) {
 	// todo: add your logic here and delete this line
-	
+
 	fvs := src.Mysql(src.ServiceMysql[user_models.FriendValidModel]{
 		DB:      l.svcCtx.DB.Where("send_user_id = ? or receive_user_id = ?", req.UserId, req.UserId),
 		Preload: []string{"ReceiveUserModel.UserConfigModel", "SendUserModel.UserConfigModel"},
@@ -36,7 +36,7 @@ func (l *ValidListLogic) ValidList(req *types.FriendValidListRequest) (resp *typ
 			Limit: req.Limit,
 		},
 	}).GetList()
-	
+
 	var list []types.FriendValidInfo
 	for _, fv := range fvs.List {
 		info := types.FriendValidInfo{

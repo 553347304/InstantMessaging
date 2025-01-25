@@ -9,7 +9,7 @@ import (
 	"fim_server/service/server/response"
 	"fim_server/utils/src"
 	"github.com/zeromicro/go-zero/core/logx"
-	
+
 	"fim_server/service/api/user/internal/svc"
 	"fim_server/service/api/user/internal/types"
 )
@@ -40,7 +40,7 @@ func (l *UserListLogic) UserOnlineList() map[uint]bool {
 }
 func (l *UserListLogic) UserList(req *types.RequestPageInfo) (resp *response.List[types.UserListInfoResponse], err error) {
 	// todo: add your logic here and delete this line
-	
+
 	result := src.Mysql(src.ServiceMysql[user_models.UserModel]{
 		DB:      l.svcCtx.DB,
 		Preload: []string{"UserConfigModel"},
@@ -56,13 +56,13 @@ func (l *UserListLogic) UserList(req *types.RequestPageInfo) (resp *response.Lis
 	for _, model := range result.List {
 		userIdList = append(userIdList, uint32(model.ID))
 	}
-	
+
 	userOnlineMap := l.UserOnlineList()
-	
+
 	userGroupCreateTotal, _ := l.svcCtx.GroupRpc.UserGroupSearch(l.ctx, &group_rpc.UserGroupSearchRequest{UserIdList: userIdList, Mode: 1})
 	userGroupAddTotal, _ := l.svcCtx.GroupRpc.UserGroupSearch(l.ctx, &group_rpc.UserGroupSearchRequest{UserIdList: userIdList, Mode: 2})
 	chatResponse, _ := l.svcCtx.ChatRpc.UserListChatTotal(l.ctx, &chat_rpc.UserListChatTotalRequest{UserIdList: userIdList})
-	
+
 	for _, model := range result.List {
 		info := types.UserListInfoResponse{
 			ID:                 model.ID,
@@ -82,9 +82,9 @@ func (l *UserListLogic) UserList(req *types.RequestPageInfo) (resp *response.Lis
 		if chatResponse.Result[uint32(model.ID)] != nil {
 			info.SendMsgCount = int(chatResponse.Result[uint32(model.ID)].SendMessageTotal)
 		}
-		
+
 		resp.List = append(resp.List, info)
 	}
-	
+
 	return
 }

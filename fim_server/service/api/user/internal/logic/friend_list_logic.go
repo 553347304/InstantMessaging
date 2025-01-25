@@ -8,7 +8,7 @@ import (
 	"fim_server/utils/src"
 	"fim_server/utils/stores/logs"
 	"strconv"
-	
+
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -28,7 +28,7 @@ func NewFriendListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Friend
 
 func (l *FriendListLogic) FriendList(req *types.FriendListRequest) (resp *types.FriendListResponse, err error) {
 	// todo: add your logic here and delete this line
-	
+
 	// 获取好友列表
 	friend := src.Mysql(src.ServiceMysql[user_models.FriendModel]{
 		DB:      l.svcCtx.DB.Where("send_user_id = ? or receive_user_id = ?", req.UserId, req.UserId),
@@ -38,7 +38,7 @@ func (l *FriendListLogic) FriendList(req *types.FriendListRequest) (resp *types.
 			Limit: req.Limit,
 		},
 	}).GetList()
-	
+
 	// 查在线用户
 	onlineMap := l.svcCtx.Redis.HGetAll("user_online").Val()
 	var onlineUserMap = map[uint]bool{}
@@ -50,7 +50,7 @@ func (l *FriendListLogic) FriendList(req *types.FriendListRequest) (resp *types.
 		}
 		onlineUserMap[uint(value)] = true
 	}
-	
+
 	var list []types.FriendInfoResponse
 	for _, fv := range friend.List {
 		// 发起方

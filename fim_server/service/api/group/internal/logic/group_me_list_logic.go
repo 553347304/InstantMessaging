@@ -34,12 +34,12 @@ func (l *GroupMeListLogic) GroupMeList(req *types.GroupMeListRequest) (resp *typ
 		query.Where("role = ?", 1) // 我创建的群聊
 	}
 	query.Select("group_id").Scan(&groupIdList)
-	
+
 	groups := src.Mysql(src.ServiceMysql[group_models.GroupModel]{
 		DB:       l.svcCtx.DB.Where("id in ?", groupIdList),
 		PageInfo: conv.Struct(src.PageInfo{}).Type(req.PageInfo),
 	}).GetList()
-	
+
 	resp = new(types.GroupMeListResponse)
 	for _, model := range groups.List {
 		var role int8
@@ -57,8 +57,8 @@ func (l *GroupMeListLogic) GroupMeList(req *types.GroupMeListRequest) (resp *typ
 			Mode:        req.Mode,
 		})
 	}
-	
+
 	logs.Info(groups)
-	
+
 	return
 }
