@@ -49,9 +49,9 @@ func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.L
 	case "qq":
 		r := open_api_qq.Login(open_api_qq.LoginConfig{
 			Code:     req.Code,
-			AppID:    conf.OpenLoginQQ.AppID,
-			AppKey:   conf.OpenLoginQQ.Key,
-			Redirect: conf.OpenLoginQQ.Redirect,
+			AppID:    conf.OpenLogin.QQ.AppID,
+			AppKey:   conf.OpenLogin.QQ.Key,
+			Redirect: conf.OpenLogin.QQ.Redirect,
 		})
 		if r.Error != nil {
 			return nil, r.Error

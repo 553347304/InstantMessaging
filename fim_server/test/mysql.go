@@ -2,8 +2,7 @@ package main
 
 import (
 	"fim_server/config"
-	"fim_server/models"
-	"fmt"
+	"fim_server/utils/stores/logs"
 )
 
 type Content struct {
@@ -19,21 +18,31 @@ type Size struct {
 }
 
 func main() {
-
+	
 	config.Init()
-
-	var scan *[]models.Test
-
-	find(&scan)
-
-	// for _, test := range scan {
-	// 	fmt.Println("t",test)
-	// }
-	fmt.Println(scan)
-
+	
+	var scan map[string]any
+	
+	// s1 := conv.Json().Marshal([]Size{
+	// 	{Size: "coontnent"},
+	// 	{Size: "coontnent"},
+	// 	{Size: "coontnent"},
+	// })
+	// config.DB.Create(&models.Test{
+	// 	Message: s1,
+	// })
+	
+	
+	
+	config.DB.Find(&scan)
+	
+	
+	
+	logs.Info(scan)
+	
+	
 }
 
 func find(scan interface{}) {
-
 	config.DB.Find(scan)
 }

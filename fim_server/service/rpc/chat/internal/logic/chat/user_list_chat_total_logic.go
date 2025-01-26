@@ -1,27 +1,23 @@
-package logic
+package chatlogic
 
 import (
 	"context"
 	"fim_server/models/chat_models"
 	"fim_server/utils/stores/logs"
-
+	
 	"fim_server/service/rpc/chat/chat_rpc"
 	"fim_server/service/rpc/chat/internal/svc"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type UserListChatTotalLogic struct {
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
-	logx.Logger
 }
 
 func NewUserListChatTotalLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserListChatTotalLogic {
 	return &UserListChatTotalLogic{
 		ctx:    ctx,
 		svcCtx: svcCtx,
-		Logger: logx.WithContext(ctx),
 	}
 }
 
@@ -37,16 +33,16 @@ func (l *UserListChatTotalLogic) UserListChatTotal(in *chat_rpc.UserListChatTota
 		Where("send_user_id in ?", in.UserIdList).
 		Group("send_user_id").
 		Select("send_user_id as user_id", "count(id) as count").Scan(&sendScan)
-
+	
 	var receiveScan []Data
 	l.svcCtx.DB.Model(chat_models.ChatModel{}).
 		Where("send_user_id in ?", in.UserIdList).
 		Group("send_user_id").
 		Select("send_user_id as user_id", "count(id) as count").Scan(&receiveScan)
-
+	
 	resp = new(chat_rpc.UserListChatTotalResponse)
 	resp.Result = map[uint32]*chat_rpc.ChatTotalMessage{}
-
+	
 	for _, data := range sendScan {
 		result, ok := resp.Result[data.UserId]
 		if !ok {
@@ -58,5 +54,5 @@ func (l *UserListChatTotalLogic) UserListChatTotal(in *chat_rpc.UserListChatTota
 		}
 	}
 	logs.Info(resp)
-	return resp, nil
+	return &chat_rpc.UserListChatTotalResponse{}, nil
 }

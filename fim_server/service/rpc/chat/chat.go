@@ -6,7 +6,7 @@ import (
 
 	"fim_server/service/rpc/chat/chat_rpc"
 	"fim_server/service/rpc/chat/internal/config"
-	"fim_server/service/rpc/chat/internal/server"
+	chatServer "fim_server/service/rpc/chat/internal/server/chat"
 	"fim_server/service/rpc/chat/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/conf"
@@ -26,7 +26,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		chat_rpc.RegisterChatServer(grpcServer, server.NewChatServer(ctx))
+		chat_rpc.RegisterChatServer(grpcServer, chatServer.NewChatServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)

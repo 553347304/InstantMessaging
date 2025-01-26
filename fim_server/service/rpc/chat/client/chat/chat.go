@@ -15,13 +15,10 @@ import (
 
 type (
 	ChatTotalMessage          = chat_rpc.ChatTotalMessage
-	UserChatRequest           = chat_rpc.UserChatRequest
-	UserChatResponse          = chat_rpc.UserChatResponse
 	UserListChatTotalRequest  = chat_rpc.UserListChatTotalRequest
 	UserListChatTotalResponse = chat_rpc.UserListChatTotalResponse
 
 	Chat interface {
-		UserChat(ctx context.Context, in *UserChatRequest, opts ...grpc.CallOption) (*UserChatResponse, error)
 		UserListChatTotal(ctx context.Context, in *UserListChatTotalRequest, opts ...grpc.CallOption) (*UserListChatTotalResponse, error)
 	}
 
@@ -34,11 +31,6 @@ func NewChat(cli zrpc.Client) Chat {
 	return &defaultChat{
 		cli: cli,
 	}
-}
-
-func (m *defaultChat) UserChat(ctx context.Context, in *UserChatRequest, opts ...grpc.CallOption) (*UserChatResponse, error) {
-	client := chat_rpc.NewChatClient(m.cli.Conn())
-	return client.UserChat(ctx, in, opts...)
 }
 
 func (m *defaultChat) UserListChatTotal(ctx context.Context, in *UserListChatTotalRequest, opts ...grpc.CallOption) (*UserListChatTotalResponse, error) {

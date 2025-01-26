@@ -2,15 +2,12 @@ package logic
 
 import (
 	"context"
-	"fim_server/models/mtype"
 	"fim_server/models/user_models"
-	"fim_server/service/rpc/chat/chat"
-	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
-
+	
 	"fim_server/service/api/user/internal/svc"
 	"fim_server/service/api/user/internal/types"
-
+	
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -49,22 +46,9 @@ func (l *ValidStatusLogic) ValidStatus(req *types.ValidStatusRequest) (resp *typ
 			SendUserId:    friendVerify.SendUserId,
 			ReceiveUserId: friendVerify.ReceiveUserId,
 		})
-
-		message := mtype.MessageArray{
-			{Type: mtype.MessageType.Text, Content: "已添加你为好友"},
-		}
-		byteData := conv.Json().Marshal(message)
-
+		
 		// 给对方发消息
-		_, err = l.svcCtx.ChatRpc.UserChat(l.ctx, &chat.UserChatRequest{
-			SendUserId:    uint32(req.UserId),
-			ReceiveUserId: uint32(req.ValidId),
-			Message:       byteData,
-			SystemMessage: nil,
-		})
-		if err != nil {
-			logs.Error("发送消息失败", err)
-		}
+		
 	case 2:
 		friendVerify.ReceiveStatus = 2 // 拒绝
 	case 3:

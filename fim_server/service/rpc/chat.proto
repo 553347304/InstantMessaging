@@ -2,16 +2,6 @@ syntax = "proto3";
 package main;
 option go_package = "./chat_rpc";
 
-message UserChatRequest {
-  uint32 send_user_id = 1;
-  uint32 receive_user_id = 2;
-  bytes message = 3; // message json格式
-  bytes system_message = 4; // 系统消息
-}
-
-message UserChatResponse {
-  uint32 user_id = 1;
-}
 
 
 message UserListChatTotalRequest {
@@ -26,6 +16,5 @@ message UserListChatTotalResponse {
 }
 
 service Chat {
-  rpc UserChat(UserChatRequest) returns(UserChatResponse);  // 创建用户
   rpc UserListChatTotal(UserListChatTotalRequest) returns(UserListChatTotalResponse);  // 每个用户发送的消息个数
 }

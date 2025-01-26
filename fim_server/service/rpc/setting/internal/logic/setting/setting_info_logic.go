@@ -2,10 +2,8 @@ package settinglogic
 
 import (
 	"context"
-	"fim_server/config"
 	"fim_server/models/setting_models"
 	"fim_server/utils/stores/conv"
-	"fmt"
 	
 	"fim_server/service/rpc/setting/internal/svc"
 	"fim_server/service/rpc/setting/setting_rpc"
@@ -32,9 +30,8 @@ func (l *SettingInfoLogic) SettingInfo(in *setting_rpc.Empty) (*setting_rpc.Sett
 		resp.Data = conv.Json().Marshal(setting)
 		return resp, nil
 	}
-
-	fmt.Println(config.SystemSetting)
-	go l.svcCtx.DB.Create(&config.SystemSetting)
-	resp.Data = conv.Json().Marshal(config.SystemSetting)
+	
+	go l.svcCtx.DB.Create(&setting_models.SystemSetting)
+	resp.Data = conv.Json().Marshal(setting_models.SystemSetting)
 	return resp, nil
 }

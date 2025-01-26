@@ -26,5 +26,8 @@ func NewGroupChatLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GroupCh
 func (l *GroupChatLogic) GroupChat(req *types.GroupChatRequest) (resp *types.GroupChatResponse, err error) {
 	// todo: add your logic here and delete this line
 
+	
+	
+	
 	return
 }

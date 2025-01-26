@@ -24,6 +24,7 @@ func NewSettingInfoUpdateLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 func (l *SettingInfoUpdateLogic) SettingInfoUpdate(req *setting_models.ConfigModel) (resp *types.Empty, err error) {
 	// todo: add your logic here and delete this line
 
+	
 	var settingModel setting_models.ConfigModel
 	l.svcCtx.DB.First(&settingModel)
 	err = l.svcCtx.DB.Model(&settingModel).Updates(req).Error

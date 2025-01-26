@@ -19,3 +19,8 @@ GroupRpc:
     Hosts:
       - 127.0.0.1:2379
     Key: group.rpc
+FileRpc:
+  Etcd:
+    Hosts:
+      - 127.0.0.1:2379
+    Key: file.rpc

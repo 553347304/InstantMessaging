@@ -36,7 +36,7 @@ type HistoryResponse struct {
 	MemberId   uint               `json:"member_id"`
 	MemberName string             `json:"member_name"`
 	IsMe       bool               `json:"is_me"`
-	Message    mtype.MessageArray `json:"message"`
+	Message    mtype.Message `json:"message"`
 }
 
 // MemberList 查全部群成员

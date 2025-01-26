@@ -15,20 +15,23 @@ type Site struct {
 	UrlGitee    string `json:"url_gitee"`
 	UrlGithub   string `json:"url_github"`
 }
-type OpenLoginQQ struct {
+type QQ struct {
 	Enable   bool   `json:"enable"` // 是否启用
 	AppID    string `json:"app_id"`
 	Key      string `json:"key"`
 	Redirect string `json:"redirect"` // 登录之后的回调地址
 	WebPath  string `json:"webPath"`  // 点击跳转的路径
 }
+type OpenLogin struct {
+	QQ QQ `json:"qq"`
+}
 type ConfigModel struct {
-	ID          uint        `json:"id"`
-	Site        Site        `json:"site"`
-	OpenLoginQQ OpenLoginQQ `json:"open_login_qq"`
+	ID        uint      `json:"id"`
+	Site      Site      `json:"site"`
+	OpenLogin OpenLogin `json:"open_login"`
 }
 
-func (v Site) Value() (driver.Value, error)         { return json.Marshal(v) }
-func (v *Site) Scan(value interface{}) error        { return json.Unmarshal(value.([]byte), v) }
-func (v OpenLoginQQ) Value() (driver.Value, error)  { return json.Marshal(v) }
-func (v *OpenLoginQQ) Scan(value interface{}) error { return json.Unmarshal(value.([]byte), v) }
+func (v Site) Value() (driver.Value, error)       { return json.Marshal(v) }
+func (v *Site) Scan(value interface{}) error      { return json.Unmarshal(value.([]byte), v) }
+func (v OpenLogin) Value() (driver.Value, error)  { return json.Marshal(v) }
+func (v *OpenLogin) Scan(value interface{}) error { return json.Unmarshal(value.([]byte), v) }

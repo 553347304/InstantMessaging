@@ -1,12 +1,9 @@
-package config
+package setting_models
 
-import (
-	"fim_server/models/setting_models"
-	"fim_server/utils/stores/method"
-)
+import "fim_server/utils/stores/method"
 
-var SystemSetting = setting_models.ConfigModel{
-	Site: setting_models.Site{
+var SystemSetting = ConfigModel{
+	Site: Site{
 		CreatedAt:   method.Time().NowDay,
 		BeiAn:       "津ICP备2024017367号-1",
 		Version:     "1.0.0",
@@ -16,11 +13,13 @@ var SystemSetting = setting_models.ConfigModel{
 		UrlGitee:    "https://gitee.com/baiyins",
 		UrlGithub:   "https://github.com/553347304",
 	},
-	OpenLoginQQ: setting_models.OpenLoginQQ{
-		Enable:   true,
-		AppID:    "102550927",
-		Key:      "rdEbkhT2RgovviQ0",
-		Redirect: "http://tcbyj.cn/login/qq",
-		WebPath:  "",
+	OpenLogin: OpenLogin{
+		QQ: QQ{
+			Enable:   true,
+			AppID:    "102550927",
+			Key:      "rdEbkhT2RgovviQ0",
+			Redirect: "http://tcbyj.cn/login/qq",
+			WebPath:  "",
+		},
 	},
 }

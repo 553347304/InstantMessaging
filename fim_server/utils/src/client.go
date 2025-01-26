@@ -75,6 +75,8 @@ func (clientService) Etcd(c string) *clientv3.Client {
 }
 func (clientService) Websocket(w http.ResponseWriter, r *http.Request) *websocket.Conn {
 	var upGrader = websocket.Upgrader{
+		ReadBufferSize:  1024,
+		WriteBufferSize: 1024,
 		CheckOrigin: func(r *http.Request) bool {
 			return true // 鉴权   true 放行 | false 拦截
 		},
@@ -82,7 +84,7 @@ func (clientService) Websocket(w http.ResponseWriter, r *http.Request) *websocke
 	// http upgrade websocket
 	conn, err := upGrader.Upgrade(w, r, nil)
 	if err != nil {
-		logs.Fatal("websocket升级失败", err)
+		logs.Fatal("websocket升级失败 ->", err)
 		return nil
 	}
 	return conn

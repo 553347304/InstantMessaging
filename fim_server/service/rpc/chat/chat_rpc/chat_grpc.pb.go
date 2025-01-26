@@ -19,15 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Chat_UserChat_FullMethodName          = "/user_rpc.Chat/UserChat"
-	Chat_UserListChatTotal_FullMethodName = "/user_rpc.Chat/UserListChatTotal"
+	Chat_UserListChatTotal_FullMethodName = "/main.Chat/UserListChatTotal"
 )
 
 // ChatClient is the client API for Chat service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ChatClient interface {
-	UserChat(ctx context.Context, in *UserChatRequest, opts ...grpc.CallOption) (*UserChatResponse, error)
 	UserListChatTotal(ctx context.Context, in *UserListChatTotalRequest, opts ...grpc.CallOption) (*UserListChatTotalResponse, error)
 }
 
@@ -37,15 +35,6 @@ type chatClient struct {
 
 func NewChatClient(cc grpc.ClientConnInterface) ChatClient {
 	return &chatClient{cc}
-}
-
-func (c *chatClient) UserChat(ctx context.Context, in *UserChatRequest, opts ...grpc.CallOption) (*UserChatResponse, error) {
-	out := new(UserChatResponse)
-	err := c.cc.Invoke(ctx, Chat_UserChat_FullMethodName, in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
 }
 
 func (c *chatClient) UserListChatTotal(ctx context.Context, in *UserListChatTotalRequest, opts ...grpc.CallOption) (*UserListChatTotalResponse, error) {
@@ -61,7 +50,6 @@ func (c *chatClient) UserListChatTotal(ctx context.Context, in *UserListChatTota
 // All implementations must embed UnimplementedChatServer
 // for forward compatibility
 type ChatServer interface {
-	UserChat(context.Context, *UserChatRequest) (*UserChatResponse, error)
 	UserListChatTotal(context.Context, *UserListChatTotalRequest) (*UserListChatTotalResponse, error)
 	mustEmbedUnimplementedChatServer()
 }
@@ -70,9 +58,6 @@ type ChatServer interface {
 type UnimplementedChatServer struct {
 }
 
-func (UnimplementedChatServer) UserChat(context.Context, *UserChatRequest) (*UserChatResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method UserChat not implemented")
-}
 func (UnimplementedChatServer) UserListChatTotal(context.Context, *UserListChatTotalRequest) (*UserListChatTotalResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UserListChatTotal not implemented")
 }
@@ -87,24 +72,6 @@ type UnsafeChatServer interface {
 
 func RegisterChatServer(s grpc.ServiceRegistrar, srv ChatServer) {
 	s.RegisterService(&Chat_ServiceDesc, srv)
-}
-
-func _Chat_UserChat_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UserChatRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(ChatServer).UserChat(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: Chat_UserChat_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ChatServer).UserChat(ctx, req.(*UserChatRequest))
-	}
-	return interceptor(ctx, in, info, handler)
 }
 
 func _Chat_UserListChatTotal_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -129,13 +96,9 @@ func _Chat_UserListChatTotal_Handler(srv interface{}, ctx context.Context, dec f
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Chat_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "user_rpc.Chat",
+	ServiceName: "main.Chat",
 	HandlerType: (*ChatServer)(nil),
 	Methods: []grpc.MethodDesc{
-		{
-			MethodName: "UserChat",
-			Handler:    _Chat_UserChat_Handler,
-		},
 		{
 			MethodName: "UserListChatTotal",
 			Handler:    _Chat_UserListChatTotal_Handler,

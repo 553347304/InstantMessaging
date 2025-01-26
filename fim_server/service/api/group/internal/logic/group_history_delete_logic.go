@@ -40,8 +40,8 @@ func (l *GroupHistoryDeleteLogic) GroupHistoryDelete(req *types.GroupHistoryDele
 			id, fmt.Sprintf("%%\"%d\"%%", req.UserId)).Error
 		// 用户删除列表中没找到就添加
 		if is == nil {
-			deleteUserId.DeleteUserId = append(deleteUserId.DeleteUserId, fmt.Sprint(req.UserId))
-			deleteUserId.DeleteUserId = method.List(deleteUserId.DeleteUserId).Sort(true)
+			deleteUserId.DeleteUserID = append(deleteUserId.DeleteUserID, fmt.Sprint(req.UserId))
+			deleteUserId.DeleteUserID = method.List(deleteUserId.DeleteUserID).Sort(true)
 			l.svcCtx.DB.Updates(&deleteUserId)
 		}
 		logs.Info("删除消息ID", id, is == nil)

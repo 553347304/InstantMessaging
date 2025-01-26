@@ -8,7 +8,7 @@ import (
 	"fim_server/utils/src"
 	"fim_server/utils/stores/logs"
 	"fim_server/utils/stores/method"
-
+	
 	"fim_server/service/api/chat/internal/svc"
 	"fim_server/service/api/chat/internal/types"
 )
@@ -26,10 +26,12 @@ func NewChatHistoryAdminLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 type ChatHistory struct {
-	ID        uint               `json:"id"`
-	IsMe      bool               `json:"is_me"`      // 哪条消息是我发的
-	CreatedAt string             `json:"created_at"` // 消息时间
-	Message   mtype.MessageArray `json:"message"`
+	ID        uint          `json:"id"`
+	IsMe      bool          `json:"is_me"` // 哪条消息是我发的
+	Type      mtype.Int8    `json:"type"`
+	Preview   string        `json:"preview"`
+	Message   mtype.Message `json:"message"`
+	CreatedAt string        `json:"created_at"` // 消息时间
 }
 type ChatHistoryResponse struct {
 	Total       int64          `json:"total"`
@@ -40,18 +42,13 @@ type ChatHistoryResponse struct {
 
 func (l *ChatHistoryAdminLogic) ChatHistoryAdmin(req *types.ChatHistoryAdminRequest) (resp *ChatHistoryResponse, err error) {
 	// todo: add your logic here and delete this line
-
+	
+	char := "(send_user_id = ? and receive_user_id = ?) or (send_user_id = ? and receive_user_id = ?)"
 	chatList := src.Mysql(src.ServiceMysql[chat_models.ChatModel]{
-		DB: l.svcCtx.DB.Where("(send_user_id = ? and receive_user_id = ?) or "+
-			"(send_user_id = ? and receive_user_id = ?)",
-			req.SendUserID, req.ReceiveUserID, req.ReceiveUserID, req.SendUserID),
-		PageInfo: src.PageInfo{
-			Page:  req.Page,
-			Limit: req.Limit,
-			Sort:  "created_at desc",
-		},
+		DB:       l.svcCtx.DB.Where(char, req.SendUserID, req.ReceiveUserID, req.ReceiveUserID, req.SendUserID),
+		PageInfo: src.PageInfo{Page: req.Page, Limit: req.Limit, Sort: "created_at desc"},
 	}).GetList()
-
+	
 	var userIdList []uint32
 	for _, model := range chatList.List {
 		userIdList = append(userIdList, uint32(model.SendUserId))
@@ -63,11 +60,11 @@ func (l *ChatHistoryAdminLogic) ChatHistoryAdmin(req *types.ChatHistoryAdminRequ
 	if err != nil {
 		return nil, logs.Error("用户服务错误")
 	}
-
+	
 	var list = make([]ChatHistory, 0)
 	var sendUser, receiveUser mtype.UserInfo
 	for i, model := range chatList.List {
-
+		
 		if i == 0 {
 			sendUser = mtype.UserInfo{
 				ID:     model.SendUserId,
@@ -80,17 +77,19 @@ func (l *ChatHistoryAdminLogic) ChatHistoryAdmin(req *types.ChatHistoryAdminRequ
 				Avatar: userResponse.InfoList[uint32(model.ReceiveUserId)].Avatar,
 			}
 		}
-
+		
 		info := ChatHistory{
 			ID:        model.ID,
-			CreatedAt: model.CreatedAt.String(),
+			Preview:   model.Preview,
+			Type:      model.Type,
 			Message:   model.Message,
+			CreatedAt: model.CreatedAt.String(),
 		}
 		if model.SendUserId == req.ReceiveUserID {
 			info.IsMe = true
 		}
 		list = append(list, info)
-
+		
 	}
 	resp = &ChatHistoryResponse{
 		Total:       chatList.Total,
@@ -98,6 +97,6 @@ func (l *ChatHistoryAdminLogic) ChatHistoryAdmin(req *types.ChatHistoryAdminRequ
 		ReceiveUser: receiveUser,
 		List:        list,
 	}
-
+	
 	return
 }

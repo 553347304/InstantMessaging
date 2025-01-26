@@ -36,23 +36,23 @@ func WriteJson(res http.ResponseWriter, message string) {
 func auth(req *http.Request) error {
 	authAddr := src.Etcd().GetServiceAddress(config.Etcd, "auth_api")
 	authUrl := fmt.Sprintf("http://%s/api/auth/authentication", authAddr)
-
+	
 	// 认证请求
 	authRequest, _ := http.NewRequest("POST", authUrl, nil)
 	authRequest.Header = req.Header
-
+	
 	// 获取查询参数token
 	token := req.URL.Query().Get("token")
 	if token != "" {
-		authRequest.Header.Set("Token", token)
+		authRequest.Header.Set("token", token)
 	}
-
+	
 	authRequest.Header.Set("ValidPath", req.URL.Path)
 	authResult, err := http.DefaultClient.Do(authRequest)
 	if err != nil {
 		return logs.Error("认证服务错误" + err.Error())
 	}
-
+	
 	var authResponse Data
 	byteData, _ := io.ReadAll(authResult.Body)
 	err = json.Unmarshal(byteData, &authResponse)
@@ -62,18 +62,18 @@ func auth(req *http.Request) error {
 	if authResponse.Code != 0 {
 		return logs.Error("认证不通过", string(byteData))
 	}
-
+	
 	// 设置请求头
 	if authResponse.Data != nil {
 		req.Header.Set("User-Id", fmt.Sprint(authResponse.Data.UserId))
 		req.Header.Set("Role", fmt.Sprint(authResponse.Data.Role))
 	}
-
+	
 	return nil
 }
 
 func (Proxy) ServeHTTP(res http.ResponseWriter, req *http.Request) {
-
+	
 	// 匹配请求前缀  /api/user/xx
 	regex, _ := regexp.Compile(`/api/(.*?)/`)
 	addrList := regex.FindStringSubmatch(req.URL.Path)
@@ -82,23 +82,23 @@ func (Proxy) ServeHTTP(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 	service := addrList[1]
-
+	
 	addr := src.Etcd().GetServiceAddress(config.Etcd, service+"_api")
 	if addr == "" {
 		WriteJson(res, logs.Error("不匹配的服务", service).Error())
 		return
 	}
-
+	
 	proxyUrl := fmt.Sprintf("http://%s", addr) // 请求认证服务地址
 	logs.Info(fmt.Sprintf("%s %s -> %s%s ", req.RemoteAddr, service, proxyUrl, req.URL.String()))
-
+	
 	// 请求认证服务地址
 	err := auth(req)
 	if err != nil {
 		WriteJson(res, err.Error())
 		return
 	}
-
+	
 	// 反向代理
 	remote, _ := url.Parse(proxyUrl)
 	reverseProxy := httputil.NewSingleHostReverseProxy(remote)

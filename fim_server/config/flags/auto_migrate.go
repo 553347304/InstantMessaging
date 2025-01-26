@@ -23,8 +23,6 @@ func MigrationTable() error {
 			&user_models.FriendValidModel{},
 
 			&chat_models.ChatModel{},
-			&chat_models.TopUserModel{},
-			&chat_models.UserChatDeleteModels{},
 
 			&group_models.GroupModel{},
 			&group_models.GroupMemberModel{},
@@ -37,6 +35,6 @@ func MigrationTable() error {
 
 			&setting_models.ConfigModel{},
 
-			&models.Test{},
+			 &models.Test{},
 		)
 }
