@@ -2,14 +2,12 @@ package handler
 
 import (
 	"context"
-	"fim_server/common/service/redis_service"
-	"fim_server/models"
 	"fim_server/models/chat_models"
 	"fim_server/models/mtype"
 	"fim_server/models/user_models"
 	"fim_server/service/api/chat/internal/svc"
 	"fim_server/service/api/chat/internal/types"
-	"fim_server/service/rpc/file/file"
+	"fim_server/service/rpc/file/file_rpc"
 	"fim_server/service/rpc/user/user_rpc"
 	"fim_server/service/server/response"
 	"fim_server/utils/src"
@@ -17,6 +15,7 @@ import (
 	"fim_server/utils/stores/logs"
 	"fmt"
 	"net/http"
+	"strings"
 	"time"
 	
 	"github.com/gorilla/websocket"
@@ -32,235 +31,322 @@ type UserWebsocketInfo struct {
 var UserOnlineWebsocketMap = make(map[uint]*UserWebsocketInfo)
 
 type chatRequest struct {
-	ReceiveId uint       `json:"receive_id"`
-	Type      mtype.Int8 `json:"type"`
-	Message   []byte     `json:"message"`
+	ReceiveId uint          `json:"receive_id"`
+	Type      mtype.Int8    `json:"type"`
+	Message   mtype.Message `json:"message"`
 }
 type chatResponse struct {
-	MessageId     uint           `json:"message_id"`
-	IsMe          bool           `json:"is_me"`
-	SendUserId    mtype.UserInfo `json:"send_user_id"`
-	ReceiveUserId mtype.UserInfo `json:"receive_user_id"`
-	Message       []byte         `json:"message"`
-	CreatedAt     time.Time      `json:"created_at"`
+	MessageId   uint           `json:"message_id"`
+	IsMe        bool           `json:"is_me"`
+	SendUser    mtype.UserInfo `json:"send_user"`
+	ReceiveUser mtype.UserInfo `json:"receive_user"`
+	Type        mtype.Int8     `json:"type"`
+	Message     mtype.Message  `json:"message"`
+	CreatedAt   time.Time      `json:"created_at"`
 }
-
-// SendMessageByUser 给谁发消息
-func SendMessageByUser(svcCtx *svc.ServiceContext, receiveUserId uint, sendUserId uint, message mtype.Message, messageId uint) {
-	
-	receiveUser, ok1 := UserOnlineWebsocketMap[receiveUserId]
-	sendUser, _ := UserOnlineWebsocketMap[sendUserId]
-	
-	// 用户信息
-	userBaseInfo, err5 := redis_service.GetUserInfo(svcCtx.Redis, svcCtx.UserRpc, receiveUserId)
-	if err5 != nil {
-		logs.Error(err5)
-		return
-	}
-	
-	resp := chatResponse{
-		ReceiveUserId: mtype.UserInfo{
-			ID:     receiveUserId,
-			Name:   userBaseInfo.Name,
-			Avatar: userBaseInfo.Avatar,
-		},
-		SendUserId: mtype.UserInfo{
-			ID:     sendUserId,
-			Name:   sendUser.UserInfo.Name,
-			Avatar: sendUser.UserInfo.Avatar,
-		},
-		
-		MessageId: messageId,
-		Message:   message,
-		CreatedAt: time.Now(),
-	}
-	
-	resp.IsMe = true
-	sendUser.Conn.WriteMessage(websocket.TextMessage, conv.Json().Marshal(resp)) // 给自己发
-	if ok1 && receiveUserId != sendUserId {
-		resp.IsMe = false
-		receiveUser.Conn.WriteMessage(websocket.TextMessage, conv.Json().Marshal(resp)) // 接收方
-	}
-}
-
-func sendWsMapMessage(wsMap map[string]*websocket.Conn, data []byte) {
-	for _, conn := range wsMap {
-		conn.WriteMessage(websocket.TextMessage, data)
-	}
-}
-
 type Message struct {
 	ctx     context.Context
 	svcCtx  *svc.ServiceContext
 	Conn    *websocket.Conn
+	Send    *UserWebsocketInfo
+	Receive *UserWebsocketInfo
 	Req     types.ChatRequest
-	Content chatRequest
+	Request chatRequest
 	Err     error
 }
+
 func (m *Message) Error(err string) error {
 	m.Err = conv.Type(err).Error()
 	return m.Err
 }
-func (m *Message) InsertDatabase(t mtype.Int8, message []byte) {
+func (m *Message) InsertDatabase() error {
 	chatModel := chat_models.ChatModel{
-		SendUserId:    m.Req.UserId,
-		ReceiveUserId: m.Content.ReceiveId,
-		Message:       message,
-		Type:          t,
-		Preview:       mtype.GetPreview(t),
+		SendUserID:    m.Req.UserID,
+		ReceiveUserID: m.Request.ReceiveId,
+		Type:          m.Request.Type,
+		Message:       m.Request.Message,
 	}
-	chatModel.Preview = chatModel
+	chatModel.Preview = chatModel.Message.GetPreview(m.Request.Type)
 	
 	err := m.svcCtx.DB.Create(&chatModel).Error
 	if err != nil {
-		sendUser, ok := UserOnlineWebsocketMap[sendUserId]
-		if ok {
-			SendTipErrorMessage(sendUser.Conn, "消息保存失败"+err.Error())
-		}
+		return err
 	}
-	return chatModel.ID
+	return nil
 }
-func (m *Message) SendErrorTip(content string) {
-	m.Conn.WriteMessage(websocket.TextMessage, conv.Json().Marshal(mtype.MessageTip{
-		Status:  "error",
-		Content: content,
+func (m *Message) sendMessage(conn *websocket.Conn, t mtype.Int8, message mtype.Message, isMe bool) {
+	conn.WriteMessage(websocket.TextMessage, conv.Json().Marshal(chatResponse{
+		SendUser: mtype.UserInfo{
+			ID:     m.Send.UserInfo.ID,
+			Name:   m.Send.UserInfo.Name,
+			Avatar: m.Send.UserInfo.Avatar,
+		},
+		ReceiveUser: mtype.UserInfo{
+			ID:     m.Receive.UserInfo.ID,
+			Name:   m.Receive.UserInfo.Name,
+			Avatar: m.Receive.UserInfo.Avatar,
+		},
+		Type:      t,
+		Message:   message,
+		IsMe:      isMe,
+		CreatedAt: time.Now(),
 	}))
 }
-
-func (*Message) SendUser(content string) {
-	
-	// UserOnlineWebsocketMap[]
+func (m *Message) SendUser(t mtype.Int8, message mtype.Message) {
+	m.sendMessage(m.Conn, t, message, true)
 }
-func (*Message) SendReceive(a interface{}) {
-	
-	// UserOnlineWebsocketMap[]
+func (m *Message) SendReceive(t mtype.Int8, message mtype.Message) {
+	m.sendMessage(m.Receive.Conn, t, message, false)
 }
-
-func (m *Message) MessageType(t mtype.Int8) {
-	
-	var data mtype.MessageFile
-	conv.Json().Unmarshal(m.Content.Message, &data)
-	fileRpc, err := m.svcCtx.FileRpc.FileInfo(m.ctx, &file.FileInfoRequest{FileId: data.Src})
+func (m *Message) SendALLMember() error {
+	err := m.InsertDatabase()
+	if err != nil {
+		return m.Error(err.Error())
+	}
+	_, ok1 := UserOnlineWebsocketMap[m.Request.ReceiveId] // 对付是否在线
+	m.SendUser(m.Request.Type, m.Request.Message)         // 给自己发
+	if ok1 && m.Request.ReceiveId != m.Req.UserID {
+		m.SendReceive(m.Request.Type, m.Request.Message) // 给对方发
+	}
+	return nil
+}
+func (m *Message) SendOnlineGroup(wsMap map[string]*websocket.Conn, resp chatResponse) {
+	for _, conn := range wsMap {
+		conn.WriteMessage(websocket.TextMessage, conv.Json().Marshal(resp))
+	}
+}
+func (m *Message) SendError(content string) {
+	m.SendUser(mtype.MessageType.Error, mtype.Message{
+		MessageError: &mtype.MessageError{
+			Status:  "error",
+			Content: content,
+		},
+	})
+}
+func (m *Message) isMessageFile() error {
+	r := m.Request.Message.MessageFile
+	if !strings.Contains(r.Src, "/") {
+		return m.Error("请上传文件")
+	}
+	fileRpc, err := m.svcCtx.FileRpc.FileInfo(m.ctx, &file_rpc.FileInfoRequest{FileId: r.Src})
 	if err != nil {
 		return err
 	}
-	
-	type ChatModel struct {
-		models.Model
-		Type    mtype.Int8 `json:"type"`                   // 消息类型 0:成功|1:被撤回|2:删除
-		Preview string     `gorm:"size:64" json:"preview"` // 消息预览
-		Message []byte     `json:"message"`                // 消息内容
-	}
-	
-	chat_models.ChatModel{
-		Type: mtype.MessageType.File,
-	}
-	mtype.MessageFile{}
-	request.Msg.FileMsg.Title = fileResponse.FileName
-	request.Msg.FileMsg.Size = fileResponse.FileSize
-	request.Msg.FileMsg.Type = fileResponse.FileType
-	
-	if err != nil {
-		return
-	}
-	
-	file.Title = fileResponse.Name
-	file.Size
+	r.Title = fileRpc.Name
+	r.Size = fileRpc.Size
+	r.Ext = fileRpc.Ext
+	return nil
 }
-func (m *Message) MessageType() {
-	
-	if m.Content.Type != mtype.MessageType.File {
-		
+func (m *Message) isMessageWithdraw() error {
+	r := m.Request.Message.MessageWithdraw
+	if r.MessageID == 0 {
+		return m.Error("撤回消息id为空")
 	}
+	var chatModel chat_models.ChatModel
 	
-	if t == mtype.MessageType.VideoCall {
-		data := mtype.MessageVideoCall{
-			Flag: 1,
-		}
-		
-		switch data.Flag {
-		case 0:
-			m.Conn.WriteJSON(mtype.MessageVideoCall{
-				Flag: 1,
-			})
-			m.SendReceive(mtype.MessageVideoCall{
-				Flag: 2,
-			})
-		case 1:
-			m.SendReceive(mtype.MessageVideoCall{
-				Flag:    3,
-				Message: "发起者已挂断",
-			})
-		case 2:
-			// 接收者挂断
-			m.SendReceive(mtype.MessageVideoCall{
-				Flag:    3,
-				Message: "用户拒绝了你的视频通话",
-			})
-		case 3:
-			// 接收者接受
-			m.SendReceive(mtype.MessageVideoCall{
-				Flag:    5,
-				Message: "建立连接",
-				Type:    "create_offer",
-			})
-		case 4:
-			// 通话中挂断
-			
-		}
-		
-		switch data.Message {
-		case "offer":
-			m.SendReceive(mtype.MessageVideoCall{
-				Flag:    3,
-				Message: "offer",
-				Data:    data.Data,
-			})
-		case "answer":
-			m.Conn.WriteJSON(mtype.MessageVideoCall{
-				Message: "answer",
-				Data:    data.Data,
-			})
-		case "offer_ice":
-			m.SendReceive(mtype.MessageVideoCall{
-				Flag:    3,
-				Message: "offer_ice",
-				Data:    data.Data,
-			})
-		case "answer_ice":
-			m.SendReceive(mtype.MessageVideoCall{
-				Flag:    3,
-				Message: "answer_ice",
-				Data:    data.Data,
-			})
-		}
-		
-		var receiveUserID uint = 1
-		_, ok := UserOnlineWebsocketMap[receiveUserID]
-		if !ok {
-			m.SendUser("对方不在线")
-		}
-		
-	}
-	
-	// UserOnlineWebsocketMap[]
-}
-
-func (m *Message) Init(p []byte) string {
-	is, err1 := m.svcCtx.UserRpc.Curtail.IsCurtail(m.ctx, &user_rpc.ID{Id: uint32(req.UserId)})
-	if err1 != nil || !is.CurtailChat.Is {
-		return is.CurtailChat.Error
-	}
-	
-	if !conv.Json().Unmarshal(p, &m.Content) {
-		return "参数解析失败"
-	}
-	
-	_, err := m.svcCtx.UserRpc.Friend.IsFriend(m.ctx, &user_rpc.IsFriendRequest{User1: uint32(m.Req.UserId), User2: uint32(m.Content.ReceiveId)})
+	err := m.svcCtx.DB.Take(&chatModel, r.MessageID).Error
 	if err != nil {
-		return err.Error()
+		return m.Error("原消息不存在")
+	}
+	if chatModel.Type == mtype.MessageType.IsWithdraw {
+		return m.Error("消息已经被撤回了")
+	}
+	if m.Req.UserID != m.Request.ReceiveId {
+		return m.Error("只能撤回自己的消息")
+	}
+	// 自己撤回
+	if m.Req.UserID == m.Request.ReceiveId {
+		now := time.Now()
+		if now.Sub(chatModel.CreatedAt) > 2*time.Minute {
+			return m.Error("撤回消息时间超过两分钟")
+		}
+	}
+	// 撤回消息
+	m.svcCtx.DB.Model(&chatModel).Update("type", mtype.MessageType.IsWithdraw)
+	r.Content = "你撤回了一条消息"
+	return nil
+}
+func (m *Message) isMessageReply() error {
+	r := m.Request.Message.MessageReply
+	if r.MessageID == 0 {
+		return m.Error("回复消息ID不能为空")
+	}
+	var chatModel chat_models.ChatModel
+	err1 := m.svcCtx.DB.Take(&chatModel, r.MessageID).Error
+	if err1 != nil {
+		return m.Error("消息不存在")
+	}
+	if chatModel.Type == mtype.MessageType.IsWithdraw {
+		return m.Error("消息已经被撤回了")
 	}
 	
+	return nil
+}
+func (m *Message) isMessageVideoCall() error {
+	r := m.Request.Message.MessageVideoCall
+	// 先判断对方是否在线
+	
+	_, ok2 := UserOnlineWebsocketMap[m.Request.ReceiveId]
+	if !ok2 {
+		return m.Error("对方不在线")
+	}
+	
+	key := fmt.Sprintf("%d_%d", m.Req.UserID, m.Request.ReceiveId)
+	switch r.Flag {
+	case 0:
+		logs.Info("init")
+		m.SendUser(mtype.MessageType.VideoCall, mtype.Message{MessageVideoCall: &mtype.MessageVideoCall{Flag: 1, Message: "等待对付接听"}})
+		m.SendReceive(mtype.MessageType.VideoCall, mtype.Message{MessageVideoCall: &mtype.MessageVideoCall{Flag: 2, Message: "等待对付接听"}})
+	case 1: // 自己挂断
+		m.SendReceive(mtype.MessageType.VideoCall, mtype.Message{MessageVideoCall: &mtype.MessageVideoCall{Flag: 3, Message: "发起者已挂断"}})
+	case 2: // 对方挂断
+		m.SendReceive(mtype.MessageType.VideoCall, mtype.Message{MessageVideoCall: &mtype.MessageVideoCall{Flag: 4, Message: "接收方拒绝视频通话"}})
+	case 3: // 对方接受
+		m.SendReceive(mtype.MessageType.VideoCall, mtype.Message{MessageVideoCall: &mtype.MessageVideoCall{Flag: 5, Type: "create_offer", Message: "让发送者准备去发offer"}})
+	case 4: // 我方正常挂断
+		logs.Info("发起者已挂断", key)
+		m.SendUser(mtype.MessageType.VideoCall, mtype.Message{MessageVideoCall: &mtype.MessageVideoCall{Flag: 6, Message: "发起者挂断了"}})
+		m.SendReceive(mtype.MessageType.VideoCall, mtype.Message{MessageVideoCall: &mtype.MessageVideoCall{Flag: 6, Message: "发起者挂断了"}})
+		err := m.InsertDatabase() // 入库
+		return err
+	case 5: // 对方挂断
+		logs.Info("对方正常挂断")
+	}
+	
+	switch r.Type {
+	case "offer":
+		m.SendReceive(mtype.MessageType.VideoCall, mtype.Message{MessageVideoCall: &mtype.MessageVideoCall{Type: "offer", Data: r.Data}})
+		logs.Info("offer")
+	case "answer":
+		m.SendReceive(mtype.MessageType.VideoCall, mtype.Message{MessageVideoCall: &mtype.MessageVideoCall{Type: "answer", Data: r.Data}})
+		logs.Info("answer")
+	case "offer_ice":
+		m.SendReceive(mtype.MessageType.VideoCall, mtype.Message{MessageVideoCall: &mtype.MessageVideoCall{Type: "offer_ice", Data: r.Data}})
+		logs.Info("offer_ice")
+	case "answer_ice":
+		m.SendReceive(mtype.MessageType.VideoCall, mtype.Message{MessageVideoCall: &mtype.MessageVideoCall{Type: "offer_ice", Data: r.Data}})
+		logs.Info("answer_ice")
+	}
+	return m.Error("视频通话")
+}
+func (m *Message) isMessage() error {
+	if m.Request.Type == mtype.MessageType.File && m.Request.Message.MessageFile != nil {
+		return m.isMessageFile() // 文件消息
+	}
+	if m.Request.Type == mtype.MessageType.Withdraw && m.Request.Message.MessageWithdraw != nil {
+		return m.isMessageWithdraw() // 撤回消息
+	}
+	if m.Request.Type == mtype.MessageType.Reply && m.Request.Message.MessageReply != nil {
+		return m.isMessageReply() // 回复消息
+	}
+	if m.Request.Type == mtype.MessageType.VideoCall && m.Request.Message.MessageVideoCall != nil {
+		return m.isMessageVideoCall() // 回复消息
+	}
+	return nil
+}
+func (m *Message) isBan() error {
+	is, _ := m.svcCtx.UserRpc.Curtail.IsCurtail(m.ctx, &user_rpc.ID{Id: uint32(m.Req.UserID)})
+	if is != nil && is.CurtailChat != "" {
+		return m.Error(is.CurtailChat)
+	}
+	return nil
+}
+func (m *Message) Init(p []byte) error {
+	if m.isBan() != nil || m.isMessage() != nil {
+		return m.Error(m.Err.Error())
+	}
+	
+	if !conv.Json().Unmarshal(p, &m.Request) {
+		return m.Error("参数解析失败")
+	}
+	
+	_, err := m.svcCtx.UserRpc.Friend.IsFriend(m.ctx, &user_rpc.IsFriendRequest{User1: uint32(m.Req.UserID), User2: uint32(m.Request.ReceiveId)})
+	if err != nil {
+		return m.Error(err.Error())
+	}
+	
+	sendUser, ok1 := UserOnlineWebsocketMap[m.Req.UserID]
+	if !ok1 {
+		return m.Error("发送人不存在")
+	}
+	receiveUser, ok2 := UserOnlineWebsocketMap[m.Request.ReceiveId]
+	if !ok2 {
+		return m.Error("接收人不存在")
+	}
+	m.Send = sendUser
+	m.Receive = receiveUser
+	return nil
+}
+func (m *Message) Head() error {
+	
+	// 获取用户信息
+	userRpc, err := m.svcCtx.UserRpc.User.UserInfo(m.ctx, &user_rpc.IdList{Id: []uint32{uint32(m.Req.UserID)}})
+	if err != nil {
+		return m.Error(err.Error())
+	}
+	
+	var userConfigModel user_models.UserConfigModel
+	conv.Json().Unmarshal(userRpc.Info.UserConfigModel, &userConfigModel)
+	
+	// 第一次进入  将用户信息存入map
+	UserOnlineWebsocketMap[m.Req.UserID] = &UserWebsocketInfo{
+		Conn:     m.Conn,
+		UserInfo: conv.Struct(user_models.UserModel{}).Type(userRpc.Info),
+		WebsocketClientMap: map[string]*websocket.Conn{
+			m.Conn.RemoteAddr().String(): m.Conn,
+		},
+	}
+	
+	// Redis存入在线用户
+	m.svcCtx.Redis.HSet("user_online", fmt.Sprint(m.Req.UserID), m.Req.UserID)
+	
+	friendRpc, err := m.svcCtx.UserRpc.Friend.FriendList(context.Background(), &user_rpc.ID{Id: uint32(m.Req.UserID)})
+	if err != nil {
+		return m.Error(err.Error())
+	}
+	
+	logs.Info("用户上线", m.Req.UserID, userRpc.Info.Name)
+	
+	for _, f := range friendRpc.FriendList {
+		
+		if uint(f.Id) == m.Req.UserID {
+			continue // 剔除自己
+		}
+		
+		friend, ok := UserOnlineWebsocketMap[uint(f.Id)]
+		if ok {
+			// 好友上线了
+			if friend.UserInfo.UserConfigModel.FriendOnline {
+				m.SendOnlineGroup(friend.WebsocketClientMap, chatResponse{
+					Type: mtype.MessageType.Text,
+					Message: mtype.Message{
+						MessageText: &mtype.MessageText{
+							Content: UserOnlineWebsocketMap[m.Req.UserID].UserInfo.Name + "上线了",
+						},
+					},
+					CreatedAt: time.Now(),
+				})
+			}
+		}
+	}
+	
+	logs.Info(UserOnlineWebsocketMap)
+	
+	return nil
+}
+func (m *Message) Defer() {
+	// 用户断开聊天
+	defer func() {
+		logs.Error("断开链接")
+		m.Conn.Close()
+		addr := m.Conn.RemoteAddr().String()
+		userWsInfo, ok := UserOnlineWebsocketMap[m.Req.UserID]
+		if ok {
+			delete(userWsInfo.WebsocketClientMap, addr) // 删除退出的ws信息
+		}
+		delete(UserOnlineWebsocketMap, m.Req.UserID)
+		m.svcCtx.Redis.HDel("user_online", fmt.Sprint(m.Req.UserID)) // Redis删除在线用户
+	}()
 }
 
 func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
@@ -271,140 +357,23 @@ func ChatWebsocketHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 		
-		logs.Info(svcCtx)
-		conn := src.Client().Websocket(w, r)
-		logs.Info(conn)
-		
-		// 获取用户信息
-		userResponse, err := svcCtx.UserRpc.User.UserInfo(context.Background(), &user_rpc.IdList{Id: []uint32{uint32(req.UserId)}})
-		if err != nil {
-			logs.Info("用户服务错误", err)
-			response.Response(r, w, nil, err)
-			return
-		}
-		var userConfigModel user_models.UserConfigModel
-		conv.Json().Unmarshal(userResponse.Info.UserConfigModel, &userConfigModel)
-		
-		// 将用户信息存入map
-		addr := conn.RemoteAddr().String()
-		UserOnlineWebsocketMap[req.UserId] = &UserWebsocketInfo{
-			Conn:     conn,
-			UserInfo: conv.Struct(user_models.UserModel{}).Type(userResponse.Info),
-			WebsocketClientMap: map[string]*websocket.Conn{
-				conn.RemoteAddr().String(): conn,
-			},
-		}
-		
-		svcCtx.Redis.HSet("user_online", fmt.Sprint(req.UserId), req.UserId) // Redis存入在线用户
-		
-		friendResponse, err := svcCtx.UserRpc.Friend.FriendList(context.Background(), &user_rpc.ID{Id: uint32(req.UserId)})
-		if err != nil {
-			response.Response(r, w, nil, logs.Error("获取好友列表失败", err))
+		m := Message{ctx: r.Context(), svcCtx: svcCtx, Req: req, Conn: src.Client().Websocket(w, r)}
+		m.Defer()
+		if m.Head() != nil {
+			response.Response(r, w, nil, m.Err)
 			return
 		}
 		
-		logs.Info("用户上线", req.UserId, userResponse.Info.Name)
-		
-		for _, f := range friendResponse.FriendList {
-			friend, ok := UserOnlineWebsocketMap[uint(f.Id)]
-			if ok {
-				// 好友上线了
-				if friend.UserInfo.UserConfigModel.FriendOnline {
-					sendWsMapMessage(friend.WebsocketClientMap, []byte(UserOnlineWebsocketMap[req.UserId].UserInfo.Name+"上线了"))
-				}
-			}
-			
-		}
-		
-		logs.Info(UserOnlineWebsocketMap)
 		for {
 			// 消息类型，消息，错误
-			_, p, err := conn.ReadMessage()
+			_, p, err := m.Conn.ReadMessage()
 			if err != nil {
-				break
+				return
 			}
-			
-			m := Message{
-				ctx: r.Context(),
-				Req: req,
-			}
-			m.Init(p)
-			
-			for _, m := range request.Message {
-				// 文件消息
-				
-				// 撤回消息
-				if m.Type == mtype.MessageType.Withdraw {
-					var messageModel chat_models.ChatModel
-					err1 := svcCtx.DB.Take(&messageModel, m.MessageId).Error
-					if err1 != nil {
-						SendTipErrorMessage(conn, "消息不存在")
-						continue
-					}
-					if messageModel.SendUserId != req.UserId {
-						SendTipErrorMessage(conn, "只能撤回自己的消息")
-						continue
-					}
-					if time.Now().Sub(messageModel.CreatedAt) >= time.Minute*2 {
-						SendTipErrorMessage(conn, "只能撤回2分钟内的消息")
-						continue
-					}
-					
-					// 撤回消息
-					var content = "撤回了一条消息"
-					if userConfigModel.RecallMessage != nil {
-						content = *userConfigModel.RecallMessage
-					}
-					
-					svcCtx.DB.Model(&messageModel).Updates(chat_models.ChatModel{
-						Message: mtype.MessageArray{
-							{Type: mtype.MessageType.Withdraw, Content: content, MessageId: m.MessageId},
-						},
-					})
-				}
-				// 回复消息
-				if m.Type == mtype.MessageType.Reply {
-					if m.MessageId == 0 {
-						SendTipErrorMessage(conn, "撤回消息不能为空")
-						continue
-					}
-					var messageModel chat_models.ChatModel
-					err1 := svcCtx.DB.Take(&messageModel, m.MessageId).Error
-					if err1 != nil {
-						SendTipErrorMessage(conn, "消息不存在")
-						continue
-					}
-					
-					if messageModel.ID == conv.Type(mtype.MessageType.Withdraw).Uint() {
-						SendTipErrorMessage(conn, "该消息已撤回")
-						continue
-					}
-					
-					if !(messageModel.SendUserId == req.UserId && messageModel.ReceiveUserId == request.ReceiveId ||
-						messageModel.SendUserId == request.ReceiveId && messageModel.ReceiveUserId == req.UserId) {
-						SendTipErrorMessage(conn, "只能回复自己或者对方的消息")
-						continue
-					}
-				}
-				
-				ws.MessageType()
-				
-				// 消息入库
-				id := MessageInsertDatabaseChatModel(request.ReceiveId, req.UserId, request.Message, svcCtx.DB)
-				SendMessageByUser(svcCtx, request.ReceiveId, req.UserId, request.Message, id)
+			if m.Init(p) != nil || m.SendALLMember() != nil {
+				m.SendError(m.Err.Error())
+				continue
 			}
 		}
-		
-		// 用户断开聊天
-		defer func() {
-			logs.Error("断开链接")
-			conn.Close()
-			userWsInfo, ok := UserOnlineWebsocketMap[req.UserId]
-			if ok {
-				delete(userWsInfo.WebsocketClientMap, addr) // 删除退出的ws信息
-			}
-			delete(UserOnlineWebsocketMap, req.UserId)
-			svcCtx.Redis.HDel("user_online", fmt.Sprint(req.UserId)) // Redis删除在线用户
-		}()
 	}
 }

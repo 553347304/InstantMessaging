@@ -26,19 +26,19 @@ func NewUserGroupSearchLogic(ctx context.Context, svcCtx *svc.ServiceContext) *U
 }
 
 type Data struct {
-	UserId uint32 `gorm:"column:user_id"`
+	UserID uint32 `gorm:"column:user_id"`
 	Count  uint32 `gorm:"column:count"`
 }
 
 func (l *UserGroupSearchLogic) UserGroupCreateTotal(in *group_rpc.UserGroupSearchRequest, scan *[]Data) {
 	l.svcCtx.DB.Model(group_models.GroupMemberModel{}).
-		Where("user_id in ?", in.UserIdList).
+		Where("user_id in ?", in.UserIDList).
 		Group("user_id").
 		Select("user_id", "count(id) as count").Scan(&scan)
 }
 func (l *UserGroupSearchLogic) UserGroupAddTotal(in *group_rpc.UserGroupSearchRequest, scan *[]Data) {
 	l.svcCtx.DB.Model(group_models.GroupMemberModel{}).
-		Where("user_id in ? and role = ?", in.UserIdList, 1).
+		Where("user_id in ? and role = ?", in.UserIDList, 1).
 		Group("user_id").
 		Select("user_id", "count(id) as count").Scan(&scan)
 }
@@ -55,11 +55,11 @@ func (l *UserGroupSearchLogic) UserGroupSearch(in *group_rpc.UserGroupSearchRequ
 	}
 	var groupUserMap = map[uint32]uint32{}
 	for _, u2 := range data {
-		groupUserMap[u2.UserId] = u2.Count
+		groupUserMap[u2.UserID] = u2.Count
 	}
 	resp = new(group_rpc.UserGroupSearchResponse)
 	resp.Result = map[uint32]int32{}
-	for _, uid := range in.UserIdList {
+	for _, uid := range in.UserIDList {
 		resp.Result[uid] = int32(groupUserMap[uid])
 	}
 

@@ -1,5 +1,5 @@
 syntax = "proto3";
-package main;
+package setting_rpc;
 
 option go_package = "./setting_rpc";
 

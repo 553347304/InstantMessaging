@@ -20,7 +20,6 @@ type (
 	ID                     = user_rpc.ID
 	IdList                 = user_rpc.IdList
 	IsFriendRequest        = user_rpc.IsFriendRequest
-	IsResponse             = user_rpc.IsResponse
 	UserCreateRequest      = user_rpc.UserCreateRequest
 	UserCreateResponse     = user_rpc.UserCreateResponse
 	UserInfo               = user_rpc.UserInfo

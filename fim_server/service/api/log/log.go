@@ -28,7 +28,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
 	// 设置全局中间件
-	server.Use(zero_middleware.UseMiddleware(ctx.RpcLog))
+	server.Use(zero_middleware.UseMiddleware)
 
 	// kq service
 	// serviceGroup := service.NewServiceGroup()

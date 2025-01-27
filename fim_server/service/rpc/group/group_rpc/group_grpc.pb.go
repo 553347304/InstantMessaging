@@ -19,8 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Group_IsInGroupMember_FullMethodName = "/user_rpc.Group/IsInGroupMember"
-	Group_UserGroupSearch_FullMethodName = "/user_rpc.Group/UserGroupSearch"
+	Group_IsInGroupMember_FullMethodName = "/group_rpc.Group/IsInGroupMember"
+	Group_UserGroupSearch_FullMethodName = "/group_rpc.Group/UserGroupSearch"
 )
 
 // GroupClient is the client API for Group service.
@@ -129,7 +129,7 @@ func _Group_UserGroupSearch_Handler(srv interface{}, ctx context.Context, dec fu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Group_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "user_rpc.Group",
+	ServiceName: "group_rpc.Group",
 	HandlerType: (*GroupServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

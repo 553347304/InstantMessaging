@@ -6,6 +6,7 @@ type Config struct {
 	zrpc.RpcServerConf
 	System struct {
 		Mysql string
+		Redis string
 		Etcd  string
 	}
 }

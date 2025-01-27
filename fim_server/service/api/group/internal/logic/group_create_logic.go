@@ -11,19 +11,15 @@ import (
 	"fim_server/utils/stores/method"
 	"fmt"
 	"strings"
-
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type GroupCreateLogic struct {
-	logx.Logger
 	ctx    context.Context
 	svcCtx *svc.ServiceContext
 }
 
 func NewGroupCreateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GroupCreateLogic {
 	return &GroupCreateLogic{
-		Logger: logx.WithContext(ctx),
 		ctx:    ctx,
 		svcCtx: svcCtx,
 	}
@@ -33,19 +29,20 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 	// todo: add your logic here and delete this line
 
 	var groupModel = group_models.GroupModel{
-		Leader:   req.UserId,
+		Leader:   req.UserID,
 		IsSearch: false,
 		Valid:    2,
 		Size:     50,
 		Sign:     fmt.Sprintf("本群创建于%s  群主很聪明,什么都没有留下", method.Time().Now),
 	}
 
-	is, err := l.svcCtx.UserRpc.Curtail.IsCurtail(l.ctx, &user_rpc.ID{Id: uint32(req.UserId)})
-	if err != nil || !is.CurtailCreateGroup.Is {
-		return nil, conv.Type(is.CurtailCreateGroup.Error).Error()
+	is, _ := l.svcCtx.UserRpc.Curtail.IsCurtail(l.ctx, &user_rpc.ID{Id: uint32(req.UserID)})
+	if is != nil && is.CurtailCreateGroup != "" {
+		return nil, conv.Type(is.CurtailCreateGroup).Error()
 	}
+	
 
-	var groupUserList = []uint{req.UserId}
+	var groupUserList = []uint{req.UserID}
 	switch req.Mode {
 	case 1:
 		if req.Name == "" || req.Size >= 1000 {
@@ -55,19 +52,20 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 		groupModel.Size = req.Size
 		groupModel.IsSearch = req.IsSearch
 	case 2:
-		if len(req.UserIdList) == 0 {
+		if len(req.UserIDList) == 0 {
 			return nil, logs.Error("没有选择的好友")
 		}
 
-		var userIdList = []uint32{uint32(req.UserId)} // 先把自己放进去
-		for _, u := range req.UserIdList {
-			userIdList = append(userIdList, uint32(u))
+		var UserIDList = []uint32{uint32(req.UserID)} // 先把自己放进去
+		for _, u := range req.UserIDList {
+			UserIDList = append(UserIDList, uint32(u))
 			groupUserList = append(groupUserList, u)
 		}
-
-		userResponse, err2 := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: userIdList})
+		
+		UserIDList = method.List(UserIDList).Unique()
+		userResponse, err2 := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: UserIDList})
 		if err2 != nil {
-			return nil, logs.Error(err2)
+			return nil, logs.Error(err2, UserIDList)
 		}
 
 		var nameList []string
@@ -80,7 +78,7 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 
 		groupModel.Name = strings.Join(nameList, "、") + "的群聊"
 
-		userFriendList, err1 := l.svcCtx.UserRpc.Friend.FriendList(l.ctx, &user_rpc.ID{Id: uint32(req.UserId)})
+		userFriendList, err1 := l.svcCtx.UserRpc.Friend.FriendList(l.ctx, &user_rpc.ID{Id: uint32(req.UserID)})
 		if err1 != nil {
 			return nil, logs.Error(err1)
 		}
@@ -88,7 +86,7 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 		for _, i2 := range userFriendList.FriendList {
 			friendList = append(friendList, uint(i2.Id))
 		}
-		slice := method.List(req.UserIdList).Difference(friendList)
+		slice := method.List(req.UserIDList).Difference(friendList)
 		if len(slice) != 0 {
 			return nil, logs.Error("列表中有人不是好友")
 		}
@@ -107,7 +105,7 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 	for i, u := range groupUserList {
 		memBerModel := group_models.GroupMemberModel{
 			GroupId: groupModel.ID,
-			UserId:  u,
+			UserID:  u,
 			Role:    3,
 		}
 		if i == 0 {

@@ -32,7 +32,7 @@ func (l *GroupValidListLogic) GroupValidList(req *types.GroupValidListRequest) (
 	// 是不是群主/管理员
 	var groupIdList []uint
 	l.svcCtx.DB.Model(group_models.GroupMemberModel{}).
-		Where("user_id = ? and (role = 1 or role = 2)", req.UserId).
+		Where("user_id = ? and (role = 1 or role = 2)", req.UserID).
 		Select("group_id").Scan(&groupIdList)
 
 	if len(groupIdList) == 0 {
@@ -40,7 +40,7 @@ func (l *GroupValidListLogic) GroupValidList(req *types.GroupValidListRequest) (
 	}
 
 	groups := src.Mysql(src.ServiceMysql[group_models.GroupValidModel]{
-		DB:      l.svcCtx.DB.Where("group_id in ? or user_id = ?", groupIdList, req.UserId),
+		DB:      l.svcCtx.DB.Where("group_id in ? or user_id = ?", groupIdList, req.UserID),
 		Preload: []string{"GroupModel"},
 		PageInfo: src.PageInfo{
 			Page:  req.Page,
@@ -49,11 +49,11 @@ func (l *GroupValidListLogic) GroupValidList(req *types.GroupValidListRequest) (
 	}).GetList()
 
 	// 用户列表
-	var userIdList []uint32
+	var UserIDList []uint32
 	for _, group := range groups.List {
-		userIdList = append(userIdList, uint32(group.UserId))
+		UserIDList = append(UserIDList, uint32(group.UserID))
 	}
-	userResponse, err1 := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: userIdList})
+	userResponse, err1 := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: UserIDList})
 	if err1 != nil {
 		return nil, logs.Error("用户服务错误")
 	}
@@ -64,7 +64,7 @@ func (l *GroupValidListLogic) GroupValidList(req *types.GroupValidListRequest) (
 	for _, group := range groups.List {
 		resp.List = append(resp.List, types.GroupValidInfo{
 			ID:         group.ID,
-			UserId:     group.UserId,
+			UserID:     group.UserID,
 			GroupId:    group.GroupId,
 			Name:       group.GroupModel.Name,
 			Status:     group.Status,
@@ -72,8 +72,8 @@ func (l *GroupValidListLogic) GroupValidList(req *types.GroupValidListRequest) (
 			ValidInfo:  conv.Struct(types.ValidInfo{}).Type(group.ValidInfo),
 			Type:       group.Type,
 			CreatedAt:  group.CreatedAt.String(),
-			UserName:   userResponse.InfoList[uint32(group.UserId)].Name,
-			UserAvatar: userResponse.InfoList[uint32(group.UserId)].Avatar,
+			UserName:   userResponse.InfoList[uint32(group.UserID)].Name,
+			UserAvatar: userResponse.InfoList[uint32(group.UserID)].Avatar,
 		})
 	}
 	return

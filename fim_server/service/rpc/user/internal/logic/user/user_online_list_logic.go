@@ -36,7 +36,7 @@ func (l *UserOnlineListLogic) UserOnlineList(in *user_rpc.Empty) (*user_rpc.User
 			logs.Error("转换失败", err.Error())
 			continue
 		}
-		resp.UserIdList = append(resp.UserIdList, uint32(value))
+		resp.UserIDList = append(resp.UserIDList, uint32(value))
 	}
 
 	return resp, nil

@@ -29,13 +29,13 @@ func NewAddFriendLogic(ctx context.Context, svcCtx *svc.ServiceContext) *AddFrie
 func (l *AddFriendLogic) AddFriend(req *types.AddFriendRequest) (resp *types.AddFriendResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	is, err1 := l.svcCtx.UserRpc.Curtail.IsCurtail(l.ctx, &user_rpc.ID{Id: uint32(req.UserId)})
-	if err1 != nil || !is.CurtailAddUser.Is {
-		return nil, conv.Type(is.CurtailAddUser.Error).Error()
+	is, _ := l.svcCtx.UserRpc.Curtail.IsCurtail(l.ctx, &user_rpc.ID{Id: uint32(req.UserID)})
+	if is != nil && is.CurtailAddUser != "" {
+		return nil, conv.Type(is.CurtailAddUser).Error()
 	}
 
 	var friend user_models.FriendModel
-	if friend.IsFriend(l.svcCtx.DB, req.UserId, req.FriendId) {
+	if friend.IsFriend(l.svcCtx.DB, req.UserID, req.FriendId) {
 		return nil, logs.Error("已经是好友了")
 	}
 
@@ -48,8 +48,8 @@ func (l *AddFriendLogic) AddFriend(req *types.AddFriendRequest) (resp *types.Add
 
 	// 创建验证消息
 	var validModel = user_models.FriendValidModel{
-		SendUserId:    req.UserId,
-		ReceiveUserId: req.FriendId,
+		SendUserID:    req.UserID,
+		ReceiveUserID: req.FriendId,
 		SendStatus:    1,
 		ValidMessage:  req.ValidMessage,
 		ValidInfo:     conv.Struct(models.ValidInfo{}).Type(req.ValidInfo),
@@ -85,8 +85,8 @@ func (l *AddFriendLogic) AddFriend(req *types.AddFriendRequest) (resp *types.Add
 		return
 	}
 	var userFriend = user_models.FriendModel{
-		SendUserId:    req.UserId,
-		ReceiveUserId: req.FriendId,
+		SendUserID:    req.UserID,
+		ReceiveUserID: req.FriendId,
 	}
 	err = l.svcCtx.DB.Create(&userFriend).Error
 	if err != nil {

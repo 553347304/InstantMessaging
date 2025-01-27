@@ -7,8 +7,8 @@ import (
 // UserConfigModel 用户配置表
 type UserConfigModel struct {
 	models.Model
-	UserId        uint      `json:"userId"`
-	UserModel     UserModel `gorm:"foreignKey:UserId" json:"-"`
+	UserID        uint      `json:"UserID"`
+	UserModel     UserModel `gorm:"foreignKey:UserID" json:"-"`
 	RecallMessage *string   `gorm:"size:32" json:"recall_message"` // 撤回消息内容
 	FriendOnline  bool      `json:"friend_online"`                 // 好友上线
 	Sound         bool      `json:"sound"`                         // 好友上线声音

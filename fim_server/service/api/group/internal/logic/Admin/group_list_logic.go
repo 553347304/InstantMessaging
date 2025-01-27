@@ -25,22 +25,22 @@ func NewGroupListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GroupLi
 	}
 }
 
-func (l *GroupListLogic) UserIdList(groupResponseList []group_models.GroupModel) []uint32 {
-	var userIdList []uint
+func (l *GroupListLogic) UserIDList(groupResponseList []group_models.GroupModel) []uint32 {
+	var UserIDList []uint
 	for _, model := range groupResponseList {
 		for _, memberModel := range model.MemberList {
-			userIdList = append(userIdList, memberModel.UserId)
+			UserIDList = append(UserIDList, memberModel.UserID)
 		}
 	}
-	newUserIdList := method.List(userIdList).Unique()
-	return conv.Slice(newUserIdList).Uint32()
+	newUserIDList := method.List(UserIDList).Unique()
+	return conv.Slice(newUserIDList).Uint32()
 }
 
 func (l *GroupListLogic) UserOnlineMap() map[uint]bool {
 	var userOnlineMap = map[uint]bool{}
 	userOnlineResponse, err := l.svcCtx.UserRpc.User.UserOnlineList(l.ctx, &user_rpc.Empty{})
 	if err == nil {
-		for _, u := range userOnlineResponse.UserIdList {
+		for _, u := range userOnlineResponse.UserIDList {
 			userOnlineMap[uint(u)] = true
 		}
 	} else {
@@ -59,8 +59,8 @@ func (l *GroupListLogic) GroupList(req *types.PageInfo) (resp *types.GroupListRe
 		PageInfo: src.PageInfo{Page: req.Page, Limit: req.Limit, Key: req.Key, Sort: "created_at desc"},
 	}).GetList()
 
-	userIdList := l.UserIdList(groupResponse.List)
-	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: userIdList})
+	UserIDList := l.UserIDList(groupResponse.List)
+	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: UserIDList})
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (l *GroupListLogic) GroupList(req *types.PageInfo) (resp *types.GroupListRe
 			MemberTotal:  len(g.MemberList),
 			MessageTotal: len(g.GroupMessageModel),
 			Leader: types.UserInfo{
-				UserId: g.Leader,
+				UserID: g.Leader,
 				Avatar: userResponse.InfoList[uint32(g.Leader)].Avatar,
 				Name:   userResponse.InfoList[uint32(g.Leader)].Name,
 			},
@@ -89,15 +89,15 @@ func (l *GroupListLogic) GroupList(req *types.PageInfo) (resp *types.GroupListRe
 		var adminList []types.UserInfo
 
 		for _, m := range g.MemberList {
-			_, ok := userOnlineMap[m.UserId]
+			_, ok := userOnlineMap[m.UserID]
 			if ok {
 				info.MemberOnlineTotal++
 			}
 			if m.Role == 2 {
 				adminList = append(adminList, types.UserInfo{
-					UserId: m.UserId,
-					Avatar: userResponse.InfoList[uint32(m.UserId)].Avatar,
-					Name:   userResponse.InfoList[uint32(m.UserId)].Name,
+					UserID: m.UserID,
+					Avatar: userResponse.InfoList[uint32(m.UserID)].Avatar,
+					Name:   userResponse.InfoList[uint32(m.UserID)].Name,
 				})
 			}
 		}

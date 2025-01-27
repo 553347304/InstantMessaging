@@ -29,7 +29,7 @@ func (l *GroupMeListLogic) GroupMeList(req *types.GroupMeListRequest) (resp *typ
 	// todo: add your logic here and delete this line
 	var groupIdList []uint
 	// 我加入的群聊
-	query := l.svcCtx.DB.Model(&group_models.GroupMemberModel{}).Where("user_id = ?", req.UserId)
+	query := l.svcCtx.DB.Model(&group_models.GroupMemberModel{}).Where("user_id = ?", req.UserID)
 	if req.Mode == 1 {
 		query.Where("role = ?", 1) // 我创建的群聊
 	}
@@ -44,7 +44,7 @@ func (l *GroupMeListLogic) GroupMeList(req *types.GroupMeListRequest) (resp *typ
 	for _, model := range groups.List {
 		var role int8
 		for _, memberModel := range model.MemberList {
-			if memberModel.UserId == req.UserId {
+			if memberModel.UserID == req.UserID {
 				role = memberModel.Role
 			}
 		}

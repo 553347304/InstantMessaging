@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	File_FileInfo_FullMethodName = "/user_rpc.File/FileInfo"
+	File_FileInfo_FullMethodName = "/file_rpc.File/FileInfo"
 )
 
 // FileClient is the client API for File service.
@@ -96,7 +96,7 @@ func _File_FileInfo_Handler(srv interface{}, ctx context.Context, dec func(inter
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var File_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "user_rpc.File",
+	ServiceName: "file_rpc.File",
 	HandlerType: (*FileServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

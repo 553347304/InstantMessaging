@@ -6,7 +6,7 @@ import (
 
 type LogModel struct {
 	models.Model
-	UserId  uint   `json:"user_id"`
+	UserID  uint   `json:"user_id"`
 	Name    string `gorm:"size:64" json:"name"`
 	Avatar  string `gorm:"size:256" json:"avatar"`
 	IP      string `gorm:"size:32" json:"ip"`

@@ -9,8 +9,8 @@ type AuthenticationRequest struct {
 }
 
 type AuthenticationResponse struct {
-	UserId uint `json:"user_id"`
-	Role   int8 `json:"role"`
+	UserID uint `json:"user_id"`
+	Role   int32 `json:"role"`
 }
 
 type LoginRequest struct {

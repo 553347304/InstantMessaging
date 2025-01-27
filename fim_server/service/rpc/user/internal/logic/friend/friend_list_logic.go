@@ -39,17 +39,17 @@ func (l *FriendListLogic) FriendList(in *user_rpc.ID) (*user_rpc.FriendListRespo
 	for _, fv := range friend.List {
 		info := user_rpc.UserInfo{}
 		// 发起方
-		if fv.SendUserId == uint(in.Id) {
+		if fv.SendUserID == uint(in.Id) {
 			info = user_rpc.UserInfo{
-				Id:     uint32(fv.ReceiveUserId),
+				Id:     uint32(fv.ReceiveUserID),
 				Name:   fv.ReceiveUserModel.Name,
 				Avatar: fv.ReceiveUserModel.Avatar,
 			}
 		}
 		// 接收方
-		if fv.ReceiveUserId == uint(in.Id) {
+		if fv.ReceiveUserID == uint(in.Id) {
 			info = user_rpc.UserInfo{
-				Id:     uint32(fv.SendUserId),
+				Id:     uint32(fv.SendUserID),
 				Name:   fv.SendUserModel.Name,
 				Avatar: fv.SendUserModel.Avatar,
 			}

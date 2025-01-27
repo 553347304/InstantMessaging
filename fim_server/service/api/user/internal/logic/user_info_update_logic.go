@@ -33,9 +33,9 @@ func (l *UserInfoUpdateLogic) UserInfoUpdate(req *types.UserUpdateRequest) (resp
 	logs.Info(userMap)
 	if len(userMap) != 0 {
 		var user user_models.UserModel
-		err = l.svcCtx.DB.Take(&user, req.UserId).Error
+		err = l.svcCtx.DB.Take(&user, req.UserID).Error
 		if err != nil {
-			return nil, logs.Error("用户不存在", req.UserId)
+			return nil, logs.Error("用户不存在", req.UserID)
 		}
 		err = l.svcCtx.DB.Model(&user).Updates(userMap).Error
 		if err != nil {
@@ -51,7 +51,7 @@ func (l *UserInfoUpdateLogic) UserInfoUpdate(req *types.UserUpdateRequest) (resp
 		delete(userConfigMaps, "avatar")
 		delete(userConfigMaps, "auth_question")
 		var userConfig user_models.UserConfigModel
-		err = l.svcCtx.DB.Take(&userConfig, "user_id = ?", req.UserId).Error
+		err = l.svcCtx.DB.Take(&userConfig, "user_id = ?", req.UserID).Error
 		if err != nil {
 			return nil, logs.Error("用户配置不存在")
 		}

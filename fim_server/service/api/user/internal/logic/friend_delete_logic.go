@@ -29,7 +29,7 @@ func (l *FriendDeleteLogic) FriendDelete(req *types.FriendDeleteRequest) (resp *
 	// todo: add your logic here and delete this line
 
 	var friend user_models.FriendModel
-	if !friend.IsFriend(l.svcCtx.DB, req.UserId, req.FriendId) {
+	if !friend.IsFriend(l.svcCtx.DB, req.UserID, req.FriendId) {
 		return nil, logs.Error("不是好友")
 	}
 	l.svcCtx.DB.Delete(&friend)

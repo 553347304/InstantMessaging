@@ -87,13 +87,13 @@ func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.L
 		if errs != nil {
 			return nil, logs.Error("登录失败")
 		}
-		user.Model.ID = uint(result.UserId)
+		user.Model.ID = uint(result.UserID)
 		user.Role = 2
 		user.Name = info.Name
 	}
 	// 登录
 	token, err := jwts.GenToken(jwts.PayLoad{
-		UserId: user.ID,
+		UserID: user.ID,
 		Name:   user.Name,
 		Role:   user.Role,
 	})

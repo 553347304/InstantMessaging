@@ -11,7 +11,7 @@ type GroupMessageModel struct {
 	models.Model
 	GroupId      uint             `json:"groupId"` // 发送人
 	GroupModel   GroupModel       `gorm:"foreignKey:GroupId" json:"-"`
-	SendUserId   uint             `json:"send_user_id"`
+	SendUserID   uint             `json:"send_user_id"`
 	MemberId     uint             `json:"member_id"`                    // 群成员ID
 	MemberModel  GroupMemberModel `gorm:"foreignKey:MemberId" json:"-"` // 对应的群成员
 	Type         mtype.Int8       `json:"type"`                         // 消息类型

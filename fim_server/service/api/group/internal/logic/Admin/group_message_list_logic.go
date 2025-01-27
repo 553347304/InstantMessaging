@@ -28,7 +28,7 @@ func NewGroupMessageListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 
 type HistoryResponse struct {
 	ID         uint          `json:"id"`
-	UserId     uint          `json:"user_id"`
+	UserID     uint          `json:"user_id"`
 	UserAvatar string        `json:"user_avatar"`
 	CreatedAt  time.Time     `json:"created_at"`
 	MemberId   uint          `json:"member_id"`
@@ -50,13 +50,13 @@ func (l *GroupMessageListLogic) GroupMessageList(req *types.PageInfo) (resp *res
 		Preload: []string{"MemberModel"},
 	}).GetList()
 	
-	var userIdList []uint32
+	var UserIDList []uint32
 	for _, model := range groupMessageList.List {
-		userIdList = append(userIdList, uint32(model.SendUserId))
+		UserIDList = append(UserIDList, uint32(model.SendUserID))
 	}
 	
-	userIdList = method.List(userIdList).Unique() // 去重
-	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: userIdList})
+	UserIDList = method.List(UserIDList).Unique() // 去重
+	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: UserIDList})
 	if err != nil {
 		return nil, err
 	}
@@ -65,11 +65,11 @@ func (l *GroupMessageListLogic) GroupMessageList(req *types.PageInfo) (resp *res
 	for _, info := range groupMessageList.List {
 		list = append(list, HistoryResponse{
 			ID:         info.ID,
-			UserId:     info.SendUserId,
-			UserAvatar: userResponse.InfoList[uint32(info.SendUserId)].Avatar,
+			UserID:     info.SendUserID,
+			UserAvatar: userResponse.InfoList[uint32(info.SendUserID)].Avatar,
 			CreatedAt:  info.CreatedAt,
 			MemberId:   info.MemberId,
-			MemberName: userResponse.InfoList[uint32(info.SendUserId)].Name,
+			MemberName: userResponse.InfoList[uint32(info.SendUserID)].Name,
 			Message:    info.Message,
 		})
 	}

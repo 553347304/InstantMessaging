@@ -5,9 +5,9 @@ import (
 )
 
 type PayLoad struct {
-	UserId uint   `json:"userId"` // 用户id
+	UserID uint   `json:"UserID"` // 用户id
 	Name   string `json:"name"`   // 昵称
-	Role   int8   `json:"role"`   // 用户权限
+	Role   int32   `json:"role"`   // 用户权限
 }
 
 type Claims struct {

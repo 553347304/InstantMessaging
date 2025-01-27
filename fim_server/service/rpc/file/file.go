@@ -6,7 +6,7 @@ import (
 
 	"fim_server/service/rpc/file/file_rpc"
 	"fim_server/service/rpc/file/internal/config"
-	"fim_server/service/rpc/file/internal/server"
+	fileServer "fim_server/service/rpc/file/internal/server/file"
 	"fim_server/service/rpc/file/internal/svc"
 
 	"github.com/zeromicro/go-zero/core/conf"
@@ -26,7 +26,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 
 	s := zrpc.MustNewServer(c.RpcServerConf, func(grpcServer *grpc.Server) {
-		file_rpc.RegisterFileServer(grpcServer, server.NewFileServer(ctx))
+		file_rpc.RegisterFileServer(grpcServer, fileServer.NewFileServer(ctx))
 
 		if c.Mode == service.DevMode || c.Mode == service.TestMode {
 			reflection.Register(grpcServer)

@@ -42,7 +42,7 @@ func (l *GroupSearchLogic) GroupSearch(req *types.GroupSearchListRequest) (resp 
 	var userOnlineIdList []uint
 	userOnlineResponse, err := l.svcCtx.UserRpc.User.UserOnlineList(l.ctx, &user_rpc.Empty{})
 	if err == nil {
-		for _, u := range userOnlineResponse.UserIdList {
+		for _, u := range userOnlineResponse.UserIDList {
 			userOnlineIdList = append(userOnlineIdList, uint(u))
 		}
 	}
@@ -54,8 +54,8 @@ func (l *GroupSearchLogic) GroupSearch(req *types.GroupSearchListRequest) (resp 
 		var isInGroup bool // 是否在群
 		var groupMemberIdList []uint
 		for _, model := range group.MemberList {
-			groupMemberIdList = append(groupMemberIdList, model.UserId)
-			if model.UserId == req.UserId {
+			groupMemberIdList = append(groupMemberIdList, model.UserID)
+			if model.UserID == req.UserID {
 				isInGroup = true
 			}
 		}

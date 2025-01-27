@@ -23,7 +23,7 @@ type ServerInterfaceLog interface {
 }
 type serverLog struct {
 	DB      *gorm.DB
-	UserId  string `json:"user_id"`
+	UserID  string `json:"user_id"`
 	IP      string `json:"ip"`
 	Type    string `json:"type"`
 	Service string `json:"service"`
@@ -78,19 +78,19 @@ func (p *serverLog) Save(ctx context.Context, level, content string) {
 	if p.Service == "log" && p.method == "GET" {
 		return
 	}
-	p.UserId = ctx.Value("user_id").(string)
-	if p.UserId == "" {
+	p.UserID = ctx.Value("user_id").(string)
+	if p.UserID == "" {
 		return
 	}
 	p.IP = ctx.Value("ip").(string)
 	addr := method.Addr().GetAddr(p.IP)
-	userId := conv.Type(p.UserId).Uint()
+	UserID := conv.Type(p.UserID).Uint()
 	var user user_models.UserModel
 	mutex := sync.Mutex{}
 	mutex.Lock() // 加锁
-	p.DB.Take(&user, userId)
+	p.DB.Take(&user, UserID)
 	p.DB.Create(&log_models.LogModel{
-		UserId:  userId,
+		UserID:  UserID,
 		Name:    user.Name,
 		Avatar:  user.Avatar,
 		IP:      p.IP,

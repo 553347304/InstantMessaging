@@ -4,7 +4,7 @@
 package types
 
 type AddFriendRequest struct {
-	UserId       uint      `header:"User-Id"`
+	UserID       uint      `header:"User-ID"`
 	FriendId     uint      `json:"friend_id"`              // 好友ID
 	ValidMessage string    `json:"valid_message,optional"` // 验证消息
 	ValidInfo    ValidInfo `json:"valid_info,optional"`
@@ -17,7 +17,7 @@ type Empty struct {
 }
 
 type FriendDeleteRequest struct {
-	UserId   uint `header:"User-Id"`
+	UserID   uint `header:"User-ID"`
 	FriendId uint `json:"friend_id"` // 好友ID
 }
 
@@ -25,13 +25,13 @@ type FriendDeleteResponse struct {
 }
 
 type FriendInfoRequest struct {
-	UserId   uint `header:"User-Id"`
+	UserID   uint `header:"User-ID"`
 	Role     int8 `header:"Role"`
 	FriendId uint `form:"friend_id"` // 好友ID
 }
 
 type FriendInfoResponse struct {
-	UserId   uint   `json:"user_id"`
+	UserID   uint   `json:"user_id"`
 	Name     string `json:"name"`
 	Sign     string `json:"sign"`
 	Avatar   string `json:"avatar"`
@@ -40,7 +40,7 @@ type FriendInfoResponse struct {
 }
 
 type FriendListRequest struct {
-	UserId uint `header:"User-Id"`
+	UserID uint `header:"User-ID"`
 	Role   int8 `header:"Role"`
 	Page   int  `form:"page,optional"`
 	Limit  int  `form:"limit,optional"`
@@ -52,7 +52,7 @@ type FriendListResponse struct {
 }
 
 type FriendNoticeUpdateRequest struct {
-	UserId   uint   `header:"User-Id"`
+	UserID   uint   `header:"User-ID"`
 	FriendId uint   `json:"friend_id"` // 好友ID
 	Notice   string `json:"notice"`    // 备注
 }
@@ -61,7 +61,7 @@ type FriendNoticeUpdateResponse struct {
 }
 
 type FriendValidInfo struct {
-	UserId       uint      `json:"user_id"`
+	UserID       uint      `json:"user_id"`
 	Name         string    `json:"name"`
 	Avatar       string    `json:"avatar"`
 	ValidMessage string    `json:"valid_message,optional"` // 验证消息
@@ -74,7 +74,7 @@ type FriendValidInfo struct {
 }
 
 type FriendValidListRequest struct {
-	UserId uint `header:"User-Id"`
+	UserID uint `header:"User-ID"`
 	Page   int  `form:"page,optional"`
 	Limit  int  `form:"limit,optional"`
 }
@@ -85,7 +85,7 @@ type FriendValidListResponse struct {
 }
 
 type Header struct {
-	UserId uint `header:"User-Id"`
+	UserID uint `header:"User-ID"`
 }
 
 type ParamsPath struct {
@@ -108,7 +108,7 @@ type ResponseList struct {
 }
 
 type SearchInfo struct {
-	UserId   uint   `json:"user_id"`
+	UserID   uint   `json:"user_id"`
 	Name     string `json:"name"`
 	Sign     string `json:"sign"`
 	Avatar   string `json:"avatar"`
@@ -116,7 +116,7 @@ type SearchInfo struct {
 }
 
 type SearchRequest struct {
-	UserId uint   `header:"User-Id"`
+	UserID uint   `header:"User-ID"`
 	Key    string `form:"key"`
 	Online bool   `form:"online,optional"`
 	Page   int    `form:"page,optional"`
@@ -129,7 +129,7 @@ type SearchResponse struct {
 }
 
 type UserCurtailRequest struct {
-	UserId             uint `json:"user_id"`              // 限制的用户
+	UserID             uint `json:"user_id"`              // 限制的用户
 	CurtailChat        bool `json:"curtail_chat"`         // 限制聊天
 	CurtailAddUser     bool `json:"curtail_add_user"`     // 限制加人
 	CurtailCreateGroup bool `json:"curtail_create_group"` // 限制建群
@@ -137,12 +137,12 @@ type UserCurtailRequest struct {
 }
 
 type UserInfoRequest struct {
-	UserId uint `header:"User-Id"`
+	UserID uint `header:"User-ID"`
 	Role   int8 `header:"Role"`
 }
 
 type UserInfoResponse struct {
-	UserId        uint      `json:"user_id"`
+	UserID        uint      `json:"user_id"`
 	Name          string    `json:"name"`
 	Sign          string    `json:"sign"`
 	Avatar        string    `json:"avatar"`
@@ -179,7 +179,7 @@ type UserListResponse struct {
 }
 
 type UserUpdateRequest struct {
-	UserId        uint      `json:"user_id"`
+	UserID        uint      `json:"user_id"`
 	Name          *string   `json:"name,optional"`
 	Sign          *string   `json:"sign,optional"`
 	Avatar        *string   `json:"avatar,optional"`
@@ -202,7 +202,7 @@ type ValidInfo struct {
 }
 
 type ValidIssueRequest struct {
-	UserId uint `header:"User-Id"`
+	UserID uint `header:"User-ID"`
 	Id     uint `path:"id"` // 好友ID
 }
 
@@ -212,12 +212,12 @@ type ValidIssueResponse struct {
 }
 
 type ValidStatusRequest struct {
-	UserId  uint `header:"User-Id"`
+	UserID  uint `header:"User-ID"`
 	ValidId uint `json:"valid_id"`
 	Status  int8 `json:"status"`
 }
 
 type ValidStatusResponse struct {
-	UserId  uint `header:"User-Id"`
+	UserID  uint `header:"User-ID"`
 	ValidId uint `json:"valid_id"`
 }

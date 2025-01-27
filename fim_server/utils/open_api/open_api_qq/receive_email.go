@@ -36,7 +36,6 @@ func ReceiveEmail(e EmailConfig) {
 	go func() {
 		done <- c.Fetch(seqset, []imap.FetchItem{imap.FetchEnvelope, imap.FetchBody}, messages)
 	}()
-	
 	for msg := range messages {
 		logs.Info("* " + msg.Envelope.Subject)
 		

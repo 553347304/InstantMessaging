@@ -16,10 +16,10 @@ type UserModel struct {
 	Avatar          string           `gorm:"size:256" json:"avatar"` // 头像
 	IP              string           `gorm:"size:32" json:"ip"`      // IP
 	Addr            string           `gorm:"size:64" json:"addr"`    // 地址
-	Role            int8             `json:"role"`                   // 角色 1管理员 2普通用户
+	Role            int32             `json:"role"`                   // 角色 1管理员 2普通用户
 	OpenId          string           `gorm:"size:64" json:"-"`
 	RegisterSource  string           `gorm:"size:16" json:"register_source"` // 注册来源 1手机号 2邮箱 3第三方
-	UserConfigModel *UserConfigModel `gorm:"foreignKey:UserId" json:"user_config_model"`
+	UserConfigModel *UserConfigModel `gorm:"foreignKey:UserID" json:"user_config_model"`
 	Top             TopModel         `json:"top"`
 }
 type TopModel struct {

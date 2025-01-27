@@ -19,7 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	Setting_SettingInfo_FullMethodName = "/main.setting/SettingInfo"
+	Setting_SettingInfo_FullMethodName = "/setting_rpc.setting/SettingInfo"
 )
 
 // SettingClient is the client API for Setting service.
@@ -96,7 +96,7 @@ func _Setting_SettingInfo_Handler(srv interface{}, ctx context.Context, dec func
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Setting_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "main.setting",
+	ServiceName: "setting_rpc.setting",
 	HandlerType: (*SettingServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

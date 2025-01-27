@@ -112,11 +112,12 @@ func getLine() []string {
 		if !more {
 			break
 		} else {
-			index := strings.Index(frame.File, name)
+			pathLine := fmt.Sprintf("%s:%d", frame.File, frame.Line)
 			// 只返回当前项目的路径
+			index := strings.Index(pathLine, name)
 			if index != -1 {
-				path := strings.Replace(frame.File[index:], name, "", 1)
-				pathList = append(pathList, fmt.Sprintf("%s:%d", path, frame.Line))
+				pathLine = strings.Replace(pathLine[index:], name, "", 1)
+				pathList = append(pathList, pathLine)
 			}
 		}
 	}

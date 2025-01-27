@@ -3,11 +3,11 @@ package usercurtaillogic
 import (
 	"context"
 	"fim_server/models/user_models"
-	"fmt"
-
 	"fim_server/service/rpc/user/internal/svc"
 	"fim_server/service/rpc/user/user_rpc"
-
+	"fim_server/utils/stores/logs"
+	"fmt"
+	
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -33,22 +33,21 @@ func (l *IsCurtailLogic) IsCurtail(in *user_rpc.ID) (*user_rpc.CurtailResponse, 
 	var user user_models.UserConfigModel
 	err := l.svcCtx.DB.Take(&user, "user_id = ?", in.Id).Error
 	if err != nil {
-		tip := "用户不存在" + fmt.Sprint(in.Id)
-		resp.CurtailChat.Error = tip
-		resp.CurtailAddUser.Error = tip
-		resp.CurtailCreateGroup.Error = tip
-		resp.CurtailAddGroup.Error = tip
-		return resp, err
+		return nil, logs.Error("用户不存在" + fmt.Sprint(in.Id))
 	}
-
-	resp.CurtailChat.Is = user.CurtailChat
-	resp.CurtailChat.Error = "当前用户被限制聊天"
-	resp.CurtailAddUser.Is = user.CurtailAddUser
-	resp.CurtailAddUser.Error = "当前用户被限制加好友"
-	resp.CurtailCreateGroup.Is = user.CurtailCreateGroup
-	resp.CurtailCreateGroup.Error = "当前用户被限制创建群聊"
-	resp.CurtailAddGroup.Is = user.CurtailAddGroup
-	resp.CurtailAddGroup.Error = "当前用户被限制加群"
-
+	
+	if !user.CurtailChat {
+		resp.CurtailChat = "当前用户被限制聊天"
+	}
+	if !user.CurtailAddUser {
+		resp.CurtailAddUser = "当前用户被限制加好友"
+	}
+	if !user.CurtailCreateGroup {
+		resp.CurtailCreateGroup = "当前用户被限制创建群聊"
+	}
+	if !user.CurtailAddGroup {
+		resp.CurtailAddGroup = "当前用户被限制加群"
+	}
+	
 	return resp, nil
 }

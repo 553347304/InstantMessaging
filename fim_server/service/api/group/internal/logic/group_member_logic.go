@@ -29,7 +29,7 @@ func NewGroupMemberLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Group
 
 type mysqlSel struct {
 	GroupId        uint   `gorm:"column:group_id"`
-	UserId         uint   `gorm:"column:user_id"`
+	UserID         uint   `gorm:"column:user_id"`
 	Role           int8   `gorm:"column:role"`
 	CreatedAt      string `gorm:"column:created_at"`
 	MemberName     string `gorm:"column:member_name"`
@@ -52,13 +52,13 @@ func (l *GroupMemberLogic) GroupMember(req *types.GroupMemberRequest) (resp *typ
 		PageInfo: src.PageInfo{Page: req.Page, Limit: req.Limit, Sort: req.Sort},
 	}).GetListGroup()
 
-	var userIdList []uint32
+	var UserIDList []uint32
 	for _, data := range member.List {
-		userIdList = append(userIdList, uint32(data.UserId))
+		UserIDList = append(UserIDList, uint32(data.UserID))
 	}
 
 	// 关于降级
-	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: userIdList})
+	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: UserIDList})
 	if err != nil {
 		logs.Error(err)
 	}
@@ -77,17 +77,17 @@ func (l *GroupMemberLogic) GroupMember(req *types.GroupMemberRequest) (resp *typ
 	if err != nil {
 		logs.Error(err)
 	}
-	for _, u := range userOnlineResponse.UserIdList {
+	for _, u := range userOnlineResponse.UserIDList {
 		userOnlineMap[uint(u)] = true
 	}
 
 	resp = new(types.GroupMemberResponse)
 	for _, data := range member.List {
 		resp.List = append(resp.List, types.GroupMemberInfo{
-			UserId:         data.UserId,
-			Name:           userInfoMap[data.UserId].Name,
-			Avatar:         userInfoMap[data.UserId].Avatar,
-			InOnline:       userOnlineMap[data.UserId],
+			UserID:         data.UserID,
+			Name:           userInfoMap[data.UserID].Name,
+			Avatar:         userInfoMap[data.UserID].Avatar,
+			InOnline:       userOnlineMap[data.UserID],
 			Role:           data.Role,
 			MemberName:     data.MemberName,
 			CreatedAt:      data.CreatedAt,

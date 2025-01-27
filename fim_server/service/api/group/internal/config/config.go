@@ -13,7 +13,7 @@ type Config struct {
 		Etcd  string
 	}
 	UserRpc  zrpc.RpcClientConf
-	FileRpc zrpc.RpcClientConf
+	FileRpc  zrpc.RpcClientConf
 	GroupRpc zrpc.RpcClientConf
 	RpcUser  zrpc.RpcClientConf
 }

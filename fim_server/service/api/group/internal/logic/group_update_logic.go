@@ -31,7 +31,7 @@ func (l *GroupUpdateLogic) GroupUpdate(req *types.GroupUpdateRequest) (resp *typ
 
 	resp = new(types.GroupUpdateResponse)
 	var groupMember group_models.GroupMemberModel
-	err = l.svcCtx.DB.Preload("GroupModel").Take(&groupMember, "group_id = ? and user_id = ?", req.Id, req.UserId).Error
+	err = l.svcCtx.DB.Preload("GroupModel").Take(&groupMember, "group_id = ? and user_id = ?", req.Id, req.UserID).Error
 	if err != nil {
 		return nil, logs.Error("群不存在或用户不是群成员", err.Error())
 	}

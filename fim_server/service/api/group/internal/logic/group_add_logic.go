@@ -31,13 +31,13 @@ func NewGroupAddLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GroupAdd
 func (l *GroupAddLogic) GroupAdd(req *types.GroupAddRequest) (resp *types.GroupAddResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	is, err1 := l.svcCtx.UserRpc.Curtail.IsCurtail(l.ctx, &user_rpc.ID{Id: uint32(req.UserId)})
-	if err1 != nil || !is.CurtailAddGroup.Is {
-		return nil, conv.Type(is.CurtailAddGroup.Error).Error()
+	is, _ := l.svcCtx.UserRpc.Curtail.IsCurtail(l.ctx, &user_rpc.ID{Id: uint32(req.UserID)})
+	if is != nil && is.CurtailAddGroup != "" {
+		return nil, conv.Type(is.CurtailAddGroup).Error()
 	}
 
 	var member group_models.GroupMemberModel
-	err = l.svcCtx.DB.Take(&member, "group_id = ? and user_id = ?", req.GroupId, req.UserId).Error
+	err = l.svcCtx.DB.Take(&member, "group_id = ? and user_id = ?", req.GroupId, req.UserID).Error
 	if err == nil {
 		return nil, logs.Error("请勿重复加群")
 	}
@@ -52,7 +52,7 @@ func (l *GroupAddLogic) GroupAdd(req *types.GroupAddRequest) (resp *types.GroupA
 
 	var verifyModel = group_models.GroupValidModel{
 		GroupId:   req.GroupId,
-		UserId:    req.UserId,
+		UserID:    req.UserID,
 		Valid:     group.Valid,
 		ValidInfo: conv.Struct(models.ValidInfo{}).Type(req.ValidInfo),
 		Type:      1,
@@ -87,7 +87,7 @@ func (l *GroupAddLogic) GroupAdd(req *types.GroupAddRequest) (resp *types.GroupA
 	}
 	var groupMember = group_models.GroupMemberModel{
 		GroupId: req.GroupId,
-		UserId:  req.UserId,
+		UserID:  req.UserID,
 		Role:    3,
 	}
 	l.svcCtx.DB.Create(&groupMember)

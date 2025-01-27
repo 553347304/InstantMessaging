@@ -38,7 +38,7 @@ func (l *GroupValidStatusLogic) GroupValidStatus(req *types.GroupValidStatusRequ
 	}
 
 	var member group_models.GroupMemberModel
-	err = l.svcCtx.DB.Take(&member, "user_id = ? and group_id = ?", req.UserId, groupValidModel.GroupId).Error
+	err = l.svcCtx.DB.Take(&member, "user_id = ? and group_id = ?", req.UserID, groupValidModel.GroupId).Error
 	if err != nil || !(member.Role == 1 || member.Role == 2) {
 		return nil, logs.Error("权限不足")
 	}
@@ -53,7 +53,7 @@ func (l *GroupValidStatusLogic) GroupValidStatus(req *types.GroupValidStatusRequ
 	l.svcCtx.DB.Model(&groupValidModel).UpdateColumn("status", req.Status)
 
 	var isMember group_models.GroupMemberModel
-	is := l.svcCtx.DB.Take(&isMember, "user_id = ? and group_id = ?", groupValidModel.UserId, groupValidModel.GroupId).Error
+	is := l.svcCtx.DB.Take(&isMember, "user_id = ? and group_id = ?", groupValidModel.UserID, groupValidModel.GroupId).Error
 	if is == nil {
 		return nil, logs.Error("该用户已经在群了")
 	}
@@ -61,7 +61,7 @@ func (l *GroupValidStatusLogic) GroupValidStatus(req *types.GroupValidStatusRequ
 	// 将用户加到群里去
 	l.svcCtx.DB.Create(&group_models.GroupMemberModel{
 		GroupId: groupValidModel.GroupId,
-		UserId:  groupValidModel.UserId,
+		UserID:  groupValidModel.UserID,
 		Role:    3,
 	})
 

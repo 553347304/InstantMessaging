@@ -7,7 +7,7 @@ type Empty struct {
 }
 
 type GroupAddRequest struct {
-	UserId    uint      `header:"User-Id"`
+	UserID    uint      `header:"User-ID"`
 	GroupId   uint      `json:"group_id"`
 	ValidInfo ValidInfo `json:"valid_info,optional"`
 }
@@ -16,7 +16,7 @@ type GroupAddResponse struct {
 }
 
 type GroupBanUpdateRequest struct {
-	UserId   uint `header:"User-Id"`
+	UserID   uint `header:"User-ID"`
 	GroupId  uint `json:"group_id"`
 	MemberId uint `json:"member_id"`
 	BanTime  int  `json:"ban_time"` // 禁言时间
@@ -33,19 +33,19 @@ type GroupChatResponse struct {
 }
 
 type GroupCreateRequest struct {
-	UserId     uint   `header:"User-Id"`
+	UserID     uint   `header:"User-ID"`
 	Mode       int8   `json:"mode,optional"` // 模式 1 直接创建   2 创建模式
 	Name       string `json:"name,optional"`
 	IsSearch   bool   `json:"is_search,optional"`
 	Size       int    `json:"size,optional"`
-	UserIdList []uint `json:"user_id_list,optional"`
+	UserIDList []uint `json:"user_id_list,optional"`
 }
 
 type GroupCreateResponse struct {
 }
 
 type GroupDeleteRequest struct {
-	UserId uint `header:"User-Id"`
+	UserID uint `header:"User-ID"`
 	Id     int8 `path:"id"`
 }
 
@@ -53,14 +53,14 @@ type GroupDeleteResponse struct {
 }
 
 type GroupFriendsInfo struct {
-	UserId    uint   `json:"user_id"`
+	UserID    uint   `json:"user_id"`
 	Avatar    string `json:"avatar"`
 	Name      string `json:"name"`
 	IsInGroup bool   `json:"is_in_group"`
 }
 
 type GroupFriendsListRequest struct {
-	UserId uint `header:"User-Id"`
+	UserID uint `header:"User-ID"`
 	Id     uint `form:"id"`
 }
 
@@ -85,7 +85,7 @@ type GroupHistoryResponse struct {
 }
 
 type GroupInfoRequest struct {
-	UserId uint `header:"User-Id"`
+	UserID uint `header:"User-ID"`
 	Id     int8 `path:"id"`
 }
 
@@ -142,7 +142,7 @@ type GroupMeListResponse struct {
 }
 
 type GroupMemberAddRequest struct {
-	UserId       uint   `header:"User-Id"`
+	UserID       uint   `header:"User-ID"`
 	Id           uint   `json:"id"`
 	MemberIdList []uint `json:"member_id_list"`
 }
@@ -151,7 +151,7 @@ type GroupMemberAddResponse struct {
 }
 
 type GroupMemberDeleteRequest struct {
-	UserId   uint `header:"User-Id"`
+	UserID   uint `header:"User-ID"`
 	Id       uint `form:"id"`
 	MemberId uint `form:"member_id"`
 }
@@ -160,7 +160,7 @@ type GroupMemberDeleteResponse struct {
 }
 
 type GroupMemberInfo struct {
-	UserId         uint   `json:"user_id"`
+	UserID         uint   `json:"user_id"`
 	Name           string `json:"name"`
 	Avatar         string `json:"avatar"`
 	InOnline       bool   `json:"in_online"`
@@ -171,12 +171,12 @@ type GroupMemberInfo struct {
 }
 
 type GroupMemberInfoRequest struct {
-	UserId uint `header:"User-Id"`
+	UserID uint `header:"User-ID"`
 	Id     uint `path:"id"`
 }
 
 type GroupMemberNameRequest struct {
-	UserId   uint   `header:"User-Id"`
+	UserID   uint   `header:"User-ID"`
 	Id       uint   `json:"id"`
 	MemberId uint   `json:"member_id"`
 	Name     string `json:"name"`
@@ -186,7 +186,7 @@ type GroupMemberNameResponse struct {
 }
 
 type GroupMemberRequest struct {
-	UserId uint   `header:"User-Id"`
+	UserID uint   `header:"User-ID"`
 	Id     uint   `form:"id"`
 	Page   int    `form:"page,optional"`
 	Limit  int    `form:"limit,optional"`
@@ -199,7 +199,7 @@ type GroupMemberResponse struct {
 }
 
 type GroupMemberRoleRequest struct {
-	UserId   uint `header:"User-Id"`
+	UserID   uint `header:"User-ID"`
 	Id       uint `json:"id"`
 	MemberId uint `json:"member_id"`
 	Role     int8 `json:"role"`
@@ -219,7 +219,7 @@ type GroupSearchInfo struct {
 }
 
 type GroupSearchListRequest struct {
-	UserId uint   `header:"User-Id"`
+	UserID uint   `header:"User-ID"`
 	Id     string `form:"id"`
 	Key    string `form:"key"`
 	Page   int    `form:"page,optional"`
@@ -254,7 +254,7 @@ type GroupTopResponse struct {
 }
 
 type GroupUpdateRequest struct {
-	UserId             uint      `header:"User-Id"`
+	UserID             uint      `header:"User-ID"`
 	Id                 int8      `json:"id"`
 	Name               string    `json:"name,optional" conf:"name"`                                 // 群名
 	Avatar             string    `json:"avatar,optional" conf:"avatar"`                             // 群头像
@@ -272,7 +272,7 @@ type GroupUpdateResponse struct {
 
 type GroupValidInfo struct {
 	ID         uint      `json:"id"`
-	UserId     uint      `header:"User-Id"`
+	UserID     uint      `header:"User-ID"`
 	GroupId    uint      `json:"group_id"`
 	UserAvatar string    `json:"user_avatar"`
 	UserName   string    `json:"user_name"`
@@ -285,7 +285,7 @@ type GroupValidInfo struct {
 }
 
 type GroupValidIssueRequest struct {
-	UserId uint `header:"User-Id"`
+	UserID uint `header:"User-ID"`
 	Id     uint `path:"id"`
 }
 
@@ -295,7 +295,7 @@ type GroupValidIssueResponse struct {
 }
 
 type GroupValidListRequest struct {
-	UserId  uint `header:"User-Id"`
+	UserID  uint `header:"User-ID"`
 	GroupId uint `form:"group_id"`
 	Page    int  `form:"page,optional"`
 	Limit   int  `form:"limit,optional"`
@@ -307,7 +307,7 @@ type GroupValidListResponse struct {
 }
 
 type GroupValidStatusRequest struct {
-	UserId  uint `header:"User-Id"`
+	UserID  uint `header:"User-ID"`
 	VaildId uint `json:"vaild_id"`
 	Status  int8 `json:"status"`
 }
@@ -316,7 +316,7 @@ type GroupValidStatusResponse struct {
 }
 
 type Header struct {
-	UserId uint `header:"User-Id"`
+	UserID uint `header:"User-ID"`
 }
 
 type PageInfo struct {
@@ -339,7 +339,7 @@ type ResponseList struct {
 }
 
 type UserInfo struct {
-	UserId uint   `json:"user_id"`
+	UserID uint   `json:"user_id"`
 	Name   string `json:"name"`
 	Avatar string `json:"avatar"`
 }

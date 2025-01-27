@@ -49,14 +49,14 @@ func (l *ChatHistoryAdminLogic) ChatHistoryAdmin(req *types.ChatHistoryAdminRequ
 		PageInfo: src.PageInfo{Page: req.Page, Limit: req.Limit, Sort: "created_at desc"},
 	}).GetList()
 	
-	var userIdList []uint32
+	var UserIDList []uint32
 	for _, model := range chatList.List {
-		userIdList = append(userIdList, uint32(model.SendUserId))
-		userIdList = append(userIdList, uint32(model.ReceiveUserId))
+		UserIDList = append(UserIDList, uint32(model.SendUserID))
+		UserIDList = append(UserIDList, uint32(model.ReceiveUserID))
 	}
-	userIdList = method.List(userIdList).Unique() // 去重
+	UserIDList = method.List(UserIDList).Unique() // 去重
 	// 调用户服务
-	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: userIdList})
+	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: UserIDList})
 	if err != nil {
 		return nil, logs.Error("用户服务错误")
 	}
@@ -67,14 +67,14 @@ func (l *ChatHistoryAdminLogic) ChatHistoryAdmin(req *types.ChatHistoryAdminRequ
 		
 		if i == 0 {
 			sendUser = mtype.UserInfo{
-				ID:     model.SendUserId,
-				Name:   userResponse.InfoList[uint32(model.SendUserId)].Name,
-				Avatar: userResponse.InfoList[uint32(model.SendUserId)].Avatar,
+				ID:     model.SendUserID,
+				Name:   userResponse.InfoList[uint32(model.SendUserID)].Name,
+				Avatar: userResponse.InfoList[uint32(model.SendUserID)].Avatar,
 			}
 			receiveUser = mtype.UserInfo{
-				ID:     model.ReceiveUserId,
-				Name:   userResponse.InfoList[uint32(model.ReceiveUserId)].Name,
-				Avatar: userResponse.InfoList[uint32(model.ReceiveUserId)].Avatar,
+				ID:     model.ReceiveUserID,
+				Name:   userResponse.InfoList[uint32(model.ReceiveUserID)].Name,
+				Avatar: userResponse.InfoList[uint32(model.ReceiveUserID)].Avatar,
 			}
 		}
 		
@@ -85,7 +85,7 @@ func (l *ChatHistoryAdminLogic) ChatHistoryAdmin(req *types.ChatHistoryAdminRequ
 			Message:   model.Message,
 			CreatedAt: model.CreatedAt.String(),
 		}
-		if model.SendUserId == req.ReceiveUserID {
+		if model.SendUserID == req.ReceiveUserID {
 			info.IsMe = true
 		}
 		list = append(list, info)

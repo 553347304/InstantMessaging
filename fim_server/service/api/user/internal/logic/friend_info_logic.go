@@ -30,7 +30,7 @@ func (l *FriendInfoLogic) FriendInfo(req *types.FriendInfoRequest) (resp *types.
 	// todo: add your logic here and delete this line
 
 	var friend user_models.FriendModel
-	if !friend.IsFriend(l.svcCtx.DB, req.UserId, req.FriendId) {
+	if !friend.IsFriend(l.svcCtx.DB, req.UserID, req.FriendId) {
 		return nil, logs.Error("他不是你的好友")
 	}
 
@@ -40,10 +40,10 @@ func (l *FriendInfoLogic) FriendInfo(req *types.FriendInfoRequest) (resp *types.
 	}
 	resp = new(types.FriendInfoResponse)
 	resp = &types.FriendInfoResponse{
-		UserId: uint(userResponse.Info.Id),
+		UserID: uint(userResponse.Info.Id),
 		Name:   userResponse.Info.Name,
 		Avatar: userResponse.Info.Avatar,
-		Notice: friend.GetUserNotice(req.UserId),
+		Notice: friend.GetUserNotice(req.UserID),
 	}
 
 	return resp, nil

@@ -47,7 +47,7 @@ func (l *AuthenticationLogic) Authentication(req *types.AuthenticationRequest) (
 	}
 
 	resp = &types.AuthenticationResponse{
-		UserId: claims.UserId,
+		UserID: claims.UserID,
 		Role:   claims.Role,
 	}
 	logs.Info("认证成功", resp)

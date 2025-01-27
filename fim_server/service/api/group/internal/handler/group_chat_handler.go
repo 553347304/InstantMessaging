@@ -31,7 +31,7 @@ type ChatRequest struct {
 	Message mtype.Message `json:"message"`
 }
 type ChatResponse struct {
-	UserId    uint          `json:"user_id"`
+	UserID    uint          `json:"user_id"`
 	Name      string        `json:"name"`
 	Avatar    string        `json:"avatar"`
 	Type      mtype.Int8    `json:"type"`
@@ -42,7 +42,7 @@ type ChatResponse struct {
 }
 type Message struct {
 	ctx     context.Context
-	SvcCtx  *svc.ServiceContext
+	svcCtx  *svc.ServiceContext
 	Conn    *websocket.Conn
 	Req     types.GroupChatRequest
 	Request ChatRequest
@@ -54,34 +54,35 @@ func (m *Message) Error(err string) error {
 	m.Err = conv.Type(err).Error()
 	return m.Err
 }
-func (m *Message) InsertDatabase() uint {
+func (m *Message) InsertDatabase() (uint, error) {
 	groupModel := group_models.GroupMessageModel{
 		GroupId:    m.Request.GroupId,
-		SendUserId: m.Req.UserId,
+		SendUserID: m.Req.UserID,
 		Message:    m.Request.Message,
 		MemberId:   m.Member.ID,
 		Type:       m.Request.Type,
 	}
 	groupModel.Preview = groupModel.Message.GetPreview(m.Request.Type)
-	err := m.SvcCtx.DB.Create(&groupModel).Error
+	err := m.svcCtx.DB.Create(&groupModel).Error
 	if err != nil {
-		m.SendErrorTip("数据库插入失败: " + err.Error())
-		return 0
+		return groupModel.ID, err
 	}
-	return groupModel.ID
+	return groupModel.ID, nil
 }
-func (m *Message) SendErrorTip(message string) {
-	resp := ChatResponse{
-		Type: m.Request.Type,
+func (m *Message) SendError(message string) {
+	m.Conn.WriteMessage(websocket.TextMessage, conv.Json().Marshal(ChatResponse{
+		Type: mtype.MessageType.Error,
 		Message: mtype.Message{
-			MessageTip: &mtype.MessageTip{Status: "error", Content: message},
+			MessageError: &mtype.MessageError{Status: "error", Content: message},
 		},
 		CreatedAt: time.Now(),
-	}
-	m.Conn.WriteMessage(websocket.TextMessage, conv.Json().Marshal(resp))
+	}))
 }
-func (m *Message) SendALLMember() {
-	messageID := m.InsertDatabase()
+func (m *Message) SendALLMember() error {
+	messageID, err := m.InsertDatabase()
+	if err != nil {
+		return m.Error(err.Error())
+	}
 	
 	// 用户在线列表
 	var userOnlineIdList []uint
@@ -91,13 +92,13 @@ func (m *Message) SendALLMember() {
 	
 	// 群成员在线列表
 	var groupMemberOnlineIdList []uint
-	m.SvcCtx.DB.Model(&group_models.GroupMemberModel{}).
+	m.svcCtx.DB.Model(&group_models.GroupMemberModel{}).
 		Where("group_id = ? and user_id in ?", m.Request.GroupId, userOnlineIdList).
 		Select("user_id").Scan(&groupMemberOnlineIdList)
 	
-	info, _ := UserOnlineMapWebsocket[m.Req.UserId]
+	info, _ := UserOnlineMapWebsocket[m.Req.UserID]
 	var chatResponse = ChatResponse{
-		UserId:    m.Req.UserId,
+		UserID:    m.Req.UserID,
 		Name:      info.UserInfo.Name,
 		Avatar:    info.UserInfo.Avatar,
 		Type:      m.Request.Type,
@@ -111,19 +112,20 @@ func (m *Message) SendALLMember() {
 		if !ok {
 			continue
 		}
-		chatResponse.IsMe = wsUserInfo.UserInfo.ID == m.Req.UserId
+		chatResponse.IsMe = wsUserInfo.UserInfo.ID == m.Req.UserID
 		
 		for _, w2 := range wsUserInfo.ConnMap {
 			w2.WriteMessage(websocket.TextMessage, conv.Json().Marshal(chatResponse))
 		}
 	}
+	return nil
 }
 func (m *Message) isMessageFile() error {
 	r := m.Request.Message.MessageFile
 	if !strings.Contains(r.Src, "/") {
 		return m.Error("请上传文件")
 	}
-	fileRpc, err := m.SvcCtx.FileRpc.FileInfo(m.ctx, &file_rpc.FileInfoRequest{FileId: r.Src})
+	fileRpc, err := m.svcCtx.FileRpc.FileInfo(m.ctx, &file_rpc.FileInfoRequest{FileId: r.Src})
 	if err != nil {
 		return err
 	}
@@ -138,7 +140,7 @@ func (m *Message) isMessageWithdraw() error {
 		return m.Error("撤回消息id为空")
 	}
 	var groupMessage group_models.GroupMessageModel
-	err := m.SvcCtx.DB.Take(&groupMessage, r.MessageID).Error
+	err := m.svcCtx.DB.Take(&groupMessage, r.MessageID).Error
 	if err != nil {
 		return m.Error("原消息不存在")
 	}
@@ -149,16 +151,16 @@ func (m *Message) isMessageWithdraw() error {
 	// 管理员和群主撤回
 	if m.Member.Role == 1 || m.Member.Role == 2 {
 		var messageUserRole int8 = 3
-		m.SvcCtx.DB.Model(group_models.GroupMemberModel{}).
-			Where("group_id = ? and user_id = ?", m.Request.GroupId, groupMessage.SendUserId).
+		m.svcCtx.DB.Model(group_models.GroupMemberModel{}).
+			Where("group_id = ? and user_id = ?", m.Request.GroupId, groupMessage.SendUserID).
 			Select("role").Scan(&messageUserRole)
-		if messageUserRole == 1 || (messageUserRole == 2 && groupMessage.SendUserId != m.Req.UserId) {
+		if messageUserRole == 1 || (messageUserRole == 2 && groupMessage.SendUserID != m.Req.UserID) {
 			return m.Error("管理员只能撤回自己或普通用户的消息")
 		}
 	}
 	
 	// 自己撤回
-	if m.Req.UserId == groupMessage.SendUserId {
+	if m.Req.UserID == groupMessage.SendUserID {
 		now := time.Now()
 		if now.Sub(groupMessage.CreatedAt) > 2*time.Minute {
 			return m.Error("撤回消息时间超过两分钟")
@@ -166,7 +168,7 @@ func (m *Message) isMessageWithdraw() error {
 	}
 	
 	// 撤回消息
-	m.SvcCtx.DB.Model(&groupMessage).Update("type", mtype.MessageType.IsWithdraw)
+	m.svcCtx.DB.Model(&groupMessage).Update("type", mtype.MessageType.IsWithdraw)
 	r.Content = "你撤回了一条消息"
 	return nil
 }
@@ -176,7 +178,7 @@ func (m *Message) isMessageReply() error {
 		return m.Error("回复消息ID不能为空")
 	}
 	var groupMessage group_models.GroupMessageModel
-	err1 := m.SvcCtx.DB.Take(&groupMessage, r.MessageID).Error
+	err1 := m.svcCtx.DB.Take(&groupMessage, r.MessageID).Error
 	if err1 != nil {
 		return m.Error("消息不存在")
 	}
@@ -211,28 +213,31 @@ func (m *Message) Init(p []byte) error {
 	if !conv.Json().Unmarshal(p, &m.Request) {
 		return m.Error("消息格式错误")
 	}
+	if m.Request.GroupId == 0 {
+		return m.Error("群ID不能为空")
+	}
 	
 	// 检查用户是否在群聊中
 	var member group_models.GroupMemberModel
-	err := m.SvcCtx.DB.Preload("GroupModel").Take(&member, "group_id = ? and user_id = ?", m.Request.GroupId, m.Req.UserId).Error
+	err := m.svcCtx.DB.Preload("GroupModel").Take(&member, "group_id = ? and user_id = ?", m.Request.GroupId, m.Req.UserID).Error
 	if err != nil {
-		return m.Error(err.Error())
+		return m.Error("用户不在群")
 	}
 	m.Member = member
 	
-	if m.isMessage() != nil || m.isMessage() != nil {
-		return m.Err
+	if m.isBan() != nil || m.isMessage() != nil {
+		return m.Error(m.Err.Error())
 	}
 	
 	// 获取用户信息
-	userRpc, err := m.SvcCtx.UserRpc.User.UserInfo(m.ctx, &user_rpc.IdList{Id: []uint32{uint32(m.Req.UserId)}})
+	userRpc, err := m.svcCtx.UserRpc.User.UserInfo(m.ctx, &user_rpc.IdList{Id: []uint32{uint32(m.Req.UserID)}})
 	if err != nil {
 		return m.Error(err.Error())
 	}
 	
-	UserOnlineMapWebsocket[m.Req.UserId] = &UserInfoWebsocket{
+	UserOnlineMapWebsocket[m.Req.UserID] = &UserInfoWebsocket{
 		UserInfo: mtype.UserInfo{
-			ID:     m.Req.UserId,
+			ID:     m.Req.UserID,
 			Name:   userRpc.Info.Name,
 			Avatar: userRpc.Info.Avatar,
 		},
@@ -251,23 +256,19 @@ func GroupChatHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 		
-		conn := src.Client().Websocket(w, r)
+		var m = Message{ctx: r.Context(), svcCtx: svcCtx, Conn: src.Client().Websocket(w, r), Req: req}
 		
-		var m = Message{ctx: r.Context(), SvcCtx: svcCtx, Conn: conn, Req: req}
-		
-		defer func() { conn.Close() }()
+		defer func() { m.Conn.Close() }()
 		for {
 			// 用户断开聊天
-			_, p, err := conn.ReadMessage()
-			if err == nil {
+			_, p, err := m.Conn.ReadMessage()
+			if err != nil {
 				return
 			}
-			err = m.Init(p)
-			if err != nil {
-				m.SendErrorTip(err.Error())
+			if m.Init(p) != nil || m.SendALLMember() != nil {
+				m.SendError(m.Err.Error())
 				continue
 			}
-			m.SendALLMember()
 		}
 		
 	}

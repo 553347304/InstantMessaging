@@ -8,7 +8,7 @@ import (
 	"context"
 
 	"fim_server/service/rpc/file/file_rpc"
-	"fim_server/service/rpc/file/internal/logic"
+	"fim_server/service/rpc/file/internal/logic/file"
 	"fim_server/service/rpc/file/internal/svc"
 )
 
@@ -24,6 +24,6 @@ func NewFileServer(svcCtx *svc.ServiceContext) *FileServer {
 }
 
 func (s *FileServer) FileInfo(ctx context.Context, in *file_rpc.FileInfoRequest) (*file_rpc.FileInfoResponse, error) {
-	l := logic.NewFileInfoLogic(ctx, s.svcCtx)
+	l := filelogic.NewFileInfoLogic(ctx, s.svcCtx)
 	return l.FileInfo(in)
 }

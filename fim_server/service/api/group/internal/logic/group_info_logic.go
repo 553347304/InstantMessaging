@@ -29,12 +29,12 @@ func NewGroupInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GroupIn
 func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.GroupInfoResponse, err error) {
 	// todo: add your logic here and delete this line
 	var member group_models.GroupMemberModel
-	err = l.svcCtx.DB.Take(&member, "group_id = ? and user_id = ?", req.Id, req.UserId).Error
+	err = l.svcCtx.DB.Take(&member, "group_id = ? and user_id = ?", req.Id, req.UserID).Error
 	if err != nil {
 		return nil, logs.Error("该用户不是群成员")
 	}
 	_, err = l.svcCtx.GroupRpc.IsInGroupMember(l.ctx, &group_rpc.IsInGroupMemberRequest{
-		UserId:  uint32(req.UserId),
+		UserID:  uint32(req.UserID),
 		GroupId: uint32(req.Id),
 	})
 	if err != nil {
@@ -58,16 +58,16 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 	}
 
 	// 查用户列表信息
-	var userIdList []uint32
+	var UserIDList []uint32
 	var userAllIdList []uint32
 	for _, model := range groupModel.MemberList {
 		if model.Role == 1 || model.Role == 2 {
-			userIdList = append(userIdList, uint32(model.UserId))
+			UserIDList = append(UserIDList, uint32(model.UserID))
 		}
-		userAllIdList = append(userAllIdList, uint32(model.UserId))
+		userAllIdList = append(userAllIdList, uint32(model.UserID))
 	}
 
-	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: userIdList})
+	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: UserIDList})
 	if err != nil {
 		return nil, err
 	}
@@ -78,9 +78,9 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 			continue
 		}
 		userInfo := types.UserInfo{
-			UserId: model.UserId,
-			Avatar: userResponse.InfoList[uint32(model.UserId)].Avatar,
-			Name:   userResponse.InfoList[uint32(model.UserId)].Name,
+			UserID: model.UserID,
+			Avatar: userResponse.InfoList[uint32(model.UserID)].Avatar,
+			Name:   userResponse.InfoList[uint32(model.UserID)].Name,
 		}
 		if model.Role == 1 {
 			leader = userInfo
@@ -97,7 +97,7 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 	// 用户在线总数
 	userOnlineResponse, err := l.svcCtx.UserRpc.User.UserOnlineList(l.ctx, &user_rpc.Empty{})
 	if err == nil {
-		slice := method.List(userOnlineResponse.UserIdList).Intersect(userAllIdList)
+		slice := method.List(userOnlineResponse.UserIDList).Intersect(userAllIdList)
 		resp.MemberOnlinCount = len(slice)
 	}
 

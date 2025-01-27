@@ -38,7 +38,7 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 	}
 
 	token, err := jwts.GenToken(jwts.PayLoad{
-		UserId: user.ID,
+		UserID: user.ID,
 		Name:   user.Name,
 		Role:   user.Role,
 	})

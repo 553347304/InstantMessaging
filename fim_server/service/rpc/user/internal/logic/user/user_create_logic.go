@@ -35,7 +35,7 @@ func (l *UserCreateLogic) UserCreate(in *user_rpc.UserCreateRequest) (*user_rpc.
 	user = user_models.UserModel{
 		Name:           in.Name,
 		Avatar:         in.Avatar,
-		Role:           int8(in.Role),
+		Role:           in.Role,
 		OpenId:         in.OpenId,
 		RegisterSource: in.RegisterSource,
 	}
@@ -48,7 +48,7 @@ func (l *UserCreateLogic) UserCreate(in *user_rpc.UserCreateRequest) (*user_rpc.
 
 	// 创建用户配置
 	l.svcCtx.DB.Create(&user_models.UserConfigModel{
-		UserId:        user.ID,
+		UserID:        user.ID,
 		RecallMessage: nil,
 		FriendOnline:  false,
 		Sound:         true,
@@ -59,5 +59,5 @@ func (l *UserCreateLogic) UserCreate(in *user_rpc.UserCreateRequest) (*user_rpc.
 		Online:        true,
 	})
 
-	return &user_rpc.UserCreateResponse{UserId: int32(user.ID)}, nil
+	return &user_rpc.UserCreateResponse{UserID: int32(user.ID)}, nil
 }

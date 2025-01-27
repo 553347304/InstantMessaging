@@ -1,5 +1,5 @@
 syntax = "proto3";
-package main;
+package chat_rpc;
 option go_package = "./chat_rpc";
 
 

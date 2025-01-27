@@ -29,7 +29,7 @@ func (l *ValidIssueLogic) ValidIssue(req *types.ValidIssueRequest) (resp *types.
 	// todo: add your logic here and delete this line
 
 	var friend user_models.FriendModel
-	if friend.IsFriend(l.svcCtx.DB, req.UserId, req.Id) {
+	if friend.IsFriend(l.svcCtx.DB, req.UserID, req.Id) {
 		return nil, logs.Error("已经是好友了")
 	}
 

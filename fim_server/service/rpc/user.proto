@@ -1,5 +1,5 @@
 syntax = "proto3";
-package main;
+package user_rpc;
 option go_package = "./user_rpc";
 
 message Empty{}
@@ -8,10 +8,6 @@ message ID {
 }
 message IdList {
   repeated uint32 id = 2;
-}
-message IsResponse{
-  bool is = 1;
-  string error = 2;
 }
 
 message UserCreateRequest {
@@ -66,11 +62,12 @@ service Friend {
   rpc FriendList(ID) returns(FriendListResponse);            // 好友列表
 }
 
+
 message CurtailResponse{
-  IsResponse curtail_chat = 1;
-  IsResponse curtail_add_user = 2;
-  IsResponse curtail_create_group = 3;
-  IsResponse curtail_add_group = 4;
+  string curtail_chat = 1;
+  string curtail_add_user = 2;
+  string curtail_create_group = 3;
+  string curtail_add_group = 4;
 }
 
 service UserCurtail {

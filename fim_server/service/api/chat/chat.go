@@ -28,7 +28,7 @@ func main() {
 	ctx := svc.NewServiceContext(c)
 	handler.RegisterHandlers(server, ctx)
 
-	server.Use(zero_middleware.UseMiddleware(ctx.RpcLog))
+	server.Use(zero_middleware.UseMiddleware)
 
 	src.Etcd().DeliveryAddress(c.System.Etcd, c.Name+"_api", fmt.Sprintf("%s:%d", c.Host, c.Port))
 

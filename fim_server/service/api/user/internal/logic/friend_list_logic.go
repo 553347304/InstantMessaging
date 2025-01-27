@@ -31,7 +31,7 @@ func (l *FriendListLogic) FriendList(req *types.FriendListRequest) (resp *types.
 
 	// 获取好友列表
 	friend := src.Mysql(src.ServiceMysql[user_models.FriendModel]{
-		DB:      l.svcCtx.DB.Where("send_user_id = ? or receive_user_id = ?", req.UserId, req.UserId),
+		DB:      l.svcCtx.DB.Where("send_user_id = ? or receive_user_id = ?", req.UserID, req.UserID),
 		Preload: []string{"SendUserModel", "ReceiveUserModel"},
 		PageInfo: src.PageInfo{
 			Page:  req.Page,
@@ -55,25 +55,25 @@ func (l *FriendListLogic) FriendList(req *types.FriendListRequest) (resp *types.
 	for _, fv := range friend.List {
 		// 发起方
 		info := types.FriendInfoResponse{}
-		if fv.SendUserId == req.UserId {
+		if fv.SendUserID == req.UserID {
 			info = types.FriendInfoResponse{
-				UserId:   fv.ReceiveUserId,
+				UserID:   fv.ReceiveUserID,
 				Name:     fv.ReceiveUserModel.Name,
 				Sign:     fv.ReceiveUserModel.Sign,
 				Avatar:   fv.ReceiveUserModel.Avatar,
 				Notice:   fv.SendUserNotice,
-				IsOnline: onlineUserMap[fv.ReceiveUserId],
+				IsOnline: onlineUserMap[fv.ReceiveUserID],
 			}
 		}
 		// 接收方
-		if fv.ReceiveUserId == req.UserId {
+		if fv.ReceiveUserID == req.UserID {
 			info = types.FriendInfoResponse{
-				UserId:   fv.SendUserId,
+				UserID:   fv.SendUserID,
 				Name:     fv.SendUserModel.Name,
 				Sign:     fv.SendUserModel.Sign,
 				Avatar:   fv.SendUserModel.Avatar,
 				Notice:   fv.ReceiveUserNotice,
-				IsOnline: onlineUserMap[fv.SendUserId],
+				IsOnline: onlineUserMap[fv.SendUserID],
 			}
 		}
 		list = append(list, info)

@@ -43,24 +43,24 @@ func (l *SearchLogic) Search(req *types.SearchRequest) (resp *types.SearchRespon
 		},
 	}).GetList()
 	var friend user_models.FriendModel
-	friends := friend.MeFriend(l.svcCtx.DB, req.UserId)
+	friends := friend.MeFriend(l.svcCtx.DB, req.UserID)
 	userMap := map[uint]bool{}
 	for _, model := range friends {
-		if model.SendUserId == req.UserId {
-			userMap[model.ReceiveUserId] = true
+		if model.SendUserID == req.UserID {
+			userMap[model.ReceiveUserID] = true
 		} else {
-			userMap[model.SendUserId] = true
+			userMap[model.SendUserID] = true
 		}
 	}
 
 	list := make([]types.SearchInfo, 0)
 	for _, userConfig := range userConfigs.List {
 		list = append(list, types.SearchInfo{
-			UserId:   userConfig.UserId,
+			UserID:   userConfig.UserID,
 			Name:     userConfig.UserModel.Name,
 			Sign:     userConfig.UserModel.Sign,
 			Avatar:   userConfig.UserModel.Avatar,
-			IsFriend: userMap[userConfig.UserId],
+			IsFriend: userMap[userConfig.UserID],
 		})
 	}
 	return &types.SearchResponse{List: list, Total: userConfigs.Total}, nil

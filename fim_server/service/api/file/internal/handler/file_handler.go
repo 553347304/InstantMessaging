@@ -52,7 +52,7 @@ func FileHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		}
 
 		// 用户信息
-		userResponse, err := svcCtx.UserRpc.User.UserInfo(context.Background(), &user_rpc.IdList{Id: []uint32{uint32(req.UserId)}})
+		userResponse, err := svcCtx.UserRpc.User.UserInfo(context.Background(), &user_rpc.IdList{Id: []uint32{uint32(req.UserID)}})
 		if err != nil {
 			response.Response(r, w, nil, err)
 			return
@@ -60,14 +60,14 @@ func FileHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 
 		newFileModel := file_models.FileModel{
 			Uid:    uuid.New(),
-			UserId: req.UserId,
+			UserID: req.UserID,
 			Name:   file.Name,
 			Size:   file.Size,
 			Hash:   md5s.Hash(file.Byte),
 		}
 
 		newFileModel.Path = path.Join(svcCtx.Config.File.Path, "user",
-			fmt.Sprintf("%d_%s", req.UserId, userResponse.InfoList[uint32(req.UserId)].Name),
+			fmt.Sprintf("%d_%s", req.UserID, userResponse.InfoList[uint32(req.UserID)].Name),
 			fmt.Sprint(newFileModel.Uid, file.Ext))
 
 		// 写入文件

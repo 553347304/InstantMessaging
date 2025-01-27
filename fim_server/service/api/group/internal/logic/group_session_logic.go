@@ -39,7 +39,7 @@ func (l *GroupSessionLogic) GroupSession(req *types.GroupSessionRequest) (resp *
 		DB: l.svcCtx.DB.Select("group_id,max(created_at),"+
 			"(select preview from group_message_models as g "+
 			"where g.group_id = g.group_id order by g.created_at desc limit 1)as new_date").
-			Where("group_id in (?)", req.UserId).
+			Where("group_id in (?)", req.UserID).
 			Group("group_id"),
 	}).GetListGroup()
 

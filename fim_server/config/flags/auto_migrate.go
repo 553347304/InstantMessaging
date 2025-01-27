@@ -2,7 +2,6 @@ package flags
 
 import (
 	"fim_server/config"
-	"fim_server/models"
 	"fim_server/models/chat_models"
 	"fim_server/models/file_models"
 	"fim_server/models/group_models"
@@ -35,6 +34,6 @@ func MigrationTable() error {
 
 			&setting_models.ConfigModel{},
 
-			 &models.Test{},
+			 // &models.Test{},
 		)
 }

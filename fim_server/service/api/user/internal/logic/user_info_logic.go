@@ -29,7 +29,7 @@ func NewUserInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserInfo
 func (l *UserInfoLogic) UserInfo(req *types.UserInfoRequest) (resp *types.UserInfoResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: []uint32{uint32(req.UserId)}})
+	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: []uint32{uint32(req.UserID)}})
 	if err != nil {
 		return nil, logs.Error(err.Error())
 	}
@@ -38,7 +38,7 @@ func (l *UserInfoLogic) UserInfo(req *types.UserInfoRequest) (resp *types.UserIn
 	conv.Json().Unmarshal(userResponse.Info.UserConfigModel, &userConfigModel)
 
 	resp = &types.UserInfoResponse{
-		UserId:        uint(userResponse.Info.Id),
+		UserID:        uint(userResponse.Info.Id),
 		Name:          userResponse.Info.Name,
 		Sign:          userResponse.Info.Sign,
 		Avatar:        userResponse.Info.Avatar,

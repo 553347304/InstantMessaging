@@ -29,7 +29,7 @@ func (l *GroupDeleteLogic) GroupDelete(req *types.GroupDeleteRequest) (resp *typ
 	// todo: add your logic here and delete this line
 
 	var groupMember group_models.GroupMemberModel
-	err = l.svcCtx.DB.Preload("GroupModel").Take(&groupMember, "group_id = ? and user_id = ?", req.Id, req.UserId).Error
+	err = l.svcCtx.DB.Preload("GroupModel").Take(&groupMember, "group_id = ? and user_id = ?", req.Id, req.UserID).Error
 	if err != nil {
 		return nil, logs.Error("群不存在或用户不是群成员", err.Error())
 	}

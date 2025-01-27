@@ -15,7 +15,7 @@ type (
 
 type (
 	ChatHistoryRequest {
-		UserId   uint `header:"User-Id"`
+		UserID   uint `header:"User-ID"`
 		Page     int  `form:"page,optional"`
 		limit    int  `form:"limit,optional"`
 		FriendId uint `form:"friend_id"`
@@ -24,13 +24,13 @@ type (
 
 type (
 	ChatSessionRequest {
-		UserId uint   `header:"User-Id"`
+		UserID uint   `header:"User-ID"`
 		Page   int    `form:"page,optional"`
 		Limit  int    `form:"limit,optional"`
 		Key    string `form:"key,optional"`
 	}
 	ChatSession {
-		UserId         uint   `header:"User-Id"`
+		UserID         uint   `header:"User-ID"`
 		Avatar         string `json:"avatar"`
 		Name           string `json:"name"`
 		CreatedAt      string `json:"created_at"`
@@ -45,7 +45,7 @@ type (
 
 type (
 	UserTopRequest {
-		UserId   uint `header:"User-Id"`
+		UserID   uint `header:"User-ID"`
 		FriendId uint `json:"friend_id"`
 	}
 	UserTopResponse  {}
@@ -53,7 +53,7 @@ type (
 
 type (
 	ChatDeleteRequest {
-		UserId uint   `header:"User-Id"`
+		UserID uint   `header:"User-ID"`
 		IdList []uint `json:"id_list"`
 	}
 	ChatDeleteResponse  {}
@@ -61,7 +61,7 @@ type (
 
 type (
 	ChatRequest {
-		UserId uint `header:"User-Id"`
+		UserID uint `header:"User-ID"`
 	}
 	ChatResponse  {}
 )
@@ -85,7 +85,7 @@ service chat {
 
 type (
 	UserInfo {
-		UserId uint   `json:"user_id"`
+		UserID uint   `json:"user_id"`
 		Name   string `json:"name"`
 		Avatar string `json:"avatar"`
 	}

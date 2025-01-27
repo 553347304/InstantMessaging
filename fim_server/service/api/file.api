@@ -6,7 +6,7 @@ type (
 		Url string `json:"url"`
 	}
 	FileRequest {
-		UserId uint `header:"User-Id"`
+		UserID uint `header:"User-ID"`
 	}
 	FileResponse {
 		Src string `json:"src"`

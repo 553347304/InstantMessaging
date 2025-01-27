@@ -29,20 +29,20 @@ func (l *GroupHistoryDeleteLogic) GroupHistoryDelete(req *types.GroupHistoryDele
 	// todo: add your logic here and delete this line
 
 	var member1 group_models.GroupMemberModel
-	err = l.svcCtx.DB.Take(&member1, "group_id = ? and user_id = ?", req.Id, req.UserId).Error
+	err = l.svcCtx.DB.Take(&member1, "group_id = ? and user_id = ?", req.Id, req.UserID).Error
 	if err != nil {
 		return nil, logs.Error("用户不是群成员", err.Error())
 	}
 
 	for _, id := range req.IdList {
-		var deleteUserId group_models.GroupMessageModel
-		is := l.svcCtx.DB.Take(&deleteUserId, "id = ? and delete_user_id not like ?",
-			id, fmt.Sprintf("%%\"%d\"%%", req.UserId)).Error
+		var deleteUserID group_models.GroupMessageModel
+		is := l.svcCtx.DB.Take(&deleteUserID, "id = ? and delete_user_id not like ?",
+			id, fmt.Sprintf("%%\"%d\"%%", req.UserID)).Error
 		// 用户删除列表中没找到就添加
 		if is == nil {
-			deleteUserId.DeleteUserID = append(deleteUserId.DeleteUserID, fmt.Sprint(req.UserId))
-			deleteUserId.DeleteUserID = method.List(deleteUserId.DeleteUserID).Sort(true)
-			l.svcCtx.DB.Updates(&deleteUserId)
+			deleteUserID.DeleteUserID = append(deleteUserID.DeleteUserID, fmt.Sprint(req.UserID))
+			deleteUserID.DeleteUserID = method.List(deleteUserID.DeleteUserID).Sort(true)
+			l.svcCtx.DB.Updates(&deleteUserID)
 		}
 		logs.Info("删除消息ID", id, is == nil)
 	}

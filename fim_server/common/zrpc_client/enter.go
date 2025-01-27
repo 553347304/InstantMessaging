@@ -4,7 +4,7 @@ import (
 	"fim_server/common/zero_middleware"
 	"fim_server/service/rpc/chat/chat_rpc"
 	"fim_server/service/rpc/chat/client/chat"
-	"fim_server/service/rpc/file/file"
+	"fim_server/service/rpc/file/client/file"
 	"fim_server/service/rpc/file/file_rpc"
 	"fim_server/service/rpc/setting/client/setting"
 	"fim_server/service/rpc/setting/setting_rpc"

@@ -20,7 +20,7 @@ type FileListResponse struct {
 }
 
 type FileRequest struct {
-	UserId uint `header:"User-Id"`
+	UserID uint `header:"User-ID"`
 }
 
 type FileResponse struct {

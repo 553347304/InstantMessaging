@@ -4,7 +4,7 @@
 package types
 
 type ChatDeleteRequest struct {
-	UserId uint   `header:"User-Id"`
+	UserID uint   `header:"User-ID"`
 	IdList []uint `json:"id_list"`
 }
 
@@ -20,21 +20,21 @@ type ChatHistoryAdminRequest struct {
 }
 
 type ChatHistoryRequest struct {
-	UserId   uint `header:"User-Id"`
+	UserID   uint `header:"User-ID"`
 	Page     int  `form:"page,optional"`
 	Limit    int  `form:"limit,optional"`
 	FriendId uint `form:"friend_id"`
 }
 
 type ChatRequest struct {
-	UserId uint `header:"User-Id"`
+	UserID uint `header:"User-ID"`
 }
 
 type ChatResponse struct {
 }
 
 type ChatSession struct {
-	UserId         uint   `header:"User-Id"`
+	UserID         uint   `header:"User-ID"`
 	Avatar         string `json:"avatar"`
 	Name           string `json:"name"`
 	CreatedAt      string `json:"created_at"`
@@ -47,7 +47,7 @@ type ChatSessionAdminRequest struct {
 }
 
 type ChatSessionRequest struct {
-	UserId uint   `header:"User-Id"`
+	UserID uint   `header:"User-ID"`
 	Page   int    `form:"page,optional"`
 	Limit  int    `form:"limit,optional"`
 	Key    string `form:"key,optional"`
@@ -72,7 +72,7 @@ type RequestDelete struct {
 }
 
 type UserInfo struct {
-	UserId uint   `json:"user_id"`
+	UserID uint   `json:"user_id"`
 	Name   string `json:"name"`
 	Avatar string `json:"avatar"`
 }
@@ -83,7 +83,7 @@ type UserInfoListResponse struct {
 }
 
 type UserTopRequest struct {
-	UserId   uint `header:"User-Id"`
+	UserID   uint `header:"User-ID"`
 	FriendId uint `json:"friend_id"`
 }
 

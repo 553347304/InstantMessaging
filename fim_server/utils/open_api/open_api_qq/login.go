@@ -7,13 +7,6 @@ import (
 	"net/url"
 )
 
-type LoginConfig struct {
-	Code     string
-	AppID    string
-	AppKey   string
-	Redirect string
-}
-
 type qqResponse struct {
 	Name   string `json:"name"`
 	Gender string `json:"gender"`

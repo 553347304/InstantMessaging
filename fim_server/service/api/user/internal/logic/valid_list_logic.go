@@ -29,7 +29,7 @@ func (l *ValidListLogic) ValidList(req *types.FriendValidListRequest) (resp *typ
 	// todo: add your logic here and delete this line
 
 	fvs := src.Mysql(src.ServiceMysql[user_models.FriendValidModel]{
-		DB:      l.svcCtx.DB.Where("send_user_id = ? or receive_user_id = ?", req.UserId, req.UserId),
+		DB:      l.svcCtx.DB.Where("send_user_id = ? or receive_user_id = ?", req.UserID, req.UserID),
 		Preload: []string{"ReceiveUserModel.UserConfigModel", "SendUserModel.UserConfigModel"},
 		PageInfo: src.PageInfo{
 			Page:  req.Page,
@@ -47,18 +47,18 @@ func (l *ValidListLogic) ValidList(req *types.FriendValidListRequest) (resp *typ
 			CreatedAt:    fv.CreatedAt.String(),
 		}
 
-		if fv.SendUserId == req.UserId {
+		if fv.SendUserID == req.UserID {
 			// 发起方
-			info.UserId = fv.SendUserId
+			info.UserID = fv.SendUserID
 			info.Name = fv.SendUserModel.Name
 			info.Avatar = fv.SendUserModel.Avatar
 			info.Auth = fv.SendUserModel.UserConfigModel.Valid
 			info.Status = fv.SendStatus
 			info.Flag = "send"
 		}
-		if fv.ReceiveUserId == req.UserId {
+		if fv.ReceiveUserID == req.UserID {
 			// 接收方
-			info.UserId = fv.ReceiveUserId
+			info.UserID = fv.ReceiveUserID
 			info.Name = fv.ReceiveUserModel.Name
 			info.Avatar = fv.ReceiveUserModel.Avatar
 			info.Auth = fv.ReceiveUserModel.UserConfigModel.Valid

@@ -30,7 +30,7 @@ func (l *UserListLogic) UserOnlineList() map[uint]bool {
 	var userOnlineMap = map[uint]bool{}
 	userOnlineResponse, err1 := l.svcCtx.UserRpc.User.UserOnlineList(l.ctx, &user_rpc.Empty{})
 	if err1 == nil {
-		for _, u := range userOnlineResponse.UserIdList {
+		for _, u := range userOnlineResponse.UserIDList {
 			userOnlineMap[uint(u)] = true
 		}
 	} else {
@@ -52,16 +52,16 @@ func (l *UserListLogic) UserList(req *types.RequestPageInfo) (resp *response.Lis
 		},
 	}).GetList()
 	resp = new(response.List[types.UserListInfoResponse])
-	var userIdList []uint32
+	var UserIDList []uint32
 	for _, model := range result.List {
-		userIdList = append(userIdList, uint32(model.ID))
+		UserIDList = append(UserIDList, uint32(model.ID))
 	}
 
 	userOnlineMap := l.UserOnlineList()
 
-	userGroupCreateTotal, _ := l.svcCtx.GroupRpc.UserGroupSearch(l.ctx, &group_rpc.UserGroupSearchRequest{UserIdList: userIdList, Mode: 1})
-	userGroupAddTotal, _ := l.svcCtx.GroupRpc.UserGroupSearch(l.ctx, &group_rpc.UserGroupSearchRequest{UserIdList: userIdList, Mode: 2})
-	chatResponse, _ := l.svcCtx.ChatRpc.UserListChatTotal(l.ctx, &chat_rpc.UserListChatTotalRequest{UserIdList: userIdList})
+	userGroupCreateTotal, _ := l.svcCtx.GroupRpc.UserGroupSearch(l.ctx, &group_rpc.UserGroupSearchRequest{UserIDList: UserIDList, Mode: 1})
+	userGroupAddTotal, _ := l.svcCtx.GroupRpc.UserGroupSearch(l.ctx, &group_rpc.UserGroupSearchRequest{UserIDList: UserIDList, Mode: 2})
+	chatResponse, _ := l.svcCtx.ChatRpc.UserListChatTotal(l.ctx, &chat_rpc.UserListChatTotalRequest{UserIDList: UserIDList})
 
 	for _, model := range result.List {
 		info := types.UserListInfoResponse{

@@ -38,7 +38,7 @@ func (l *ChatSessionAdminLogic) ChatSessionAdmin(req *types.ChatSessionAdminRequ
 	resp = new(types.UserInfoListResponse)
 	for u, info := range userRpc.InfoList {
 		resp.List = append(resp.List, types.UserInfo{
-			UserId: uint(u),
+			UserID: uint(u),
 			Avatar: info.Avatar,
 			Name:   info.Name,
 		})

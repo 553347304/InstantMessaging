@@ -11,38 +11,48 @@ import (
 
 const (
 	ip     = "ip"
-	userId = "user_id"
+	UserID = "user_id"
 )
 
-type responseWriter struct {
+type Writer struct {
 	http.ResponseWriter
-	StatusCode int
-	Body       []byte
+	Body []byte
 }
 
-func (w *responseWriter) Write(data []byte) (int, error) {
-	w.Body = data
+func (w *Writer) Write(data []byte) (int, error) {
+	w.Body = append(w.Body, data...)
 	return w.ResponseWriter.Write(data)
 }
 
 func ClientInterceptor(ctx context.Context, method string, req, reply any, cc *grpc.ClientConn, invoker grpc.UnaryInvoker, opts ...grpc.CallOption) error {
 	ctx = metadata.NewOutgoingContext(context.Background(), metadata.New(map[string]string{
 		ip:     ctx.Value(ip).(string),
-		userId: ctx.Value(userId).(string),
+		UserID: ctx.Value(UserID).(string),
 	}))
 	err := invoker(ctx, method, req, reply, cc, opts...)
 	return err
 }
 
-func UseMiddleware(l service_method.ServerInterfaceLog) func(next http.HandlerFunc) http.HandlerFunc {
+
+func UseMiddlewareActionLog(l service_method.ServerInterfaceLog) func(next http.HandlerFunc) http.HandlerFunc {
 	return func(next http.HandlerFunc) http.HandlerFunc {
 		return func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 			ctx = context.WithValue(ctx, ip, httpx.GetRemoteAddr(r))
-			ctx = context.WithValue(ctx, userId, r.Header.Get("User-Id"))
-			writer := responseWriter{ResponseWriter: w}
+			ctx = context.WithValue(ctx, UserID, r.Header.Get("User-ID"))
+			writer := Writer{ResponseWriter: w}
 			next(&writer, r.WithContext(ctx))
 			l.Info(ctx, l.Response(w, r, writer.Body))
 		}
 	}
+}
+
+func UseMiddleware(next http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+			ctx := r.Context()
+			ctx = context.WithValue(ctx, ip, httpx.GetRemoteAddr(r))
+			ctx = context.WithValue(ctx, UserID, r.Header.Get("User-ID"))
+			next(w, r.WithContext(ctx))
+		}
+
 }

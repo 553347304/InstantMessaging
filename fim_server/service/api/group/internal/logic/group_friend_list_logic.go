@@ -29,7 +29,7 @@ func NewGroupFriendListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *G
 func (l *GroupFriendListLogic) GroupFriendList(req *types.GroupFriendsListRequest) (resp *types.GroupFriendsListResponse, err error) {
 	// todo: add your logic here and delete this line
 
-	friendListResponse, err := l.svcCtx.UserRpc.Friend.FriendList(l.ctx, &user_rpc.ID{Id: uint32(req.UserId)})
+	friendListResponse, err := l.svcCtx.UserRpc.Friend.FriendList(l.ctx, &user_rpc.ID{Id: uint32(req.UserID)})
 	if err != nil {
 		return nil, logs.Error(err)
 	}
@@ -37,12 +37,12 @@ func (l *GroupFriendListLogic) GroupFriendList(req *types.GroupFriendsListReques
 	l.svcCtx.DB.Find(&memberList, "group_id = ?", req.Id)
 	var memberMap = map[uint]bool{}
 	for _, model := range memberList {
-		memberMap[model.UserId] = true
+		memberMap[model.UserID] = true
 	}
 	resp = new(types.GroupFriendsListResponse)
 	for _, info := range friendListResponse.FriendList {
 		resp.List = append(resp.List, types.GroupFriendsInfo{
-			UserId:    uint(info.Id),
+			UserID:    uint(info.Id),
 			Avatar:    info.Avatar,
 			Name:      info.Name,
 			IsInGroup: memberMap[uint(info.Id)],
