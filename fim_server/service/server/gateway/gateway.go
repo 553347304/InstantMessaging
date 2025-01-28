@@ -54,8 +54,6 @@ func auth(req *http.Request) error {
 	}
 	
 	var authResponse Data
-	
-	logs.Info(authResult.Body)
 	byteData, _ := io.ReadAll(authResult.Body)
 	err = json.Unmarshal(byteData, &authResponse)
 	if err != nil {
@@ -70,8 +68,6 @@ func auth(req *http.Request) error {
 		req.Header.Set("User-ID", fmt.Sprint(authResponse.Data.UserID))
 		req.Header.Set("Role", fmt.Sprint(authResponse.Data.Role))
 	}
-	logs.Info(authResponse.Data)
-	
 	return nil
 }
 

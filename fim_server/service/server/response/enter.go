@@ -13,12 +13,11 @@ type Body struct {
 
 func Response(r *http.Request, w http.ResponseWriter, resp interface{}, err error) {
 	if err == nil {
-		r := &Body{
+		httpx.WriteJson(w, http.StatusOK, &Body{
 			Code:    0,
 			Message: "ok",
 			Data:    resp,
-		}
-		httpx.WriteJson(w, http.StatusOK, r)
+		})
 		return
 	}
 

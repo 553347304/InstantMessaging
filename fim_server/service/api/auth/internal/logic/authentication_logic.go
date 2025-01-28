@@ -40,6 +40,7 @@ func (l *AuthenticationLogic) Authentication(req *types.AuthenticationRequest) (
 		err = logs.Error("认证失败: " + req.Token)
 		return
 	}
+	logs.Info(claims)
 
 	_, err = l.svcCtx.Redis.Get(fmt.Sprintf("logout_%s", req.Token)).Result()
 	if err == nil {
