@@ -4,8 +4,6 @@ import (
 	"gopkg.in/gomail.v2"
 )
 
-
-
 func SendEmail(e EmailConfig) error {
 	m := gomail.NewMessage()
 	m.SetHeader("From", m.FormatAddress(e.SendUser, e.ReceiveUser))
@@ -16,4 +14,3 @@ func SendEmail(e EmailConfig) error {
 	err := d.DialAndSend(m)
 	return err
 }
-

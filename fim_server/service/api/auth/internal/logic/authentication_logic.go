@@ -2,14 +2,15 @@ package logic
 
 import (
 	"context"
-	"fim_server/utils/encryption_and_decryptio/jwts"
+	"fim_server/models/mtype"
 	"fim_server/utils/stores/logs"
 	"fim_server/utils/stores/method"
+	"fim_server/utils/stores/valid"
 	"fmt"
-
+	
 	"fim_server/service/api/auth/internal/svc"
 	"fim_server/service/api/auth/internal/types"
-
+	
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -35,11 +36,13 @@ func (l *AuthenticationLogic) Authentication(req *types.AuthenticationRequest) (
 		return nil, nil
 	}
 
-	claims := jwts.ParseToken(req.Token)
+	
+	claims := valid.Jwt().Parse(req.Token)
 	if claims == nil {
 		err = logs.Error("认证失败: " + req.Token)
 		return
 	}
+	c := claims.PayLoad.(mtype.PayLoad)
 	logs.Info(claims)
 
 	_, err = l.svcCtx.Redis.Get(fmt.Sprintf("logout_%s", req.Token)).Result()
@@ -48,8 +51,8 @@ func (l *AuthenticationLogic) Authentication(req *types.AuthenticationRequest) (
 	}
 
 	resp = &types.AuthenticationResponse{
-		UserID: claims.UserID,
-		Role:   claims.Role,
+		UserID: c.UserID,
+		Role:   c.Role,
 	}
 	logs.Info("认证成功", resp)
 	return resp, nil

@@ -1,33 +1,62 @@
 package logs
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"os"
 )
 
 var c = struct {
-	Line  int
 	Info  string
+	Warn  string
 	Error string
 	Time  string
 }{
-	Line:  1,
 	Time:  "15:04:05",
 	Info:  "#80ffff",
+	Warn:  "#DFAD49",
 	Error: "#F75464",
 }
 
-func Info(s ...interface{}) string {
-	return log(getLine(), c.Info, s...).Info()
+func Info(s ...interface{}) string{
+	fmt.Println(l.time(), l.line()[0], l.color(l.ip(l.string(s...)), c.Info))
+	return l.string(s...)
 }
-func InfoF(sf string, s ...interface{}) string {
-	return log(getLine(), c.Info, fmt.Sprintf(sf, s...)).Info()
+func InfoF(sf string, s ...interface{}) {
+	fmt.Println(l.time(), l.line()[0], l.color(l.ip(fmt.Sprintf(sf, s...)), c.Info))
+}
+func Warn(s ...interface{}) {
+	fmt.Println(l.time(), l.line()[0], l.color(l.ip(l.string(s...)), c.Warn))
+}
+func WarnF(sf string, s ...interface{}) {
+	fmt.Println(l.time(), l.line()[0], l.color(l.ip(fmt.Sprintf(sf, s...)), c.Warn))
 }
 func Error(s ...interface{}) error {
-	return errors.New(log(getLine(), c.Error, s...).Error())
+	l.error(l.line(), s...)
+	return errors.New(l.string(s...))
 }
 func Fatal(s ...interface{}) {
-	log(getLine(), c.Error, s...).Error()
+	l.error(l.line(), s...)
 	os.Exit(0)
+}
+func Json(s interface{}) {
+	marshal, err := json.MarshalIndent(s, "", "\t") // 转格式化后json
+	if err != nil {
+		l.error(l.line(), s)
+		return
+	}
+	Info(string(marshal))
+}
+func Progress(min int64, max int64, char string) {
+	percentage := int(float64(min) / float64(max) * 100)
+	var _char string
+	for i := 0; i < percentage/2; i++ {
+		_char += char
+	}
+	fmt.Printf("\r进度: [%-50s] %d%%   %d/%d", _char, percentage, min, max)
+
+	if percentage == 100 {
+		fmt.Println()
+	}
 }

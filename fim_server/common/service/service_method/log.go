@@ -5,9 +5,9 @@ import (
 	"context"
 	"fim_server/models/log_models"
 	"fim_server/models/user_models"
+	"fim_server/utils/open_api/open_api_info"
 	"fim_server/utils/src"
 	"fim_server/utils/stores/conv"
-	"fim_server/utils/stores/method"
 	"fmt"
 	"gorm.io/gorm"
 	"io"
@@ -41,7 +41,7 @@ func Log(serviceName string, mode int) ServerInterfaceLog {
 	return &serverLog{
 		Service: serviceName,
 		Type:    maps[mode],
-		DB:      src.Client().Mysql("root:baiyin@tcp(127.0.0.1:3306)/fim_db?charset=utf8mb4&parseTime=True&loc=Local"),
+		DB:      src.Client().Mysql("127.0.0.1:3306 baiyin fim_db"),
 	}
 }
 
@@ -82,8 +82,9 @@ func (p *serverLog) Save(ctx context.Context, level, content string) {
 	if p.UserID == "" {
 		return
 	}
+	
 	p.IP = ctx.Value("ip").(string)
-	addr := method.Addr().GetAddr(p.IP)
+	addr := open_api_info.GetAddrByIP(p.IP)
 	UserID := conv.Type(p.UserID).Uint()
 	var user user_models.UserModel
 	mutex := sync.Mutex{}

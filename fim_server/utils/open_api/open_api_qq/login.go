@@ -2,7 +2,8 @@ package open_api_qq
 
 import (
 	"fim_server/utils/stores/conv"
-	"fim_server/utils/stores/method"
+	"fim_server/utils/stores/https"
+	"fim_server/utils/stores/logs"
 	"fmt"
 	"net/url"
 )
@@ -17,7 +18,7 @@ type qqResponse struct {
 
 func Login(qq LoginConfig) qqResponse {
 	// 获取token和openID
-	r := method.Http("https://graph.qq.com/oauth2.0/token").Get(map[string]any{
+	r := https.Get("https://graph.qq.com/oauth2.0/token", nil, map[string]any{
 		"code":          qq.Code,
 		"client_id":     qq.AppID,
 		"client_secret": qq.AppKey,
@@ -26,22 +27,22 @@ func Login(qq LoginConfig) qqResponse {
 		"need_openid":   1,
 	})
 	if r.Error != nil {
-		return qqResponse{Error: r.Error}
+		return qqResponse{Error: logs.Error(r.Error)}
 	}
 	v, _ := url.ParseQuery(string(r.Body))
 	accessToken := v.Get("access_token")
 	openID := v.Get("openid")
-	
+
 	// 获取用户信息
-	info := method.Http("https://graph.qq.com/user/get_user_info").Get(map[string]any{
+	info := https.Get("https://graph.qq.com/user/get_user_info", nil, map[string]any{
 		"oauth_consumer_key": qq.AppID,
 		"access_token":       accessToken,
 		"openid":             openID,
 	})
 	if info.Error != nil {
-		return qqResponse{Error: info.Error}
+		return qqResponse{Error: logs.Error(info.Error)}
 	}
-	
+
 	var user = make(map[string]any)
 	conv.Json().Unmarshal(info.Body, &user)
 	return qqResponse{

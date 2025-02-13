@@ -2,14 +2,15 @@ package logic
 
 import (
 	"context"
+	"fim_server/models/mtype"
 	"fim_server/models/setting_models"
 	"fim_server/models/user_models"
 	"fim_server/service/rpc/setting/setting_rpc"
 	"fim_server/service/rpc/user/user_rpc"
-	"fim_server/utils/encryption_and_decryptio/jwts"
 	"fim_server/utils/open_api/open_api_qq"
 	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
+	"fim_server/utils/stores/valid"
 	"fmt"
 	
 	"fim_server/service/api/auth/internal/svc"
@@ -92,12 +93,14 @@ func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.L
 		user.Name = info.Name
 	}
 	// 登录
-	token, err := jwts.GenToken(jwts.PayLoad{
+	
+	
+	token := valid.Jwt().Hash(mtype.PayLoad{
 		UserID: user.ID,
 		Name:   user.Name,
 		Role:   user.Role,
 	})
-	if err != nil {
+	if token == "" {
 		logx.Error(err)
 		return nil, logs.Error("服务器内部错误")
 	}

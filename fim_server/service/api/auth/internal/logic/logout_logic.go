@@ -2,10 +2,10 @@ package logic
 
 import (
 	"context"
-	"fim_server/utils/encryption_and_decryptio/jwts"
+	"fim_server/utils/stores/valid"
 	"fmt"
 	"time"
-
+	
 	"fim_server/service/api/auth/internal/svc"
 	"github.com/zeromicro/go-zero/core/logx"
 )
@@ -27,7 +27,8 @@ func NewLogoutLogic(ctx context.Context, svcCtx *svc.ServiceContext) *LogoutLogi
 func (l *LogoutLogic) Logout(token string) (resp string, err error) {
 	// todo: add your logic here and delete this line
 
-	claims := jwts.ParseToken(token)
+	
+	claims := valid.Jwt().Parse(token)
 	if claims == nil {
 		return
 	}

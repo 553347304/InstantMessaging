@@ -3,10 +3,9 @@ package admin
 import (
 	"context"
 	"fim_server/models/file_models"
-	"fim_server/utils/stores/method"
-
 	"fim_server/service/api/file/internal/svc"
 	"fim_server/service/api/file/internal/types"
+	"fim_server/utils/stores/files"
 )
 
 type FileDeleteLogic struct {
@@ -28,7 +27,7 @@ func (l *FileDeleteLogic) FileDelete(req *types.RequestDelete) (resp *types.Empt
 	l.svcCtx.DB.Find(&fileList, "id in ?", req.IdList).Delete(&fileList)
 
 	for _, model := range fileList {
-		method.File(model.Path).Delete()
+		files.Delete(model.Path)
 	}
 
 	return

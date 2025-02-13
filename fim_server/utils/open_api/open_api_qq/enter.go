@@ -1,10 +1,10 @@
 package open_api_qq
 
 type LoginConfig struct {
-	Code     string
+	Code     string // 返回的code码
 	AppID    string
 	AppKey   string
-	Redirect string
+	Redirect string // 网站回调域
 }
 
 type EmailConfig struct {

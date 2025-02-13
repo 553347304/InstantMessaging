@@ -2,10 +2,10 @@ package logic
 
 import (
 	"context"
+	"fim_server/models/mtype"
 	"fim_server/models/user_models"
-	"fim_server/utils/encryption_and_decryptio/bcrypts"
-	"fim_server/utils/encryption_and_decryptio/jwts"
 	"fim_server/utils/stores/logs"
+	"fim_server/utils/stores/valid"
 	
 	"fim_server/service/api/auth/internal/svc"
 	"fim_server/service/api/auth/internal/types"
@@ -32,17 +32,18 @@ func (l *LoginLogic) Login(req *types.LoginRequest) (resp *types.LoginResponse, 
 		return nil, logs.Error("用户名错误")
 	}
 
-	if !bcrypts.Check(user.Password, req.Password) {
+	
+	if !valid.Bcrypt().Check(user.Password, req.Password) {
 		l.svcCtx.RpcLog.Info(l.ctx, "密码错误: "+req.Password)
 		return nil, logs.Error("密码错误")
 	}
 
-	token, err := jwts.GenToken(jwts.PayLoad{
+	token := valid.Jwt().Hash(mtype.PayLoad{
 		UserID: user.ID,
 		Name:   user.Name,
 		Role:   user.Role,
 	})
-	if err != nil {
+	if token == "" {
 		l.svcCtx.RpcLog.Info(l.ctx, "用户登录成功")
 		return nil, logs.Error("登录服务内部错误")
 	}

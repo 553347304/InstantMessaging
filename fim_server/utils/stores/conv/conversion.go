@@ -1,17 +1,18 @@
 package conv
 
 import (
+	"fim_server/utils/stores/logs"
 	"cmp"
 	"errors"
-	"fim_server/utils/stores/logs"
 	"fmt"
 	"strconv"
 )
 
 type serverInterfaceType interface {
 	String() string
-	Int() int   // 转换错误:-1
-	Uint() uint // 转换错误:0
+	Uint() uint       // 转换错误:0
+	Int() int         // 转换错误:-1
+	Float64() float64 // 转换错误:-1
 	Error() error
 }
 type serverType struct{ Value string }
@@ -40,6 +41,17 @@ func (s *serverType) Uint() uint {
 	}
 	return uint(number)
 }
+func (s *serverType) Float64() float64 {
+	rounded, err := strconv.ParseFloat(s.Value, 64)
+	if err != nil {
+		fmt.Println("转换错误:", err)
+		return -1
+	}
+	return rounded
+}
 func (s *serverType) Error() error {
+	if s.Value == "" {
+		return nil
+	}
 	return errors.New(s.Value)
 }
