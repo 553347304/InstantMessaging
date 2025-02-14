@@ -6,8 +6,8 @@ import (
 	"fim_server/service/api/group/internal/svc"
 	"fim_server/service/api/group/internal/types"
 	"fim_server/utils/src"
-	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
+	"fim_server/utils/stores/method"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -29,22 +29,24 @@ func (l *GroupMeListLogic) GroupMeList(req *types.GroupMeListRequest) (resp *typ
 	// todo: add your logic here and delete this line
 	var groupIdList []uint
 	// 我加入的群聊
-	query := l.svcCtx.DB.Model(&group_models.GroupMemberModel{}).Where("user_id = ?", req.UserID)
+	query := l.svcCtx.DB.Model(&group_models.GroupMemberModel{}).Where("user_id = ?", req.UserId)
 	if req.Mode == 1 {
 		query.Where("role = ?", 1) // 我创建的群聊
 	}
 	query.Select("group_id").Scan(&groupIdList)
-
+	
+	var pageInfo src.PageInfo
+	method.Struct().To(req.PageInfo, &pageInfo)
 	groups := src.Mysql(src.ServiceMysql[group_models.GroupModel]{
 		DB:       l.svcCtx.DB.Where("id in ?", groupIdList),
-		PageInfo: conv.Struct(src.PageInfo{}).Type(req.PageInfo),
+		PageInfo: pageInfo,
 	}).GetList()
 
 	resp = new(types.GroupMeListResponse)
 	for _, model := range groups.List {
-		var role int8
+		var role int32
 		for _, memberModel := range model.MemberList {
-			if memberModel.UserID == req.UserID {
+			if memberModel.UserId == req.UserId {
 				role = memberModel.Role
 			}
 		}

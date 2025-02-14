@@ -5,9 +5,9 @@ import (
 	"fim_server/models/user_models"
 	"fim_server/service/api/user/internal/svc"
 	"fim_server/service/api/user/internal/types"
-	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
-
+	"fim_server/utils/stores/method"
+	
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -29,7 +29,7 @@ func (l *ValidIssueLogic) ValidIssue(req *types.ValidIssueRequest) (resp *types.
 	// todo: add your logic here and delete this line
 
 	var friend user_models.FriendModel
-	if friend.IsFriend(l.svcCtx.DB, req.UserID, req.Id) {
+	if friend.IsFriend(l.svcCtx.DB, req.UserId, req.Id) {
 		return nil, logs.Error("已经是好友了")
 	}
 
@@ -38,8 +38,13 @@ func (l *ValidIssueLogic) ValidIssue(req *types.ValidIssueRequest) (resp *types.
 	if err != nil {
 		return nil, logs.Error("用户不存在")
 	}
+	
+	var validInfo types.ValidInfo
+	method.Struct().To(userConfig.ValidInfo,&validInfo)
+	
 	resp = new(types.ValidIssueResponse)
 	resp.Valid = userConfig.Valid
-	resp.ValidInfo = conv.Struct(types.ValidInfo{}).Type(userConfig.ValidInfo)
+	resp.ValidInfo = validInfo
+
 	return
 }

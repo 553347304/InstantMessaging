@@ -20,11 +20,14 @@ type (
 	ID                     = user_rpc.ID
 	IdList                 = user_rpc.IdList
 	IsFriendRequest        = user_rpc.IsFriendRequest
+	Top                    = user_rpc.Top
+	UserConfig             = user_rpc.UserConfig
 	UserCreateRequest      = user_rpc.UserCreateRequest
 	UserCreateResponse     = user_rpc.UserCreateResponse
 	UserInfo               = user_rpc.UserInfo
 	UserInfoResponse       = user_rpc.UserInfoResponse
 	UserOnlineListResponse = user_rpc.UserOnlineListResponse
+	ValidInfo              = user_rpc.ValidInfo
 
 	User interface {
 		UserCreate(ctx context.Context, in *UserCreateRequest, opts ...grpc.CallOption) (*UserCreateResponse, error)

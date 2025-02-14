@@ -13,6 +13,7 @@ import (
 	"fim_server/utils/src"
 	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
+	"fim_server/utils/stores/method"
 	"fmt"
 	"net/http"
 	"strings"
@@ -28,10 +29,10 @@ type UserWebsocketInfo struct {
 	WebsocketClientMap map[string]*websocket.Conn // 用户管理所有客户端
 }
 
-var UserOnlineWebsocketMap = make(map[uint]*UserWebsocketInfo)
+var UserOnlineWebsocketMap = make(map[uint64]*UserWebsocketInfo)
 
 type chatRequest struct {
-	ReceiveId uint          `json:"receive_id"`
+	ReceiveId uint64        `json:"receive_id"`
 	Type      mtype.Int8    `json:"type"`
 	Message   mtype.Message `json:"message"`
 }
@@ -61,8 +62,8 @@ func (m *Message) Error(err string) error {
 }
 func (m *Message) InsertDatabase() error {
 	chatModel := chat_models.ChatModel{
-		SendUserID:    m.Req.UserID,
-		ReceiveUserID: m.Request.ReceiveId,
+		SendUserId:    m.Req.UserId,
+		ReceiveUserId: m.Request.ReceiveId,
 		Type:          m.Request.Type,
 		Message:       m.Request.Message,
 	}
@@ -77,14 +78,14 @@ func (m *Message) InsertDatabase() error {
 func (m *Message) sendMessage(conn *websocket.Conn, t mtype.Int8, message mtype.Message, isMe bool) {
 	conn.WriteMessage(websocket.TextMessage, conv.Json().Marshal(chatResponse{
 		SendUser: mtype.UserInfo{
-			ID:     m.Send.UserInfo.ID,
-			Name:   m.Send.UserInfo.Name,
-			Avatar: m.Send.UserInfo.Avatar,
+			UserId:   m.Send.UserInfo.ID,
+			Username: m.Send.UserInfo.Username,
+			Avatar:   m.Send.UserInfo.Avatar,
 		},
 		ReceiveUser: mtype.UserInfo{
-			ID:     m.Receive.UserInfo.ID,
-			Name:   m.Receive.UserInfo.Name,
-			Avatar: m.Receive.UserInfo.Avatar,
+			UserId:   m.Receive.UserInfo.ID,
+			Username: m.Receive.UserInfo.Username,
+			Avatar:   m.Receive.UserInfo.Avatar,
 		},
 		Type:      t,
 		Message:   message,
@@ -105,7 +106,7 @@ func (m *Message) SendALLMember() error {
 	}
 	_, ok1 := UserOnlineWebsocketMap[m.Request.ReceiveId] // 对付是否在线
 	m.SendUser(m.Request.Type, m.Request.Message)         // 给自己发
-	if ok1 && m.Request.ReceiveId != m.Req.UserID {
+	if ok1 && m.Request.ReceiveId != m.Req.UserId {
 		m.SendReceive(m.Request.Type, m.Request.Message) // 给对方发
 	}
 	return nil
@@ -151,11 +152,11 @@ func (m *Message) isMessageWithdraw() error {
 	if chatModel.Type == mtype.MessageType.IsWithdraw {
 		return m.Error("消息已经被撤回了")
 	}
-	if m.Req.UserID != m.Request.ReceiveId {
+	if m.Req.UserId != m.Request.ReceiveId {
 		return m.Error("只能撤回自己的消息")
 	}
 	// 自己撤回
-	if m.Req.UserID == m.Request.ReceiveId {
+	if m.Req.UserId == m.Request.ReceiveId {
 		now := time.Now()
 		if now.Sub(chatModel.CreatedAt) > 2*time.Minute {
 			return m.Error("撤回消息时间超过两分钟")
@@ -191,7 +192,7 @@ func (m *Message) isMessageVideoCall() error {
 		return m.Error("对方不在线")
 	}
 	
-	key := fmt.Sprintf("%d_%d", m.Req.UserID, m.Request.ReceiveId)
+	key := fmt.Sprintf("%d_%d", m.Req.UserId, m.Request.ReceiveId)
 	switch r.Flag {
 	case 0:
 		logs.Info("init")
@@ -245,7 +246,7 @@ func (m *Message) isMessage() error {
 	return nil
 }
 func (m *Message) isBan() error {
-	is, _ := m.svcCtx.UserRpc.Curtail.IsCurtail(m.ctx, &user_rpc.ID{Id: uint32(m.Req.UserID)})
+	is, _ := m.svcCtx.UserRpc.Curtail.IsCurtail(m.ctx, &user_rpc.ID{Id: m.Req.UserId})
 	if is != nil && is.CurtailChat != "" {
 		return m.Error(is.CurtailChat)
 	}
@@ -260,12 +261,12 @@ func (m *Message) Init(p []byte) error {
 		return m.Error("参数解析失败")
 	}
 	
-	_, err := m.svcCtx.UserRpc.Friend.IsFriend(m.ctx, &user_rpc.IsFriendRequest{User1: uint32(m.Req.UserID), User2: uint32(m.Request.ReceiveId)})
+	_, err := m.svcCtx.UserRpc.Friend.IsFriend(m.ctx, &user_rpc.IsFriendRequest{User1: uint32(m.Req.UserId), User2: uint32(m.Request.ReceiveId)})
 	if err != nil {
 		return m.Error(err.Error())
 	}
 	
-	sendUser, ok1 := UserOnlineWebsocketMap[m.Req.UserID]
+	sendUser, ok1 := UserOnlineWebsocketMap[m.Req.UserId]
 	if !ok1 {
 		return m.Error("发送人不存在")
 	}
@@ -280,40 +281,39 @@ func (m *Message) Init(p []byte) error {
 func (m *Message) Head() error {
 	
 	// 获取用户信息
-	userRpc, err := m.svcCtx.UserRpc.User.UserInfo(m.ctx, &user_rpc.IdList{Id: []uint32{uint32(m.Req.UserID)}})
+	userRpc, err := m.svcCtx.UserRpc.User.UserInfo(m.ctx, &user_rpc.IdList{Id: []uint64{m.Req.UserId}})
 	if err != nil {
 		return m.Error(err.Error())
 	}
 	
-	var userConfigModel user_models.UserConfigModel
-	conv.Json().Unmarshal(userRpc.Info.UserConfigModel, &userConfigModel)
-	
 	// 第一次进入  将用户信息存入map
-	UserOnlineWebsocketMap[m.Req.UserID] = &UserWebsocketInfo{
+	var user user_models.UserModel
+	method.Struct().To(userRpc.Info, &user)
+	UserOnlineWebsocketMap[m.Req.UserId] = &UserWebsocketInfo{
 		Conn:     m.Conn,
-		UserInfo: conv.Struct(user_models.UserModel{}).Type(userRpc.Info),
+		UserInfo: user,
 		WebsocketClientMap: map[string]*websocket.Conn{
 			m.Conn.RemoteAddr().String(): m.Conn,
 		},
 	}
 	
 	// Redis存入在线用户
-	m.svcCtx.Redis.HSet("user_online", fmt.Sprint(m.Req.UserID), m.Req.UserID)
+	m.svcCtx.Redis.HSet("user_online", fmt.Sprint(m.Req.UserId), m.Req.UserId)
 	
-	friendRpc, err := m.svcCtx.UserRpc.Friend.FriendList(context.Background(), &user_rpc.ID{Id: uint32(m.Req.UserID)})
+	friendRpc, err := m.svcCtx.UserRpc.Friend.FriendList(context.Background(), &user_rpc.ID{Id: m.Req.UserId})
 	if err != nil {
 		return m.Error(err.Error())
 	}
 	
-	logs.Info("用户上线", m.Req.UserID, userRpc.Info.Name)
+	logs.Info("用户上线", m.Req.UserId, userRpc.Info.Username)
 	
 	for _, f := range friendRpc.FriendList {
 		
-		if uint(f.Id) == m.Req.UserID {
+		if f.Id == m.Req.UserId {
 			continue // 剔除自己
 		}
 		
-		friend, ok := UserOnlineWebsocketMap[uint(f.Id)]
+		friend, ok := UserOnlineWebsocketMap[f.Id]
 		if ok {
 			// 好友上线了
 			if friend.UserInfo.UserConfigModel.FriendOnline {
@@ -321,7 +321,7 @@ func (m *Message) Head() error {
 					Type: mtype.MessageType.Text,
 					Message: mtype.Message{
 						MessageText: &mtype.MessageText{
-							Content: UserOnlineWebsocketMap[m.Req.UserID].UserInfo.Name + "上线了",
+							Content: UserOnlineWebsocketMap[m.Req.UserId].UserInfo.Username + "上线了",
 						},
 					},
 					CreatedAt: time.Now(),
@@ -340,12 +340,12 @@ func (m *Message) Defer() {
 		logs.Error("断开链接")
 		m.Conn.Close()
 		addr := m.Conn.RemoteAddr().String()
-		userWsInfo, ok := UserOnlineWebsocketMap[m.Req.UserID]
+		userWsInfo, ok := UserOnlineWebsocketMap[m.Req.UserId]
 		if ok {
 			delete(userWsInfo.WebsocketClientMap, addr) // 删除退出的ws信息
 		}
-		delete(UserOnlineWebsocketMap, m.Req.UserID)
-		m.svcCtx.Redis.HDel("user_online", fmt.Sprint(m.Req.UserID)) // Redis删除在线用户
+		delete(UserOnlineWebsocketMap, m.Req.UserId)
+		m.svcCtx.Redis.HDel("user_online", fmt.Sprint(m.Req.UserId)) // Redis删除在线用户
 	}()
 }
 

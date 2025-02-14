@@ -9,8 +9,8 @@ type imageCodeServiceInterface interface {
 	Check(string, string) bool    // 验证   id | value
 }
 type jwtServiceInterface interface {
-	Hash(interface{}) string // 加密 token
-	Parse(string) *claims    // 解析 token
+	Hash(PayLoad) string  // 加密 token
+	Parse(string) *claims // 解析 token | scan
 }
 type md5ServiceInterface interface {
 	Hash(string) string        // 加密	value
@@ -30,3 +30,9 @@ func Bcrypt() bcryptServiceInterface       { return &bcryptService{} }
 func ImageCode() imageCodeServiceInterface { return &imageCodeService{} }
 func Jwt() jwtServiceInterface             { return &jwtService{key: "key", expires: 480, issuer: "baiyin"} }
 func MD5() md5ServiceInterface             { return &md5Service{} }
+
+type PayLoad struct {
+	UserId   uint64   `json:"user_id"`
+	Username string `json:"username"` // 用户名
+	Role     int32  `json:"role"`     // 权限  
+}

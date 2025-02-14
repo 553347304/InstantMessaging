@@ -29,20 +29,20 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 	// todo: add your logic here and delete this line
 
 	var groupModel = group_models.GroupModel{
-		Leader:   req.UserID,
+		Leader:   req.UserId,
 		IsSearch: false,
 		Valid:    2,
 		Size:     50,
 		Sign:     fmt.Sprintf("本群创建于%s  群主很聪明,什么都没有留下", method.Time().Now),
 	}
 
-	is, _ := l.svcCtx.UserRpc.Curtail.IsCurtail(l.ctx, &user_rpc.ID{Id: uint32(req.UserID)})
+	is, _ := l.svcCtx.UserRpc.Curtail.IsCurtail(l.ctx, &user_rpc.ID{Id: req.UserId})
 	if is != nil && is.CurtailCreateGroup != "" {
 		return nil, conv.Type(is.CurtailCreateGroup).Error()
 	}
 	
 
-	var groupUserList = []uint{req.UserID}
+	var groupUserList = []uint64{req.UserId}
 	switch req.Mode {
 	case 1:
 		if req.Name == "" || req.Size >= 1000 {
@@ -56,9 +56,9 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 			return nil, logs.Error("没有选择的好友")
 		}
 
-		var UserIDList = []uint32{uint32(req.UserID)} // 先把自己放进去
+		var UserIDList = []uint64{req.UserId} // 先把自己放进去
 		for _, u := range req.UserIDList {
-			UserIDList = append(UserIDList, uint32(u))
+			UserIDList = append(UserIDList, u)
 			groupUserList = append(groupUserList, u)
 		}
 		
@@ -73,18 +73,18 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 			if len(strings.Join(nameList, ".")) >= 29 {
 				break
 			}
-			nameList = append(nameList, info.Name)
+			nameList = append(nameList, info.Username)
 		}
 
 		groupModel.Name = strings.Join(nameList, "、") + "的群聊"
 
-		userFriendList, err1 := l.svcCtx.UserRpc.Friend.FriendList(l.ctx, &user_rpc.ID{Id: uint32(req.UserID)})
+		userFriendList, err1 := l.svcCtx.UserRpc.Friend.FriendList(l.ctx, &user_rpc.ID{Id: req.UserId})
 		if err1 != nil {
 			return nil, logs.Error(err1)
 		}
-		var friendList []uint
+		var friendList []uint64
 		for _, i2 := range userFriendList.FriendList {
-			friendList = append(friendList, uint(i2.Id))
+			friendList = append(friendList, i2.Id)
 		}
 		slice := method.List(req.UserIDList).Difference(friendList)
 		if len(slice) != 0 {
@@ -105,7 +105,7 @@ func (l *GroupCreateLogic) GroupCreate(req *types.GroupCreateRequest) (resp *typ
 	for i, u := range groupUserList {
 		memBerModel := group_models.GroupMemberModel{
 			GroupId: groupModel.ID,
-			UserID:  u,
+			UserId:  u,
 			Role:    3,
 		}
 		if i == 0 {

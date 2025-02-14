@@ -2,8 +2,8 @@ package src
 
 type PageInfo struct {
 	Key   string `form:"key"`   // 关键字
-	Page  int    `form:"page"`  // 当前页数
-	Limit int    `form:"limit"` // 每页条数
+	Page  int  `form:"page"`  // 当前页数
+	Limit int  `form:"limit"` // 每页条数
 	Sort  string `form:"sort"`  // 排序---从后往前:"_ desc"   从前往后:"_ asc"
 }
 

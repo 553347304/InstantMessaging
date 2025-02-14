@@ -5,7 +5,6 @@ import (
 )
 
 type structServerInterface[T interface{}] interface {
-	Type(interface{}) T                                // 同字段 替换结构体类型
 	StructMap(...string) map[string]interface{}        // 结构体转map返回指定字段 | 不填:返回全部
 	StructSliceMap(...string) []map[string]interface{} // 结构体数组转map返回指定字段 | 不填:返回全部
 }
@@ -14,11 +13,6 @@ type structServer[T interface{}] struct{ Struct T }
 //goland:noinspection GoExportedFuncWithUnexportedType	忽略警告
 func Struct[T interface{}](m T) structServerInterface[T] { return &structServer[T]{Struct: m} }
 
-func (s *structServer[T]) Type(source interface{}) T {
-	var m = new(T)
-	Json().Unmarshal(Json().Marshal(source), &m)
-	return *m
-}
 func (s *structServer[T]) StructMap(contain ...string) map[string]interface{} {
 	var maps = make(map[string]interface{})
 	var scan map[string]interface{}

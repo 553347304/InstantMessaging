@@ -88,7 +88,7 @@ type MessageWithdraw struct {
 }
 type MessageReply struct {
 	MessageID     uint      `json:"message_id"` // 消息id
-	UserID        uint      `json:"user_id"`
+	UserId        uint      `json:"user_id"`
 	Name          string    `json:"name"`
 	Content       string    `json:"content"`        // 回复的文本消息，目前只能限制回复文本
 	OriginMessage time.Time `json:"origin_message"` // 原消息时间
@@ -115,7 +115,7 @@ type MessageVoiceCall struct {
 	EndReason int8      `json:"endReason"` // 结束原因 0 发起方挂断 1 接收方挂断  2  网络原因挂断  3 未打通
 }
 type MessageAt struct {
-	UserID  uint   `json:"user_id"`
+	UserId  uint   `json:"user_id"`
 	Content string `json:"content"` // 回复的文本消息
 }
 

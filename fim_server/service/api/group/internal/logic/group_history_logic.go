@@ -29,23 +29,23 @@ func NewGroupHistoryLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Grou
 }
 
 type HistoryResponse struct {
-	ID         uint               `json:"id"`
-	UserID     uint               `json:"user_id"`
+	ID         uint64               `json:"id"`
+	UserId     uint64               `json:"user_id"`
 	UserAvatar string             `json:"user_avatar"`
 	CreatedAt  time.Time          `json:"created_at"`
-	MemberId   uint               `json:"member_id"`
+	MemberId   uint64               `json:"member_id"`
 	MemberName string             `json:"member_name"`
 	IsMe       bool               `json:"is_me"`
 	Message    mtype.Message `json:"message"`
 }
 
 // MemberList 查全部群成员
-func (l *GroupHistoryLogic) MemberList(id uint) map[uint]group_models.GroupMemberModel {
+func (l *GroupHistoryLogic) MemberList(id uint64) map[uint64]group_models.GroupMemberModel {
 	var memberList []group_models.GroupMemberModel
-	var memberMap = map[uint]group_models.GroupMemberModel{}
+	var memberMap = map[uint64]group_models.GroupMemberModel{}
 	l.svcCtx.DB.Find(&memberList, "group_id = ?", id)
 	for _, model := range memberList {
-		memberMap[model.UserID] = model
+		memberMap[model.UserId] = model
 	}
 	return memberMap
 }
@@ -53,14 +53,14 @@ func (l *GroupHistoryLogic) GroupHistory(req *types.GroupHistoryRequest) (resp *
 	// todo: add your logic here and delete this line
 
 	var member1 group_models.GroupMemberModel
-	err = l.svcCtx.DB.Take(&member1, "group_id = ? and user_id = ?", req.Id, req.UserID).Error
+	err = l.svcCtx.DB.Take(&member1, "group_id = ? and user_id = ?", req.Id, req.UserId).Error
 	if err != nil {
 		return nil, logs.Error("用户不是群成员", err.Error())
 	}
 
 	groupMessageList := src.Mysql(src.ServiceMysql[group_models.GroupMessageModel]{
 		DB: l.svcCtx.DB.Where("group_id = ? and delete_user_id not like ?",
-			req.Id, fmt.Sprintf("%%\"%d\"%%", req.UserID)), // 查询删除的用户ID  "id"
+			req.Id, fmt.Sprintf("%%\"%d\"%%", req.UserId)), // 查询删除的用户ID  "id"
 		PageInfo: src.PageInfo{
 			Page:  req.Page,
 			Limit: req.Limit,
@@ -69,9 +69,9 @@ func (l *GroupHistoryLogic) GroupHistory(req *types.GroupHistoryRequest) (resp *
 		Preload: []string{"MemberModel"},
 	}).GetList()
 
-	var UserIDList []uint32
+	var UserIDList []uint64
 	for _, model := range groupMessageList.List {
-		UserIDList = append(UserIDList, uint32(model.SendUserID))
+		UserIDList = append(UserIDList, model.SendUserId)
 	}
 
 	UserIDList = method.List(UserIDList).Unique() // 去重
@@ -85,18 +85,18 @@ func (l *GroupHistoryLogic) GroupHistory(req *types.GroupHistoryRequest) (resp *
 	for _, info := range groupMessageList.List {
 		// 群备注名称
 
-		memberName := memberMap[info.SendUserID].MemberName
+		memberName := memberMap[info.SendUserId].MemberName
 		if memberName == "" {
-			memberName = userResponse.InfoList[uint32(info.SendUserID)].Name
+			memberName = userResponse.InfoList[info.SendUserId].Username
 		}
 		list = append(list, HistoryResponse{
 			ID:         info.ID,
-			UserID:     info.SendUserID,
-			UserAvatar: userResponse.InfoList[uint32(info.SendUserID)].Avatar,
+			UserId:     info.SendUserId,
+			UserAvatar: userResponse.InfoList[info.SendUserId].Avatar,
 			CreatedAt:  info.CreatedAt,
 			MemberId:   info.MemberId,
 			MemberName: memberName,
-			IsMe:       info.ID == req.UserID,
+			IsMe:       info.ID == req.UserId,
 			Message:    info.Message,
 		})
 	}

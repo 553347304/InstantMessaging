@@ -1,8 +1,8 @@
 package conv
 
 import (
-	"fim_server/utils/stores/logs"
 	"encoding/json"
+	"fim_server/utils/stores/logs"
 )
 
 type jsonServerInterface interface {
@@ -26,7 +26,7 @@ func (*jsonServer) Marshal(v interface{}) []byte {
 func (b *jsonServer) Unmarshal(byte []byte, scan interface{}) bool {
 	err := json.Unmarshal(byte, scan)
 	if err != nil {
-		logs.Error("Unmarshal conversion error", err.Error())
+		logs.Error("json 解析失败", err.Error())
 	}
 	return err == nil
 }

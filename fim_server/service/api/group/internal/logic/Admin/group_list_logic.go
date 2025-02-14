@@ -25,23 +25,23 @@ func NewGroupListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GroupLi
 	}
 }
 
-func (l *GroupListLogic) UserIDList(groupResponseList []group_models.GroupModel) []uint32 {
-	var UserIDList []uint
+func (l *GroupListLogic) UserIDList(groupResponseList []group_models.GroupModel) []uint64 {
+	var UserIDList []uint64
 	for _, model := range groupResponseList {
 		for _, memberModel := range model.MemberList {
-			UserIDList = append(UserIDList, memberModel.UserID)
+			UserIDList = append(UserIDList, memberModel.UserId)
 		}
 	}
 	newUserIDList := method.List(UserIDList).Unique()
-	return conv.Slice(newUserIDList).Uint32()
+	return conv.Slice(newUserIDList).Uint64()
 }
 
-func (l *GroupListLogic) UserOnlineMap() map[uint]bool {
-	var userOnlineMap = map[uint]bool{}
+func (l *GroupListLogic) UserOnlineMap() map[uint64]bool {
+	var userOnlineMap = map[uint64]bool{}
 	userOnlineResponse, err := l.svcCtx.UserRpc.User.UserOnlineList(l.ctx, &user_rpc.Empty{})
 	if err == nil {
-		for _, u := range userOnlineResponse.UserIDList {
-			userOnlineMap[uint(u)] = true
+		for _, u := range userOnlineResponse.UserIdList {
+			userOnlineMap[u] = true
 		}
 	} else {
 		logs.Info(err)
@@ -80,24 +80,24 @@ func (l *GroupListLogic) GroupList(req *types.PageInfo) (resp *types.GroupListRe
 			MemberTotal:  len(g.MemberList),
 			MessageTotal: len(g.GroupMessageModel),
 			Leader: types.UserInfo{
-				UserID: g.Leader,
-				Avatar: userResponse.InfoList[uint32(g.Leader)].Avatar,
-				Name:   userResponse.InfoList[uint32(g.Leader)].Name,
+				UserId: g.Leader,
+				Avatar: userResponse.InfoList[g.Leader].Avatar,
+				Username:   userResponse.InfoList[g.Leader].Username,
 			},
 		}
 
 		var adminList []types.UserInfo
 
 		for _, m := range g.MemberList {
-			_, ok := userOnlineMap[m.UserID]
+			_, ok := userOnlineMap[m.UserId]
 			if ok {
 				info.MemberOnlineTotal++
 			}
 			if m.Role == 2 {
 				adminList = append(adminList, types.UserInfo{
-					UserID: m.UserID,
-					Avatar: userResponse.InfoList[uint32(m.UserID)].Avatar,
-					Name:   userResponse.InfoList[uint32(m.UserID)].Name,
+					UserId: m.UserId,
+					Avatar: userResponse.InfoList[m.UserId].Avatar,
+					Username:   userResponse.InfoList[m.UserId].Username,
 				})
 			}
 		}

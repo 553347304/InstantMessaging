@@ -9,12 +9,12 @@ type AuthenticationRequest struct {
 }
 
 type AuthenticationResponse struct {
-	UserID uint `json:"user_id"`
-	Role   int32 `json:"role"`
+	UserId uint64 `json:"user_id"`
+	Role   int32  `json:"role"`
 }
 
 type LoginRequest struct {
-	Name     string `json:"name"`
+	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
@@ -23,12 +23,13 @@ type LoginResponse struct {
 }
 
 type OpenLoginInfoResponse struct {
-	Name string `json:"name"`
-	Icon string `json:"icon"`
-	Href string `json:"href"` // 跳转地址
+	Username string `json:"username"`
+	Icon     string `json:"icon"`
+	Href     string `json:"href"` // 跳转地址
 }
 
 type OpenLoginRequest struct {
-	Code string `json:"code"`
-	Flag string `json:"flag"`
+	Code   string `json:"code"`
+	Flag   string `json:"flag"`
+	UserId string `json:"user_id"`
 }

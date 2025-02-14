@@ -4,8 +4,8 @@
 package types
 
 type AddFriendRequest struct {
-	UserID       uint      `header:"User-ID"`
-	FriendId     uint      `json:"friend_id"`              // 好友ID
+	UserId       uint64    `header:"User-ID"`
+	FriendId     uint64    `json:"friend_id"`              // 好友ID
 	ValidMessage string    `json:"valid_message,optional"` // 验证消息
 	ValidInfo    ValidInfo `json:"valid_info,optional"`
 }
@@ -17,22 +17,22 @@ type Empty struct {
 }
 
 type FriendDeleteRequest struct {
-	UserID   uint `header:"User-ID"`
-	FriendId uint `json:"friend_id"` // 好友ID
+	UserId   uint64 `header:"User-ID"`
+	FriendId uint64 `json:"friend_id"` // 好友ID
 }
 
 type FriendDeleteResponse struct {
 }
 
 type FriendInfoRequest struct {
-	UserID   uint `header:"User-ID"`
-	Role     int8 `header:"Role"`
-	FriendId uint `form:"friend_id"` // 好友ID
+	UserId   uint64 `header:"User-ID"`
+	Role     int32  `header:"Role"`
+	FriendId uint64 `form:"friend_id"` // 好友ID
 }
 
 type FriendInfoResponse struct {
-	UserID   uint   `json:"user_id"`
-	Name     string `json:"name"`
+	UserId   uint64 `json:"user_id"`
+	Username string `json:"username"`
 	Sign     string `json:"sign"`
 	Avatar   string `json:"avatar"`
 	Notice   string `json:"notice"`    // 备注
@@ -40,10 +40,9 @@ type FriendInfoResponse struct {
 }
 
 type FriendListRequest struct {
-	UserID uint `header:"User-ID"`
-	Role   int8 `header:"Role"`
-	Page   int  `form:"page,optional"`
-	Limit  int  `form:"limit,optional"`
+	PageInfo
+	UserId uint64 `header:"User-ID"`
+	Role   int32  `header:"Role"`
 }
 
 type FriendListResponse struct {
@@ -52,8 +51,8 @@ type FriendListResponse struct {
 }
 
 type FriendNoticeUpdateRequest struct {
-	UserID   uint   `header:"User-ID"`
-	FriendId uint   `json:"friend_id"` // 好友ID
+	UserId   uint64 `header:"User-ID"`
+	FriendId uint64 `json:"friend_id"` // 好友ID
 	Notice   string `json:"notice"`    // 备注
 }
 
@@ -61,22 +60,21 @@ type FriendNoticeUpdateResponse struct {
 }
 
 type FriendValidInfo struct {
-	UserID       uint      `json:"user_id"`
-	Name         string    `json:"name"`
+	UserId       uint64    `json:"user_id"`
+	Username     string    `json:"username"`
 	Avatar       string    `json:"avatar"`
 	ValidMessage string    `json:"valid_message,optional"` // 验证消息
 	ValidInfo    ValidInfo `json:"valid_info,optional"`
-	Status       int8      `json:"status"`
-	Auth         int8      `json:"auth"` // 好友验证
-	Id           uint      `json:"id"`
+	Status       int32     `json:"status"`
+	Auth         int32     `json:"auth"` // 好友验证
+	Id           uint64    `json:"id"`
 	Flag         string    `json:"flag"`       // send  rev
 	CreatedAt    string    `json:"created_at"` // 验证时间
 }
 
 type FriendValidListRequest struct {
-	UserID uint `header:"User-ID"`
-	Page   int  `form:"page,optional"`
-	Limit  int  `form:"limit,optional"`
+	PageInfo
+	UserId uint64 `header:"User-ID"`
 }
 
 type FriendValidListResponse struct {
@@ -85,21 +83,21 @@ type FriendValidListResponse struct {
 }
 
 type Header struct {
-	UserID uint `header:"User-ID"`
+	UserId uint64 `header:"User-ID"`
+}
+
+type PageInfo struct {
+	Key   string `form:"key"`
+	Page  int    `form:"page,optional"`
+	Limit int    `form:"limit,optional"`
 }
 
 type ParamsPath struct {
-	Id uint `path:"id"`
+	Id uint64 `path:"id"`
 }
 
 type RequestDelete struct {
-	IdList []uint `json:"id_list"`
-}
-
-type RequestPageInfo struct {
-	Key   string `form:"key,optional"`
-	Page  int    `form:"page,optional"`
-	Limit int    `form:"limit,optional"`
+	IdList []uint64 `json:"id_list"`
 }
 
 type ResponseList struct {
@@ -108,19 +106,17 @@ type ResponseList struct {
 }
 
 type SearchInfo struct {
-	UserID   uint   `json:"user_id"`
-	Name     string `json:"name"`
+	UserId   uint64 `json:"user_id"`
+	Username string `json:"username"`
 	Sign     string `json:"sign"`
 	Avatar   string `json:"avatar"`
 	IsFriend bool   `json:"is_friend"`
 }
 
 type SearchRequest struct {
-	UserID uint   `header:"User-ID"`
-	Key    string `form:"key"`
+	PageInfo
+	UserId uint64 `header:"User-ID"`
 	Online bool   `form:"online,optional"`
-	Page   int    `form:"page,optional"`
-	Limit  int    `form:"limit,optional"`
 }
 
 type SearchResponse struct {
@@ -129,21 +125,21 @@ type SearchResponse struct {
 }
 
 type UserCurtailRequest struct {
-	UserID             uint `json:"user_id"`              // 限制的用户
-	CurtailChat        bool `json:"curtail_chat"`         // 限制聊天
-	CurtailAddUser     bool `json:"curtail_add_user"`     // 限制加人
-	CurtailCreateGroup bool `json:"curtail_create_group"` // 限制建群
-	CurtailAddGroup    bool `json:"curtail_add_group"`    // 限制加群
+	UserId             uint64 `json:"user_id"`              // 限制的用户
+	CurtailChat        bool   `json:"curtail_chat"`         // 限制聊天
+	CurtailAddUser     bool   `json:"curtail_add_user"`     // 限制加人
+	CurtailCreateGroup bool   `json:"curtail_create_group"` // 限制建群
+	CurtailAddGroup    bool   `json:"curtail_add_group"`    // 限制加群
 }
 
 type UserInfoRequest struct {
-	UserID uint `header:"User-ID"`
-	Role   int8 `header:"Role"`
+	UserId uint64 `header:"User-ID"`
+	Role   int32  `header:"Role"`
 }
 
 type UserInfoResponse struct {
-	UserID        uint      `json:"user_id"`
-	Name          string    `json:"name"`
+	UserId        uint64    `json:"user_id"`
+	Username      string    `json:"username"`
 	Sign          string    `json:"sign"`
 	Avatar        string    `json:"avatar"`
 	RecallMessage *string   `json:"recall_message"` // 撤回消息内容
@@ -151,13 +147,13 @@ type UserInfoResponse struct {
 	Sound         bool      `json:"sound"`          // 好友上线声音
 	SecureLink    bool      `json:"secure_link"`    // 安全链接
 	SavePassword  bool      `json:"save_password"`  // 保存密码
-	SearchUser    int8      `json:"search_user"`    // 别人查找到你的方式
-	Valid         int8      `json:"valid,optional"`
+	SearchUser    int32     `json:"search_user"`    // 别人查找到你的方式
+	Valid         int32     `json:"valid,optional"`
 	ValidInfo     ValidInfo `json:"valid_info,optional"`
 }
 
 type UserListInfoResponse struct {
-	ID                 uint   `json:"id"`
+	ID                 uint64 `json:"id"`
 	CreatedAt          string `json:"created_at"`
 	Name               string `json:"name"`
 	Avatar             string `json:"avatar"`
@@ -179,8 +175,8 @@ type UserListResponse struct {
 }
 
 type UserUpdateRequest struct {
-	UserID        uint      `json:"user_id"`
-	Name          *string   `json:"name,optional"`
+	UserId        uint64    `json:"user_id"`
+	Username      *string   `json:"username,optional"`
 	Sign          *string   `json:"sign,optional"`
 	Avatar        *string   `json:"avatar,optional"`
 	RecallMessage *string   `json:"recall_message,optional"` // 撤回消息内容
@@ -188,8 +184,8 @@ type UserUpdateRequest struct {
 	Sound         *bool     `json:"sound,optional"`          // 好友上线声音
 	SecureLink    *bool     `json:"secure_link,optional"`    // 安全链接
 	SavePassword  *bool     `json:"save_password,optional"`  // 保存密码
-	SearchUser    *int8     `json:"search_user,optional"`    // 别人查找到你的方式
-	Valid         int8      `json:"valid，optional"`
+	SearchUser    *int32    `json:"search_user,optional"`    // 别人查找到你的方式
+	Valid         int32     `json:"valid，optional"`
 	ValidInfo     ValidInfo `json:"valid_info,optional"`
 }
 
@@ -202,22 +198,22 @@ type ValidInfo struct {
 }
 
 type ValidIssueRequest struct {
-	UserID uint `header:"User-ID"`
-	Id     uint `path:"id"` // 好友ID
+	UserId uint64 `header:"User-ID"`
+	Id     uint64 `path:"id"` // 好友ID
 }
 
 type ValidIssueResponse struct {
-	Valid     int8      `json:"valid"`
+	Valid     int32     `json:"valid"`
 	ValidInfo ValidInfo `json:"valid_info"`
 }
 
 type ValidStatusRequest struct {
-	UserID  uint `header:"User-ID"`
-	ValidId uint `json:"valid_id"`
-	Status  int8 `json:"status"`
+	UserId  uint64 `header:"User-ID"`
+	ValidId uint64 `json:"valid_id"`
+	Status  int32  `json:"status"`
 }
 
 type ValidStatusResponse struct {
-	UserID  uint `header:"User-ID"`
-	ValidId uint `json:"valid_id"`
+	UserId  uint64 `header:"User-ID"`
+	ValidId uint64 `json:"valid_id"`
 }

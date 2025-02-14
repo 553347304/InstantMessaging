@@ -4,17 +4,4 @@ option go_package = "./chat_rpc";
 
 
 
-message UserListChatTotalRequest {
-  repeated uint32 user_id_list = 1;
-}
-message ChatTotalMessage {
-  int32 send_message_total = 1;
-  int32 receive_message_total = 2;
-}
-message UserListChatTotalResponse {
-  map<uint32, ChatTotalMessage>result = 1;
-}
 
-service Chat {
-  rpc UserListChatTotal(UserListChatTotalRequest) returns(UserListChatTotalResponse);  // 每个用户发送的消息个数
-}

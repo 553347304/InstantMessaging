@@ -29,7 +29,7 @@ func (l *ValidStatusLogic) ValidStatus(req *types.ValidStatusRequest) (resp *typ
 	// todo: add your logic here and delete this line
 
 	var friendVerify user_models.FriendValidModel
-	err = l.svcCtx.DB.Take(&friendVerify, "id = ? and receive_user_id = ?", req.ValidId, req.UserID).Error
+	err = l.svcCtx.DB.Take(&friendVerify, "id = ? and receive_user_id = ?", req.ValidId, req.UserId).Error
 
 	if err != nil {
 		return nil, logs.Error("验证记录不存在")
@@ -43,8 +43,8 @@ func (l *ValidStatusLogic) ValidStatus(req *types.ValidStatusRequest) (resp *typ
 		// 同意
 		friendVerify.ReceiveStatus = 1
 		l.svcCtx.DB.Create(&user_models.FriendModel{
-			SendUserID:    friendVerify.SendUserID,
-			ReceiveUserID: friendVerify.ReceiveUserID,
+			SendUserId:    friendVerify.SendUserId,
+			ReceiveUserId: friendVerify.ReceiveUserId,
 		})
 		
 		// 给对方发消息

@@ -24,9 +24,9 @@ func NewChatSessionAdminLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 
 func (l *ChatSessionAdminLogic) ChatSessionAdmin(req *types.ChatSessionAdminRequest) (resp *types.UserInfoListResponse, err error) {
 	// todo: add your logic here and delete this line
-	var sendUserIDList []uint32
+	var sendUserIDList []uint64
 	l.svcCtx.DB.Model(chat_models.ChatModel{}).
-		Where("receive_user_id = ?", req.ReceiveUserID).
+		Where("receive_user_id = ?", req.ReceiveUserId).
 		Group("send_user_id").
 		Select("send_user_id").Scan(&sendUserIDList)
 
@@ -38,9 +38,9 @@ func (l *ChatSessionAdminLogic) ChatSessionAdmin(req *types.ChatSessionAdminRequ
 	resp = new(types.UserInfoListResponse)
 	for u, info := range userRpc.InfoList {
 		resp.List = append(resp.List, types.UserInfo{
-			UserID: uint(u),
+			UserId: u,
 			Avatar: info.Avatar,
-			Name:   info.Name,
+			Username:   info.Username,
 		})
 	}
 	resp.Total = userRpc.Total

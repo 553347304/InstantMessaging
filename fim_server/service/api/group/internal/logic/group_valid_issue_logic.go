@@ -5,9 +5,9 @@ import (
 	"fim_server/models/group_models"
 	"fim_server/service/api/group/internal/svc"
 	"fim_server/service/api/group/internal/types"
-	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
-
+	"fim_server/utils/stores/method"
+	
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -33,8 +33,12 @@ func (l *GroupValidIssueLogic) GroupValidIssue(req *types.GroupValidIssueRequest
 	if err != nil {
 		return nil, logs.Error("群不存在")
 	}
+	
+	var validInfo types.ValidInfo
+	method.Struct().To(groupModel.ValidInfo, &validInfo)
+	
 	resp = new(types.GroupValidIssueResponse)
 	resp.Valid = groupModel.Valid
-	resp.ValidInfo = conv.Struct(types.ValidInfo{}).Type(groupModel.ValidInfo)
+	resp.ValidInfo = validInfo
 	return
 }

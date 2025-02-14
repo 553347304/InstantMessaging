@@ -7,7 +7,6 @@ type stringServer struct {
 	String string
 }
 
-//goland:noinspection GoExportedFuncWithUnexportedType	忽略警告
 func String(s string) stringServerInterface {
 	return &stringServer{String: s}
 }

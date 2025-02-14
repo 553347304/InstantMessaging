@@ -4,10 +4,10 @@ import (
 	"context"
 	"fim_server/models/user_models"
 	"fim_server/utils/stores/logs"
-
+	
 	"fim_server/service/rpc/user/internal/svc"
 	"fim_server/service/rpc/user/user_rpc"
-
+	
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -33,22 +33,22 @@ func (l *UserCreateLogic) UserCreate(in *user_rpc.UserCreateRequest) (*user_rpc.
 		return nil, logs.Error("用户已经存在")
 	}
 	user = user_models.UserModel{
-		Name:           in.Name,
+		Username:       in.Username,
 		Avatar:         in.Avatar,
 		Role:           in.Role,
 		OpenId:         in.OpenId,
 		RegisterSource: in.RegisterSource,
 	}
-
+	
 	err = l.svcCtx.DB.Create(&user).Error
 	if err != nil {
 		logx.Error(err)
 		return nil, logs.Error("创建用户失败")
 	}
-
+	
 	// 创建用户配置
 	l.svcCtx.DB.Create(&user_models.UserConfigModel{
-		UserID:        user.ID,
+		UserId:        user.ID,
 		RecallMessage: nil,
 		FriendOnline:  false,
 		Sound:         true,
@@ -58,6 +58,6 @@ func (l *UserCreateLogic) UserCreate(in *user_rpc.UserCreateRequest) (*user_rpc.
 		Valid:         2,
 		Online:        true,
 	})
-
-	return &user_rpc.UserCreateResponse{UserID: int32(user.ID)}, nil
+	
+	return &user_rpc.UserCreateResponse{UserId: user.ID}, nil
 }

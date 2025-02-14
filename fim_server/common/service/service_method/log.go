@@ -23,8 +23,8 @@ type ServerInterfaceLog interface {
 }
 type serverLog struct {
 	DB      *gorm.DB
-	UserID  string `json:"user_id"`
-	IP      string `json:"ip"`
+	UserId  string `json:"user_id"`
+	Ip      string `json:"ip"`
 	Type    string `json:"type"`
 	Service string `json:"service"`
 	method  string
@@ -78,28 +78,31 @@ func (p *serverLog) Save(ctx context.Context, level, content string) {
 	if p.Service == "log" && p.method == "GET" {
 		return
 	}
-	p.UserID = ctx.Value("user_id").(string)
-	if p.UserID == "" {
+	p.UserId = ctx.Value("user_id").(string)
+	if p.UserId == "" {
 		return
 	}
 	
-	p.IP = ctx.Value("ip").(string)
-	addr := open_api_info.GetAddrByIP(p.IP)
-	UserID := conv.Type(p.UserID).Uint()
+	p.Ip = ctx.Value("ip").(string)
+	addr := open_api_info.GetAddrByIP(p.Ip)
+	UserId, err := conv.Type(p.UserId).Uint64()
+	if err != nil {
+		return
+	}
 	var user user_models.UserModel
 	mutex := sync.Mutex{}
 	mutex.Lock() // 加锁
-	p.DB.Take(&user, UserID)
+	p.DB.Take(&user, UserId)
 	p.DB.Create(&log_models.LogModel{
-		UserID:  UserID,
-		Name:    user.Name,
-		Avatar:  user.Avatar,
-		IP:      p.IP,
-		Addr:    addr,
-		Service: p.Service,
-		Type:    p.Type,
-		Level:   level,
-		Content: content,
+		UserId:   UserId,
+		Username: user.Username,
+		Avatar:   user.Avatar,
+		Ip:       p.Ip,
+		Addr:     addr,
+		Service:  p.Service,
+		Type:     p.Type,
+		Level:    level,
+		Content:  content,
 	})
 	mutex.Unlock() // 解锁
 }

@@ -7,7 +7,7 @@ type Empty struct {
 }
 
 type FileInfo struct {
-	ID   uint32 `json:"id"`
+	Id   uint64 `json:"id"`
 	Name string `json:"name"`
 	Size int64  `json:"size"`
 	Path string `json:"path"`
@@ -20,7 +20,7 @@ type FileListResponse struct {
 }
 
 type FileRequest struct {
-	UserID uint `header:"User-ID"`
+	UserId uint64 `header:"User-ID"`
 }
 
 type FileResponse struct {

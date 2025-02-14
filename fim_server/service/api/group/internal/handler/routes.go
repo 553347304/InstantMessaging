@@ -5,17 +5,21 @@ package handler
 
 import (
 	"net/http"
-	
+
 	Admin "fim_server/service/api/group/internal/handler/Admin"
 	"fim_server/service/api/group/internal/svc"
-	
+
 	"github.com/zeromicro/go-zero/rest"
 )
 
 func RegisterHandlers(src *rest.Server, serverCtx *svc.ServiceContext) {
 	src.AddRoutes(
 		[]rest.Route{
-			{Method: http.MethodPost, Path: "/api/group/add", Handler: GroupAddHandler(serverCtx)},
+			{
+				Method:  http.MethodPost,
+				Path:    "/api/group/add",
+				Handler: GroupAddHandler(serverCtx),
+			},
 			{
 				Method:  http.MethodPut,
 				Path:    "/api/group/ban",
@@ -123,7 +127,7 @@ func RegisterHandlers(src *rest.Server, serverCtx *svc.ServiceContext) {
 			},
 		},
 	)
-	
+
 	src.AddRoutes(
 		rest.WithMiddlewares(
 			[]rest.Middleware{serverCtx.AdminMiddleware},

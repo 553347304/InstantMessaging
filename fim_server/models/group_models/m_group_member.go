@@ -12,16 +12,16 @@ import (
 // GroupMemberModel 群成员表
 type GroupMemberModel struct {
 	models.Model
-	GroupId    uint       `json:"groupId"` // 群ID
+	GroupId    uint64     `json:"groupId"` // 群ID
 	GroupModel GroupModel `gorm:"foreignKey:GroupId" json:"-"`
-	UserID     uint       `json:"user_id"`                    // 用户ID
+	UserId     uint64     `json:"user_id"`                    // 用户ID
 	MemberName string     `gorm:"size:32" json:"member_name"` // 群名称
-	Role       int8       `json:"role"`                       // 1 群主 2 管理员 3 普通成员
+	Role       int32      `json:"role"`                       // 1 群主 2 管理员 3 普通成员
 	BanTime    *int       `json:"ban_time"`                   // 禁言时间 单位分钟
 }
 
 func (g GroupMemberModel) GetBanTime(db *gorm.DB, rdb *redis.Client) *int {
-
+	
 	if g.BanTime == nil {
 		return nil
 	}

@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import {useStore} from "@/stores/stores.ts";
+const store = useStore()
+store.getToken()
+
 </script>
 
 <template>

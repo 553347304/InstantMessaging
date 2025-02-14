@@ -22,7 +22,7 @@ func NewUserListChatTotalLogic(ctx context.Context, svcCtx *svc.ServiceContext) 
 }
 
 type Data struct {
-	UserID uint32 `gorm:"column:user_id"`
+	UserId uint32 `gorm:"column:user_id"`
 	Count  uint32 `gorm:"column:count"`
 }
 
@@ -44,9 +44,9 @@ func (l *UserListChatTotalLogic) UserListChatTotal(in *chat_rpc.UserListChatTota
 	resp.Result = map[uint32]*chat_rpc.ChatTotalMessage{}
 	
 	for _, data := range sendScan {
-		result, ok := resp.Result[data.UserID]
+		result, ok := resp.Result[data.UserId]
 		if !ok {
-			resp.Result[data.UserID] = &chat_rpc.ChatTotalMessage{
+			resp.Result[data.UserId] = &chat_rpc.ChatTotalMessage{
 				SendMessageTotal: int32(data.Count),
 			}
 		} else {

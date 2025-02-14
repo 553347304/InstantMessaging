@@ -30,7 +30,7 @@ func NewChatHistoryLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ChatH
 }
 
 type ChatHistory struct {
-	ID        uint          `json:"id"`
+	ID        uint64          `json:"id"`
 	IsMe      bool          `json:"is_me"` // 哪条消息是我发的
 	Type      mtype.Int8    `json:"type"`
 	Preview   string        `json:"preview"`
@@ -47,15 +47,15 @@ type ChatHistoryResponse struct {
 func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *ChatHistoryResponse, err error) {
 	// todo: add your logic here and delete this line
 	
-	_, err = l.svcCtx.UserRpc.Friend.IsFriend(l.ctx, &user_rpc.IsFriendRequest{User1: uint32(req.UserID), User2: uint32(req.FriendId)})
+	_, err = l.svcCtx.UserRpc.Friend.IsFriend(l.ctx, &user_rpc.IsFriendRequest{User1: uint32(req.UserId), User2: uint32(req.FriendId)})
 	if err != nil {
 		return nil, err
 	}
 	
 	chatList := src.Mysql(src.ServiceMysql[chat_models.ChatModel]{
 		DB: l.svcCtx.DB.Where("(send_user_id = ? and receive_user_id = ?) or (receive_user_id = ? and send_user_id = ?)"+
-			" and delete_user_id not like ?", req.UserID, req.FriendId, req.UserID, req.FriendId,
-			fmt.Sprintf("%%\"%d\"%%", req.UserID)),
+			" and delete_user_id not like ?", req.UserId, req.FriendId, req.UserId, req.FriendId,
+			fmt.Sprintf("%%\"%d\"%%", req.UserId)),
 		PageInfo: src.PageInfo{
 			Page:  req.Page,
 			Limit: req.Limit,
@@ -63,10 +63,10 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 		},
 	}).GetList()
 	
-	var UserIDList []uint32
+	var UserIDList []uint64
 	for _, model := range chatList.List {
-		UserIDList = append(UserIDList, uint32(model.SendUserID))
-		UserIDList = append(UserIDList, uint32(model.ReceiveUserID))
+		UserIDList = append(UserIDList, model.SendUserId)
+		UserIDList = append(UserIDList, model.ReceiveUserId)
 	}
 	UserIDList = method.List(UserIDList).Unique() // 去重
 	// 调用户服务
@@ -81,14 +81,14 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 		
 		if i == 0 {
 			sendUser = mtype.UserInfo{
-				ID:     model.SendUserID,
-				Name:   userResponse.InfoList[uint32(model.SendUserID)].Name,
-				Avatar: userResponse.InfoList[uint32(model.SendUserID)].Avatar,
+				UserId:     model.SendUserId,
+				Username:   userResponse.InfoList[model.SendUserId].Username,
+				Avatar: userResponse.InfoList[model.SendUserId].Avatar,
 			}
 			receiveUser = mtype.UserInfo{
-				ID:     model.ReceiveUserID,
-				Name:   userResponse.InfoList[uint32(model.ReceiveUserID)].Name,
-				Avatar: userResponse.InfoList[uint32(model.ReceiveUserID)].Avatar,
+				UserId:     model.ReceiveUserId,
+				Username:   userResponse.InfoList[model.ReceiveUserId].Username,
+				Avatar: userResponse.InfoList[model.ReceiveUserId].Avatar,
 			}
 		}
 		info := ChatHistory{
@@ -98,7 +98,7 @@ func (l *ChatHistoryLogic) ChatHistory(req *types.ChatHistoryRequest) (resp *Cha
 			Message:   model.Message,
 			CreatedAt: model.CreatedAt.String(),
 		}
-		if model.SendUserID == req.UserID {
+		if model.SendUserId == req.UserId {
 			info.IsMe = true
 		}
 		list = append(list, info)

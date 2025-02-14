@@ -29,17 +29,17 @@ func (l *FriendNoticeLogic) FriendNotice(req *types.FriendNoticeUpdateRequest) (
 	// todo: add your logic here and delete this line
 
 	var friend user_models.FriendModel
-	if !friend.IsFriend(l.svcCtx.DB, req.UserID, req.FriendId) {
+	if !friend.IsFriend(l.svcCtx.DB, req.UserId, req.FriendId) {
 		return nil, logs.Error("不是好友")
 	}
 
-	if req.UserID == friend.SendUserID {
+	if req.UserId == friend.SendUserId {
 		if friend.SendUserNotice == req.Notice {
 			return
 		}
 		l.svcCtx.DB.Model(&friend).Update("send_user_notice", req.Notice)
 	}
-	if req.UserID == friend.ReceiveUserID {
+	if req.UserId == friend.ReceiveUserId {
 		if friend.ReceiveUserNotice == req.Notice {
 			return
 		}

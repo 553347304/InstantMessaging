@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"fim_server/models/mtype"
 	"fim_server/utils/stores/logs"
 	"fim_server/utils/stores/method"
 	"fim_server/utils/stores/valid"
@@ -30,29 +29,25 @@ func NewAuthenticationLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Au
 
 func (l *AuthenticationLogic) Authentication(req *types.AuthenticationRequest) (resp *types.AuthenticationResponse, err error) {
 	// todo: add your logic here and delete this line
-
+	
 	if method.List(l.svcCtx.Config.WhiteList).InRegex(req.ValidPath) {
 		logs.Info("白名单", req.ValidPath)
 		return nil, nil
 	}
-
 	
 	claims := valid.Jwt().Parse(req.Token)
 	if claims == nil {
-		err = logs.Error("认证失败: " + req.Token)
 		return
 	}
-	c := claims.PayLoad.(mtype.PayLoad)
-	logs.Info(claims)
-
+	
 	_, err = l.svcCtx.Redis.Get(fmt.Sprintf("logout_%s", req.Token)).Result()
 	if err == nil {
-		return nil, logs.Error("黑名单", err.Error())
+		return nil, logs.Error("黑名单", err)
 	}
-
+	
 	resp = &types.AuthenticationResponse{
-		UserID: c.UserID,
-		Role:   c.Role,
+		UserId: claims.PayLoad.UserId,
+		Role:   claims.PayLoad.Role,
 	}
 	logs.Info("认证成功", resp)
 	return resp, nil

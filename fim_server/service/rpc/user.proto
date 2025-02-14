@@ -2,16 +2,18 @@ syntax = "proto3";
 package user_rpc;
 option go_package = "./user_rpc";
 
+
 message Empty{}
+
 message ID {
-  uint32  id = 1;
+  uint64  id = 1;
 }
 message IdList {
-  repeated uint32 id = 2;
+  repeated uint64 id = 2;
 }
 
 message UserCreateRequest {
-  string name = 1;
+  string username = 1;
   string password = 2;
   int32 role = 3;
   string avatar = 4;
@@ -19,28 +21,59 @@ message UserCreateRequest {
   string register_source = 6;
 }
 message UserCreateResponse {
-  int32 user_id = 1;
+  uint64 user_id = 1;
 }
 
-message UserInfo {
-  uint32 id = 1;
-  string name = 2;
-  string password = 3;
-  string sign = 4;
-  string avatar = 5;
-  string ip = 6;
-  string  addr = 7;
-  int32  role = 8;
-  bytes user_config_model = 9;
-  string   created_at = 10;
+message ValidInfo {
+  repeated string issue = 1;
+  repeated string answer = 2;
 }
+message UserConfig{
+  uint64 id = 1;
+  string created_at = 2;
+  string updated_at = 3;
+  uint64 user_id = 4;
+  string recall_message = 5;
+  bool friend_online = 6;
+  bool sound = 7;
+  bool secure_link = 8;
+  bool     save_password = 9;
+  int32 search_user = 10;
+  int32 valid = 11;
+  ValidInfo valid_info = 12;
+  bool online = 13;
+  bool curtail_chat = 14;
+  bool     curtail_add_user = 15;
+  bool curtail_create_group = 16;
+  bool     curtail_add_group = 17;
+}
+message Top {
+  repeated uint64 group_id = 1;
+}
+message UserInfo {
+  uint64 id = 1;
+  string created_at = 2;
+  string updated_at = 3;
+  string username = 4;
+  string password = 5;
+  string sign = 6;
+  string avatar = 7;
+  string ip = 8;
+  string  addr = 9;
+  int32  role = 10;
+  string  open_id = 11;
+  string register_source = 12;
+  UserConfig user_config_model = 13;
+  Top top = 14;
+}
+
 message UserInfoResponse {
   int64 total = 1;
   UserInfo info = 2; // 用户和用户配置的json
-  map<uint32, UserInfo> info_list = 3; // 用户列表信息
+  map<uint64, UserInfo> info_list = 3; // 用户列表信息
 }
 message UserOnlineListResponse{
-  repeated uint32 user_id_list = 1;
+  repeated uint64 user_id_list = 1;
 }
 
 service User {

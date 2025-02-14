@@ -2,13 +2,13 @@ package logic
 
 import (
 	"context"
-	"fim_server/models"
 	"fim_server/models/group_models"
 	"fim_server/service/api/group/internal/svc"
 	"fim_server/service/api/group/internal/types"
 	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
-
+	"fim_server/utils/stores/method"
+	
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -28,10 +28,10 @@ func NewGroupUpdateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Group
 
 func (l *GroupUpdateLogic) GroupUpdate(req *types.GroupUpdateRequest) (resp *types.GroupUpdateResponse, err error) {
 	// todo: add your logic here and delete this line
-
+	
 	resp = new(types.GroupUpdateResponse)
 	var groupMember group_models.GroupMemberModel
-	err = l.svcCtx.DB.Preload("GroupModel").Take(&groupMember, "group_id = ? and user_id = ?", req.Id, req.UserID).Error
+	err = l.svcCtx.DB.Preload("GroupModel").Take(&groupMember, "group_id = ? and user_id = ?", req.Id, req.UserId).Error
 	if err != nil {
 		return nil, logs.Error("群不存在或用户不是群成员", err.Error())
 	}
@@ -43,9 +43,11 @@ func (l *GroupUpdateLogic) GroupUpdate(req *types.GroupUpdateRequest) (resp *typ
 		_, ok := groupMaps["auth_question"]
 		if ok {
 			delete(groupMaps, "auth_question")
-			l.svcCtx.DB.Model(&groupMember.GroupModel).Updates(&group_models.GroupModel{
-				ValidInfo: conv.Struct(models.ValidInfo{}).Type(req.ValidInfo),
-			})
+			
+			groupModel := group_models.GroupModel{}
+			method.Struct().To(req.ValidInfo, &groupModel.ValidInfo)
+			
+			l.svcCtx.DB.Model(&groupMember.GroupModel).Updates(&groupModel)
 		}
 		err = l.svcCtx.DB.Model(&groupMember.GroupModel).Updates(groupMaps).Error
 		if err != nil {

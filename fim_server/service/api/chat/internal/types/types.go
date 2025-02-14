@@ -4,50 +4,50 @@
 package types
 
 type ChatDeleteRequest struct {
-	UserID uint   `header:"User-ID"`
-	IdList []uint `json:"id_list"`
+	UserId uint64   `header:"User-ID"`
+	IdList []uint64 `json:"id_list"`
 }
 
 type ChatDeleteResponse struct {
 }
 
 type ChatHistoryAdminRequest struct {
-	SendUserID    uint   `form:"send_user_id"`
-	ReceiveUserID uint   `form:"receive_user_id"`
+	SendUserId    uint64 `form:"send_user_id"`
+	ReceiveUserId uint64 `form:"receive_user_id"`
 	Key           string `form:"key,optional"`
 	Page          int    `form:"page,optional"`
 	Limit         int    `form:"limit,optional"`
 }
 
 type ChatHistoryRequest struct {
-	UserID   uint `header:"User-ID"`
-	Page     int  `form:"page,optional"`
-	Limit    int  `form:"limit,optional"`
-	FriendId uint `form:"friend_id"`
+	UserId   uint64 `header:"User-ID"`
+	Page     int    `form:"page,optional"`
+	Limit    int    `form:"limit,optional"`
+	FriendId uint64 `form:"friend_id"`
 }
 
 type ChatRequest struct {
-	UserID uint `header:"User-ID"`
+	UserId uint64 `header:"User-ID"`
 }
 
 type ChatResponse struct {
 }
 
 type ChatSession struct {
-	UserID         uint   `header:"User-ID"`
+	UserId         uint64 `header:"User-ID"`
 	Avatar         string `json:"avatar"`
-	Name           string `json:"name"`
+	Username       string `json:"username"`
 	CreatedAt      string `json:"created_at"`
 	MessagePreview string `json:"message_preview"`
 	IsTop          bool   `json:"is_top"`
 }
 
 type ChatSessionAdminRequest struct {
-	ReceiveUserID uint `form:"receive_user_id"`
+	ReceiveUserId uint64 `form:"receive_user_id"`
 }
 
 type ChatSessionRequest struct {
-	UserID uint   `header:"User-ID"`
+	UserId uint64 `header:"User-ID"`
 	Page   int    `form:"page,optional"`
 	Limit  int    `form:"limit,optional"`
 	Key    string `form:"key,optional"`
@@ -68,13 +68,13 @@ type PageInfo struct {
 }
 
 type RequestDelete struct {
-	IdList []uint `json:"id_list"`
+	IdList []uint64 `json:"id_list"`
 }
 
 type UserInfo struct {
-	UserID uint   `json:"user_id"`
-	Name   string `json:"name"`
-	Avatar string `json:"avatar"`
+	UserId   uint64 `json:"user_id"`
+	Username string `json:"username"`
+	Avatar   string `json:"avatar"`
 }
 
 type UserInfoListResponse struct {
@@ -83,8 +83,8 @@ type UserInfoListResponse struct {
 }
 
 type UserTopRequest struct {
-	UserID   uint `header:"User-ID"`
-	FriendId uint `json:"friend_id"`
+	UserId   uint64 `header:"User-ID"`
+	FriendId uint64 `json:"friend_id"`
 }
 
 type UserTopResponse struct {

@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion7
 
 const (
-	User_UserCreate_FullMethodName     = "/main.User/UserCreate"
-	User_UserInfo_FullMethodName       = "/main.User/UserInfo"
-	User_UserOnlineList_FullMethodName = "/main.User/UserOnlineList"
+	User_UserCreate_FullMethodName     = "/user_rpc.User/UserCreate"
+	User_UserInfo_FullMethodName       = "/user_rpc.User/UserInfo"
+	User_UserOnlineList_FullMethodName = "/user_rpc.User/UserOnlineList"
 )
 
 // UserClient is the client API for User service.
@@ -162,7 +162,7 @@ func _User_UserOnlineList_Handler(srv interface{}, ctx context.Context, dec func
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var User_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "main.User",
+	ServiceName: "user_rpc.User",
 	HandlerType: (*UserServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -183,8 +183,8 @@ var User_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	Friend_IsFriend_FullMethodName   = "/main.Friend/IsFriend"
-	Friend_FriendList_FullMethodName = "/main.Friend/FriendList"
+	Friend_IsFriend_FullMethodName   = "/user_rpc.Friend/IsFriend"
+	Friend_FriendList_FullMethodName = "/user_rpc.Friend/FriendList"
 )
 
 // FriendClient is the client API for Friend service.
@@ -293,7 +293,7 @@ func _Friend_FriendList_Handler(srv interface{}, ctx context.Context, dec func(i
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Friend_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "main.Friend",
+	ServiceName: "user_rpc.Friend",
 	HandlerType: (*FriendServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
@@ -310,7 +310,7 @@ var Friend_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	UserCurtail_IsCurtail_FullMethodName = "/main.UserCurtail/IsCurtail"
+	UserCurtail_IsCurtail_FullMethodName = "/user_rpc.UserCurtail/IsCurtail"
 )
 
 // UserCurtailClient is the client API for UserCurtail service.
@@ -387,7 +387,7 @@ func _UserCurtail_IsCurtail_Handler(srv interface{}, ctx context.Context, dec fu
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var UserCurtail_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "main.UserCurtail",
+	ServiceName: "user_rpc.UserCurtail",
 	HandlerType: (*UserCurtailServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

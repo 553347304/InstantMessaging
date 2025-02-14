@@ -20,7 +20,7 @@ type Data struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 	Data    *struct {
-		UserID uint `json:"user_id"`
+		UserId uint `json:"user_id"`
 		Role   int  `json:"role"`
 	} `json:"data"`
 }
@@ -65,7 +65,7 @@ func auth(req *http.Request) error {
 	
 	// 设置请求头
 	if authResponse.Data != nil {
-		req.Header.Set("User-ID", fmt.Sprint(authResponse.Data.UserID))
+		req.Header.Set("User-ID", fmt.Sprint(authResponse.Data.UserId))
 		req.Header.Set("Role", fmt.Sprint(authResponse.Data.Role))
 	}
 	return nil

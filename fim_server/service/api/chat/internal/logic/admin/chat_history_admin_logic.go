@@ -26,7 +26,7 @@ func NewChatHistoryAdminLogic(ctx context.Context, svcCtx *svc.ServiceContext) *
 }
 
 type ChatHistory struct {
-	ID        uint          `json:"id"`
+	ID        uint64          `json:"id"`
 	IsMe      bool          `json:"is_me"` // 哪条消息是我发的
 	Type      mtype.Int8    `json:"type"`
 	Preview   string        `json:"preview"`
@@ -45,14 +45,14 @@ func (l *ChatHistoryAdminLogic) ChatHistoryAdmin(req *types.ChatHistoryAdminRequ
 	
 	char := "(send_user_id = ? and receive_user_id = ?) or (send_user_id = ? and receive_user_id = ?)"
 	chatList := src.Mysql(src.ServiceMysql[chat_models.ChatModel]{
-		DB:       l.svcCtx.DB.Where(char, req.SendUserID, req.ReceiveUserID, req.ReceiveUserID, req.SendUserID),
+		DB:       l.svcCtx.DB.Where(char, req.SendUserId, req.ReceiveUserId, req.ReceiveUserId, req.SendUserId),
 		PageInfo: src.PageInfo{Page: req.Page, Limit: req.Limit, Sort: "created_at desc"},
 	}).GetList()
 	
-	var UserIDList []uint32
+	var UserIDList []uint64
 	for _, model := range chatList.List {
-		UserIDList = append(UserIDList, uint32(model.SendUserID))
-		UserIDList = append(UserIDList, uint32(model.ReceiveUserID))
+		UserIDList = append(UserIDList, model.SendUserId)
+		UserIDList = append(UserIDList, model.ReceiveUserId)
 	}
 	UserIDList = method.List(UserIDList).Unique() // 去重
 	// 调用户服务
@@ -67,14 +67,14 @@ func (l *ChatHistoryAdminLogic) ChatHistoryAdmin(req *types.ChatHistoryAdminRequ
 		
 		if i == 0 {
 			sendUser = mtype.UserInfo{
-				ID:     model.SendUserID,
-				Name:   userResponse.InfoList[uint32(model.SendUserID)].Name,
-				Avatar: userResponse.InfoList[uint32(model.SendUserID)].Avatar,
+				UserId:     model.SendUserId,
+				Username:   userResponse.InfoList[model.SendUserId].Username,
+				Avatar: userResponse.InfoList[model.SendUserId].Avatar,
 			}
 			receiveUser = mtype.UserInfo{
-				ID:     model.ReceiveUserID,
-				Name:   userResponse.InfoList[uint32(model.ReceiveUserID)].Name,
-				Avatar: userResponse.InfoList[uint32(model.ReceiveUserID)].Avatar,
+				UserId:     model.ReceiveUserId,
+				Username:   userResponse.InfoList[model.ReceiveUserId].Username,
+				Avatar: userResponse.InfoList[model.ReceiveUserId].Avatar,
 			}
 		}
 		
@@ -85,7 +85,7 @@ func (l *ChatHistoryAdminLogic) ChatHistoryAdmin(req *types.ChatHistoryAdminRequ
 			Message:   model.Message,
 			CreatedAt: model.CreatedAt.String(),
 		}
-		if model.SendUserID == req.ReceiveUserID {
+		if model.SendUserId == req.ReceiveUserId {
 			info.IsMe = true
 		}
 		list = append(list, info)

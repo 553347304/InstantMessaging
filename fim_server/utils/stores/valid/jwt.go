@@ -6,12 +6,14 @@ import (
 	"time"
 )
 
+
+
 type claims struct {
-	PayLoad interface{}
+	PayLoad PayLoad
 	jwt.RegisteredClaims
 }
 
-func (j jwtService) Hash(payload interface{}) string {
+func (j jwtService) Hash(payload PayLoad) string {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims{payload, jwt.RegisteredClaims{
 		ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * time.Duration(j.expires))), // 过期时间
 		Issuer:    j.issuer,                                                                 // 签发人
@@ -21,6 +23,7 @@ func (j jwtService) Hash(payload interface{}) string {
 		logs.Warn("生成 token 失败", err.Error())
 		return ""
 	}
+	logs.Warn(sign)
 	return sign
 }
 
@@ -29,11 +32,11 @@ func (j jwtService) Parse(token string) *claims {
 		logs.Warn("token为空")
 		return nil
 	}
-
+	
 	parse, _ := jwt.ParseWithClaims(token, &claims{}, func(token *jwt.Token) (any, error) {
 		return []byte(j.key), nil
 	})
-
+	
 	// 验证token
 	if parse != nil {
 		_claims, ok := parse.Claims.(*claims)

@@ -2,7 +2,6 @@ package logic
 
 import (
 	"context"
-	"fim_server/models/mtype"
 	"fim_server/models/setting_models"
 	"fim_server/models/user_models"
 	"fim_server/service/rpc/setting/setting_rpc"
@@ -32,8 +31,8 @@ func NewOpen_loginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Open_l
 }
 
 type OpenInfo struct {
-	OpenID string
-	Name   string
+	OpenId string
+	Username   string
 	Avatar string
 }
 
@@ -74,31 +73,29 @@ func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.L
 		return nil, logs.Error("登录失败")
 	}
 	var user user_models.UserModel
-	err = l.svcCtx.DB.Take(&user, "open_id = ?", info.OpenID).Error
+	err = l.svcCtx.DB.Take(&user, "open_id = ?", info.OpenId).Error
 	if err != nil {
 		fmt.Println("注册服务")
 		result, errs := l.svcCtx.UserRpc.User.UserCreate(l.ctx, &user_rpc.UserCreateRequest{
-			Name:           info.Name,
+			Username:           info.Username,
 			Password:       "",
 			Role:           2,
 			Avatar:         info.Avatar,
-			OpenId:         info.OpenID,
+			OpenId:         info.OpenId,
 			RegisterSource: "qq",
 		})
 		if errs != nil {
 			return nil, logs.Error("登录失败")
 		}
-		user.Model.ID = uint(result.UserID)
+		user.Model.ID = result.UserId
 		user.Role = 2
-		user.Name = info.Name
+		user.Username = info.Username
 	}
 	// 登录
-	
-	
-	token := valid.Jwt().Hash(mtype.PayLoad{
-		UserID: user.ID,
-		Name:   user.Name,
-		Role:   user.Role,
+	token := valid.Jwt().Hash(valid.PayLoad{
+		UserId:   user.ID,
+		Username: user.Username,
+		Role:     user.Role,
 	})
 	if token == "" {
 		logx.Error(err)

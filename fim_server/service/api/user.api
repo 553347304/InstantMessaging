@@ -1,6 +1,14 @@
+type (
+	PageInfo {
+		Key   string `form:"key"`
+		Page  int    `form:"page,optional"`
+		Limit int    `form:"limit,optional"`
+	}
+)
+
 type UserInfoRequest {
-	UserID uint `header:"User-ID"`
-	Role   int8 `header:"Role"`
+	UserId uint64 `header:"User-ID"`
+	Role   int32  `header:"Role"`
 }
 
 type ValidInfo {
@@ -9,8 +17,8 @@ type ValidInfo {
 }
 
 type UserInfoResponse {
-	UserID        uint    `json:"user_id"`
-	Name          string  `json:"name"`
+	UserId        uint64  `json:"user_id"`
+	Username      string  `json:"username"`
 	Sign          string  `json:"sign"`
 	Avatar        string  `json:"avatar"`
 	RecallMessage *string `json:"recall_message"` // 撤回消息内容
@@ -19,14 +27,14 @@ type UserInfoResponse {
 	SecureLink    bool    `json:"secure_link"` // 安全链接
 	SavePassword  bool    `json:"save_password"` // 保存密码
 	// 防骚扰
-	SearchUser int8      `json:"search_user"` // 别人查找到你的方式
-	Valid      int8      `json:"valid,optional"`
+	SearchUser int32     `json:"search_user"` // 别人查找到你的方式
+	Valid      int32     `json:"valid,optional"`
 	ValidInfo  ValidInfo `json:"valid_info,optional"`
 }
 
 type UserUpdateRequest {
-	UserID        uint    `json:"user_id"`
-	Name          *string `json:"name,optional"`
+	UserId        uint64  `json:"user_id"`
+	Username      *string `json:"username,optional"`
 	Sign          *string `json:"sign,optional"`
 	Avatar        *string `json:"avatar,optional"`
 	RecallMessage *string `json:"recall_message,optional"` // 撤回消息内容
@@ -35,22 +43,22 @@ type UserUpdateRequest {
 	SecureLink    *bool   `json:"secure_link,optional"` // 安全链接
 	SavePassword  *bool   `json:"save_password,optional"` // 保存密码
 	// 防骚扰
-	SearchUser *int8     `json:"search_user,optional"` // 别人查找到你的方式
-	Valid      int8      `json:"valid，optional"`
+	SearchUser *int32    `json:"search_user,optional"` // 别人查找到你的方式
+	Valid      int32     `json:"valid，optional"`
 	ValidInfo  ValidInfo `json:"valid_info,optional"`
 }
 
 type UserUpdateResponse {}
 
 type FriendInfoRequest {
-	UserID   uint `header:"User-ID"`
-	Role     int8 `header:"Role"`
-	FriendId uint `form:"friend_id"` // 好友ID
+	UserId   uint64 `header:"User-ID"`
+	Role     int32  `header:"Role"`
+	FriendId uint64 `form:"friend_id"` // 好友ID
 }
 
 type FriendInfoResponse {
-	UserID   uint   `json:"user_id"`
-	Name     string `json:"name"`
+	UserId   uint64 `json:"user_id"`
+	Username string `json:"username"`
 	Sign     string `json:"sign"`
 	Avatar   string `json:"avatar"`
 	Notice   string `json:"notice"` // 备注
@@ -58,10 +66,9 @@ type FriendInfoResponse {
 }
 
 type FriendListRequest {
-	UserID uint `header:"User-ID"`
-	Role   int8 `header:"Role"`
-	Page   int  `form:"page,optional"`
-	Limit  int  `form:"limit,optional"`
+	PageInfo
+	UserId uint64 `header:"User-ID"`
+	Role   int32  `header:"Role"`
 }
 
 type FriendListResponse {
@@ -70,24 +77,22 @@ type FriendListResponse {
 }
 
 type FriendNoticeUpdateRequest {
-	UserID   uint   `header:"User-ID"`
-	FriendId uint   `json:"friend_id"` // 好友ID
+	UserId   uint64 `header:"User-ID"`
+	FriendId uint64 `json:"friend_id"` // 好友ID
 	Notice   string `json:"notice"` // 备注
 }
 
 type FriendNoticeUpdateResponse {}
 
 type SearchRequest {
-	UserID uint   `header:"User-ID"`
-	Key    string `form:"key"`
+	PageInfo
+	UserId uint64 `header:"User-ID"`
 	Online bool   `form:"online,optional"`
-	Page   int    `form:"page,optional"`
-	Limit  int    `form:"limit,optional"`
 }
 
 type SearchInfo {
-	UserID   uint   `json:"user_id"`
-	Name     string `json:"name"`
+	UserId   uint64 `json:"user_id"`
+	Username string `json:"username"`
 	Sign     string `json:"sign"`
 	Avatar   string `json:"avatar"`
 	IsFriend bool   `json:"is_friend"`
@@ -100,19 +105,19 @@ type SearchResponse {
 
 type (
 	ValidIssueRequest {
-		UserID uint `header:"User-ID"`
-		Id     uint `path:"id"` // 好友ID
+		UserId uint64 `header:"User-ID"`
+		Id     uint64 `path:"id"` // 好友ID
 	}
 	ValidIssueResponse {
-		Valid     int8      `json:"valid"`
+		Valid     int32     `json:"valid"`
 		ValidInfo ValidInfo `json:"valid_info"`
 	}
 )
 
 type (
 	AddFriendRequest {
-		UserID       uint      `header:"User-ID"`
-		FriendId     uint      `json:"friend_id"` // 好友ID
+		UserId       uint64    `header:"User-ID"`
+		FriendId     uint64    `json:"friend_id"` // 好友ID
 		ValidMessage string    `json:"valid_message,optional"` // 验证消息
 		ValidInfo    ValidInfo `json:"valid_info,optional"`
 	}
@@ -121,19 +126,18 @@ type (
 
 type (
 	FriendValidListRequest {
-		UserID uint `header:"User-ID"`
-		Page   int  `form:"page,optional"`
-		Limit  int  `form:"limit,optional"`
+		PageInfo
+		UserId uint64 `header:"User-ID"`
 	}
 	FriendValidInfo {
-		UserID       uint      `json:"user_id"`
-		Name         string    `json:"name"`
+		UserId       uint64    `json:"user_id"`
+		Username     string    `json:"username"`
 		Avatar       string    `json:"avatar"`
 		ValidMessage string    `json:"valid_message,optional"` // 验证消息
 		ValidInfo    ValidInfo `json:"valid_info,optional"`
-		Status       int8      `json:"status"`
-		Auth         int8      `json:"auth"` // 好友验证
-		Id           uint      `json:"id"`
+		Status       int32     `json:"status"`
+		Auth         int32     `json:"auth"` // 好友验证
+		Id           uint64    `json:"id"`
 		Flag         string    `json:"flag"` // send  rev
 		CreatedAt    string    `json:"created_at"` // 验证时间
 	}
@@ -145,19 +149,19 @@ type (
 
 type (
 	ValidStatusRequest {
-		UserID  uint `header:"User-ID"`
-		ValidId uint `json:"valid_id"`
-		Status  int8 `json:"status"`
+		UserId  uint64 `header:"User-ID"`
+		ValidId uint64 `json:"valid_id"`
+		Status  int32  `json:"status"`
 	}
 	ValidStatusResponse {
-		UserID  uint `header:"User-ID"`
-		ValidId uint `json:"valid_id"`
+		UserId  uint64 `header:"User-ID"`
+		ValidId uint64 `json:"valid_id"`
 	}
 )
 
 type FriendDeleteRequest {
-	UserID   uint `header:"User-ID"`
-	FriendId uint `json:"friend_id"` // 好友ID
+	UserId   uint64 `header:"User-ID"`
+	FriendId uint64 `json:"friend_id"` // 好友ID
 }
 
 type FriendDeleteResponse {}
@@ -200,18 +204,13 @@ service user {
 type (
 	Empty  {}
 	Header {
-		UserID uint `header:"User-ID"`
+		UserId uint64 `header:"User-ID"`
 	}
 	ParamsPath {
-		Id uint `path:"id"`
-	}
-	RequestPageInfo {
-		Key   string `form:"key,optional"`
-		Page  int    `form:"page,optional"`
-		Limit int    `form:"limit,optional"`
+		Id uint64 `path:"id"`
 	}
 	RequestDelete {
-		IdList []uint `json:"id_list"`
+		IdList []uint64 `json:"id_list"`
 	}
 	ResponseList {
 		Total int64   `json:"total"`
@@ -221,7 +220,7 @@ type (
 
 type (
 	UserListInfoResponse {
-		ID                 uint   `json:"id"`
+		ID                 uint64 `json:"id"`
 		CreatedAt          string `json:"created_at"`
 		name               string `json:"name"`
 		Avatar             string `json:"avatar"`
@@ -241,11 +240,11 @@ type (
 		List  []UserListInfoResponse `json:"list"`
 	}
 	UserCurtailRequest {
-		UserID             uint `json:"user_id"` // 限制的用户
-		CurtailChat        bool `json:"curtail_chat"` // 限制聊天
-		CurtailAddUser     bool `json:"curtail_add_user"` // 限制加人
-		CurtailCreateGroup bool `json:"curtail_create_group"` // 限制建群
-		CurtailAddGroup    bool `json:"curtail_add_group"` // 限制加群
+		UserId             uint64 `json:"user_id"` // 限制的用户
+		CurtailChat        bool   `json:"curtail_chat"` // 限制聊天
+		CurtailAddUser     bool   `json:"curtail_add_user"` // 限制加人
+		CurtailCreateGroup bool   `json:"curtail_create_group"` // 限制建群
+		CurtailAddGroup    bool   `json:"curtail_add_group"` // 限制加群
 	}
 )
 
@@ -255,7 +254,7 @@ type (
 )
 service user {
 	@handler UserList // 用户列表
-	get /api/user/user (RequestPageInfo) returns (UserListResponse)
+	get /api/user/user (PageInfo) returns (UserListResponse)
 
 	@handler UserCurtail // 用户限制
 	post /api/user/curtail (UserCurtailRequest) returns (Empty)

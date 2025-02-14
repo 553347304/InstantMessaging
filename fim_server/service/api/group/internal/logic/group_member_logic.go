@@ -28,9 +28,9 @@ func NewGroupMemberLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Group
 }
 
 type mysqlSel struct {
-	GroupId        uint   `gorm:"column:group_id"`
-	UserID         uint   `gorm:"column:user_id"`
-	Role           int8   `gorm:"column:role"`
+	GroupId        uint64   `gorm:"column:group_id"`
+	UserId         uint64   `gorm:"column:user_id"`
+	Role           int32   `gorm:"column:role"`
 	CreatedAt      string `gorm:"column:created_at"`
 	MemberName     string `gorm:"column:member_name"`
 	NewMessageDate string `gorm:"column:new_message_date"`
@@ -52,42 +52,42 @@ func (l *GroupMemberLogic) GroupMember(req *types.GroupMemberRequest) (resp *typ
 		PageInfo: src.PageInfo{Page: req.Page, Limit: req.Limit, Sort: req.Sort},
 	}).GetListGroup()
 
-	var UserIDList []uint32
+	var UserIdList []uint64
 	for _, data := range member.List {
-		UserIDList = append(UserIDList, uint32(data.UserID))
+		UserIdList = append(UserIdList, data.UserId)
 	}
 
 	// 关于降级
-	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: UserIDList})
+	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: UserIdList})
 	if err != nil {
 		logs.Error(err)
 	}
 
-	var userInfoMap = map[uint]mtype.UserInfo{}
+	var userInfoMap = map[uint64]mtype.UserInfo{}
 	for u, info := range userResponse.InfoList {
-		userInfoMap[uint(u)] = mtype.UserInfo{
-			ID:     uint(u),
-			Name:   info.Name,
+		userInfoMap[u] = mtype.UserInfo{
+			UserId:     u,
+			Username:   info.Username,
 			Avatar: info.Avatar,
 		}
 	}
 
-	var userOnlineMap = map[uint]bool{}
+	var userOnlineMap = map[uint64]bool{}
 	userOnlineResponse, err := l.svcCtx.UserRpc.User.UserOnlineList(l.ctx, &user_rpc.Empty{})
 	if err != nil {
 		logs.Error(err)
 	}
-	for _, u := range userOnlineResponse.UserIDList {
-		userOnlineMap[uint(u)] = true
+	for _, u := range userOnlineResponse.UserIdList {
+		userOnlineMap[u] = true
 	}
 
 	resp = new(types.GroupMemberResponse)
 	for _, data := range member.List {
 		resp.List = append(resp.List, types.GroupMemberInfo{
-			UserID:         data.UserID,
-			Name:           userInfoMap[data.UserID].Name,
-			Avatar:         userInfoMap[data.UserID].Avatar,
-			InOnline:       userOnlineMap[data.UserID],
+			UserId:         data.UserId,
+			Username:           userInfoMap[data.UserId].Username,
+			Avatar:         userInfoMap[data.UserId].Avatar,
+			InOnline:       userOnlineMap[data.UserId],
 			Role:           data.Role,
 			MemberName:     data.MemberName,
 			CreatedAt:      data.CreatedAt,

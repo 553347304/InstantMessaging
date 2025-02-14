@@ -2,12 +2,10 @@ package userlogic
 
 import (
 	"context"
-	"fim_server/utils/stores/logs"
-	"strconv"
-
 	"fim_server/service/rpc/user/internal/svc"
 	"fim_server/service/rpc/user/user_rpc"
-
+	"fim_server/utils/stores/conv"
+	
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -31,12 +29,11 @@ func (l *UserOnlineListLogic) UserOnlineList(in *user_rpc.Empty) (*user_rpc.User
 	resp := new(user_rpc.UserOnlineListResponse)
 	onlineMap := l.svcCtx.Redis.HGetAll("user_online").Val()
 	for key, _ := range onlineMap {
-		value, err := strconv.Atoi(key)
+		u, err := conv.Type(key).Uint64()
 		if err != nil {
-			logs.Error("转换失败", err.Error())
 			continue
 		}
-		resp.UserIDList = append(resp.UserIDList, uint32(value))
+		resp.UserIdList = append(resp.UserIdList, u)
 	}
 
 	return resp, nil

@@ -12,10 +12,10 @@ info (
 type (
 	Empty  {}
 	Header {
-		UserID uint `header:"User-ID"`
+		UserId uint64 `header:"User-ID"`
 	}
 	ParamsPath {
-		Id uint `path:"id"`
+		Id uint64 `path:"id"`
 	}
 	ValidInfo {
 		Issue  []string `json:"issue,optional"`
@@ -27,7 +27,7 @@ type (
 		Limit int    `form:"limit,optional"`
 	}
 	RequestDelete {
-		IdList []uint `json:"id_list"`
+		IdList []uint64 `json:"id_list"`
 	}
 	ResponseList {
 		List  []Empty `json:"list"`
@@ -37,28 +37,28 @@ type (
 
 type (
 	GroupCreateRequest {
-		UserID     uint   `header:"User-ID"`
-		Mode       int8   `json:"mode,optional"` // 模式 1 直接创建   2 创建模式
-		Name       string `json:"name,optional"`
-		IsSearch   bool   `json:"is_search,optional"`
-		Size       int    `json:"size,optional"`
-		UserIDList []uint `json:"user_id_list,optional"`
+		UserId     uint64   `header:"User-ID"`
+		Mode       int32    `json:"mode,optional"` // 模式 1 直接创建   2 创建模式
+		Name       string   `json:"name,optional"`
+		IsSearch   bool     `json:"is_search,optional"`
+		Size       int32    `json:"size,optional"`
+		UserIDList []uint64 `json:"user_id_list,optional"`
 	}
 	GroupCreateResponse  {}
 )
 
 type (
 	GroupInfoRequest {
-		UserID uint `header:"User-ID"`
-		Id     int8 `path:"id"`
+		UserId uint64 `header:"User-ID"`
+		Id     int32  `path:"id"`
 	}
 	UserInfo {
-		UserID uint   `json:"user_id"`
-		Name   string `json:"name"`
-		Avatar string `json:"avatar"`
+		UserId   uint64 `json:"user_id"`
+		Username string `json:"username"`
+		Avatar   string `json:"avatar"`
 	}
 	GroupInfoResponse {
-		GroupId          uint       `json:"group_id"`
+		GroupId          uint64     `json:"group_id"`
 		Name             string     `json:"name"`
 		Sign             string     `json:"sign"`
 		Avatar           string     `json:"avatar"`
@@ -66,7 +66,7 @@ type (
 		MemberOnlinCount int        `json:"member_onlin_count"`
 		Leader           UserInfo   `json:"leader"` // 群主
 		AdminList        []UserInfo `json:"admin_list"`
-		Role             int8       `json:"role"` // 角色   1 群主 2 群管理员 3 群成员
+		Role             int32      `json:"role"` // 角色   1 群主 2 群管理员 3 群成员
 		IsBan            bool       `json:"is_time"` // is禁言
 		BanTime          *int       `json:"ban_time"` // 禁言时间 单位分钟
 	}
@@ -74,8 +74,8 @@ type (
 
 type (
 	GroupUpdateRequest {
-		UserID             uint      `header:"User-ID"`
-		Id                 int8      `json:"id"`
+		UserId             uint64    `header:"User-ID"`
+		Id                 int32     `json:"id"`
 		Name               string    `json:"name,optional" conf:"name"` // 群名
 		Avatar             string    `json:"avatar,optional" conf:"avatar"` // 群头像
 		Sign               string    `json:"sign,optional" conf:"sign"` // 群简介
@@ -83,7 +83,7 @@ type (
 		IsInvite           *bool     `json:"is_invite,optional" conf:"is_invite"` // is邀请
 		IsTemporarySession *bool     `json:"is_temporary_session,optional" conf:"is_temporary_session"` // is临时会话
 		IsBan              *bool     `json:"is_time,optional" conf:"is_time"` // is禁言
-		Valid              int8      `json:"valid，optional"`
+		Valid              int32     `json:"valid，optional"`
 		ValidInfo          ValidInfo `json:"valid_info,optional"`
 	}
 	GroupUpdateResponse  {}
@@ -91,30 +91,30 @@ type (
 
 type (
 	GroupDeleteRequest {
-		UserID uint `header:"User-ID"`
-		Id     int8 `path:"id"`
+		UserId uint64 `header:"User-ID"`
+		Id     int32  `path:"id"`
 	}
 	GroupDeleteResponse  {}
 )
 
 type (
 	GroupMemberRequest {
-		UserID uint   `header:"User-ID"`
-		Id     uint   `form:"id"`
+		UserId uint64 `header:"User-ID"`
+		Id     uint64 `form:"id"`
 		Page   int    `form:"page,optional"`
 		Limit  int    `form:"limit,optional"`
 		Sort   string `form:"sort,optional"`
 	}
 	GroupMemberInfoRequest {
-		UserID uint `header:"User-ID"`
-		Id     uint `path:"id"`
+		UserId uint64 `header:"User-ID"`
+		Id     uint64 `path:"id"`
 	}
 	GroupMemberInfo {
-		UserID         uint   `json:"user_id"`
-		Name           string `json:"name"`
+		UserId         uint64 `json:"user_id"`
+		Username       string `json:"username"`
 		Avatar         string `json:"avatar"`
 		InOnline       bool   `json:"in_online"`
-		Role           int8   `json:"role"`
+		Role           int32  `json:"role"`
 		MemberName     string `json:"member_name"`
 		CreatedAt      string `json:"created_at"`
 		NewMessageDate string `json:"new_message_date"`
@@ -127,27 +127,27 @@ type (
 
 type (
 	GroupMemberDeleteRequest {
-		UserID   uint `header:"User-ID"`
-		Id       uint `form:"id"`
-		MemberId uint `form:"member_id"`
+		UserId   uint64 `header:"User-ID"`
+		Id       uint64 `form:"id"`
+		MemberId uint64 `form:"member_id"`
 	}
 	GroupMemberDeleteResponse  {}
 )
 
 type (
 	GroupMemberAddRequest {
-		UserID       uint   `header:"User-ID"`
-		Id           uint   `json:"id"`
-		MemberIdList []uint `json:"member_id_list"`
+		UserId       uint64   `header:"User-ID"`
+		Id           uint64   `json:"id"`
+		MemberIdList []uint64 `json:"member_id_list"`
 	}
 	GroupMemberAddResponse  {}
 )
 
 type (
 	GroupMemberNameRequest {
-		UserID   uint   `header:"User-ID"`
-		Id       uint   `json:"id"`
-		MemberId uint   `json:"member_id"`
+		UserId   uint64 `header:"User-ID"`
+		Id       uint64 `json:"id"`
+		MemberId uint64 `json:"member_id"`
 		Name     string `json:"name"`
 	}
 	GroupMemberNameResponse  {}
@@ -155,21 +155,21 @@ type (
 
 type (
 	GroupMemberRoleRequest {
-		UserID   uint `header:"User-ID"`
-		Id       uint `json:"id"`
-		MemberId uint `json:"member_id"`
-		Role     int8 `json:"role"`
+		UserId   uint64 `header:"User-ID"`
+		Id       uint64 `json:"id"`
+		MemberId uint64 `json:"member_id"`
+		Role     int32  `json:"role"`
 	}
 	GroupMemberRoleResponse  {}
 )
 
 type (
 	GroupFriendsListRequest {
-		UserID uint `header:"User-ID"`
-		Id     uint `form:"id"`
+		UserId uint64 `header:"User-ID"`
+		Id     uint64 `form:"id"`
 	}
 	GroupFriendsInfo {
-		UserID    uint   `json:"user_id"`
+		UserId    uint64 `json:"user_id"`
 		Avatar    string `json:"avatar"`
 		Name      string `json:"name"`
 		IsInGroup bool   `json:"is_in_group"`
@@ -182,14 +182,14 @@ type (
 
 type (
 	GroupSearchListRequest {
-		UserID uint   `header:"User-ID"`
+		UserId uint64 `header:"User-ID"`
 		Id     string `form:"id"`
 		Key    string `form:"key"`
 		Page   int    `form:"page,optional"`
 		Limit  int    `form:"limit,optional"`
 	}
 	GroupSearchInfo {
-		GroupId         uint   `json:"group_id"`
+		GroupId         uint64 `json:"group_id"`
 		Name            string `json:"name"`
 		Sign            string `json:"sign"`
 		Avatar          string `json:"avatar"`
@@ -205,36 +205,36 @@ type (
 
 type (
 	GroupAddRequest {
-		UserID    uint      `header:"User-ID"`
-		GroupId   uint      `json:"group_id"`
+		UserId    uint64    `header:"User-ID"`
+		GroupId   uint64    `json:"group_id"`
 		ValidInfo ValidInfo `json:"valid_info,optional"`
 	}
 	GroupAddResponse  {}
 	GroupValidIssueRequest {
-		UserID uint `header:"User-ID"`
-		Id     uint `path:"id"`
+		UserId uint64 `header:"User-ID"`
+		Id     uint64 `path:"id"`
 	}
 	GroupValidIssueResponse {
-		Valid     int8      `json:"valid，optional"`
+		Valid     int32     `json:"valid，optional"`
 		ValidInfo ValidInfo `json:"valid_info,optional"`
 	}
 	GroupValidListRequest {
-		UserID  uint `header:"User-ID"`
-		GroupId uint `form:"group_id"`
-		Page    int  `form:"page,optional"`
-		Limit   int  `form:"limit,optional"`
+		UserId  uint64 `header:"User-ID"`
+		GroupId uint64 `form:"group_id"`
+		Page    int    `form:"page,optional"`
+		Limit   int    `form:"limit,optional"`
 	}
 	GroupValidInfo {
-		ID         uint      `json:"id"`
-		UserID     uint      `header:"User-ID"`
-		GroupId    uint      `json:"group_id"`
+		ID         uint64    `json:"id"`
+		UserId     uint64    `header:"User-ID"`
+		GroupId    uint64    `json:"group_id"`
 		UserAvatar string    `json:"user_avatar"`
-		UserName   string    `json:"user_name"`
+		Username   string    `json:"username"`
 		Name       string    `json:"name"`
-		Status     int8      `json:"status"` // 状态
-		Valid      int8      `json:"valid，optional"`
+		Status     int32     `json:"status"` // 状态
+		Valid      int32     `json:"valid，optional"`
 		ValidInfo  ValidInfo `json:"valid_info,optional"`
-		Type       int8      `json:"type"` // 1 加群 2 退群
+		Type       int32     `json:"type"` // 1 加群 2 退群
 		CreatedAt  string    `json:"created_at"`
 	}
 	GroupValidListResponse {
@@ -242,19 +242,19 @@ type (
 		List  []GroupValidInfo `json:"list"`
 	}
 	GroupValidStatusRequest {
-		UserID  uint `header:"User-ID"`
-		VaildId uint `json:"vaild_id"`
-		Status  int8 `json:"status"`
+		UserId  uint64 `header:"User-ID"`
+		VaildId uint64 `json:"vaild_id"`
+		Status  int32  `json:"status"`
 	}
 	GroupValidStatusResponse  {}
 )
 
 type (
 	GroupBanUpdateRequest {
-		UserID   uint `header:"User-ID"`
-		GroupId  uint `json:"group_id"`
-		MemberId uint `json:"member_id"`
-		BanTime  int  `json:"ban_time"` // 禁言时间
+		UserId   uint64 `header:"User-ID"`
+		GroupId  uint64 `json:"group_id"`
+		MemberId uint64 `json:"member_id"`
+		BanTime  int    `json:"ban_time"` // 禁言时间
 	}
 	GroupBanUpdateResponse  {}
 )
@@ -269,7 +269,7 @@ type (
 	GroupHistoryDeleteRequest {
 		Header
 		ParamsPath
-		IdList []uint `json:"id_list"`
+		IdList []uint64 `json:"id_list"`
 	}
 )
 
@@ -279,7 +279,7 @@ type (
 		PageInfo
 	}
 	GroupSessionResponse {
-		GroupId           uint   `json:"group_id"`
+		GroupId           uint64 `json:"group_id"`
 		Name              string `json:"name"`
 		Avatar            string `json:"avatar"`
 		NewMessageDate    string `json:"new_message_date"`
@@ -287,22 +287,22 @@ type (
 	}
 	GroupTopRequest {
 		Header
-		GroupId uint `json:"group_id"`
-		Top     bool `json:"top"`
+		GroupId uint64 `json:"group_id"`
+		Top     bool   `json:"top"`
 	}
 	GroupTopResponse  {}
 	GroupMeListRequest {
 		Header
 		PageInfo
-		Mode int8 `form:"mode"` // 1 我创建的群 | 2 我加入的群
+		Mode int32 `form:"mode"` // 1 我创建的群 | 2 我加入的群
 	}
 	GroupMeInfo {
-		Id          uint   `json:"id"`
+		Id          uint64 `json:"id"`
 		Name        string `json:"name"`
 		Avatar      string `json:"avatar"`
 		MemberTatal int64  `json:"member_tatal"`
-		Role        int8   `json:"role"`
-		Mode        int8   `json:"mode"`
+		Role        int32  `json:"role"`
+		Mode        int32  `json:"mode"`
 	}
 	GroupMeListResponse {
 		Total int64         `json:"total"`
@@ -387,7 +387,7 @@ service group {
 
 type (
 	GroupListInfoResponse {
-		ID                uint       `json:"id"`
+		ID                uint64     `json:"id"`
 		CreatedAt         string     `json:"created_at"`
 		Name              string     `json:"name"`
 		Sign              string     `json:"sign"`

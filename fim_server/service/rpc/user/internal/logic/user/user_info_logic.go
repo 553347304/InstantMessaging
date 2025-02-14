@@ -4,6 +4,7 @@ import (
 	"context"
 	"fim_server/models/user_models"
 	"fim_server/utils/stores/conv"
+	"fim_server/utils/stores/method"
 	
 	"fim_server/service/rpc/user/internal/svc"
 	"fim_server/service/rpc/user/user_rpc"
@@ -28,24 +29,14 @@ func (l *UserInfoLogic) UserInfo(in *user_rpc.IdList) (*user_rpc.UserInfoRespons
 	
 	resp := new(user_rpc.UserInfoResponse)
 	
-	resp.InfoList = make(map[uint32]*user_rpc.UserInfo)
-	for i, user := range userList {
-		info := &user_rpc.UserInfo{
-			Id:              uint32(user.ID),
-			Name:            user.Name,
-			Password:        user.Password,
-			Sign:            user.Sign,
-			Avatar:          user.Avatar,
-			Ip:              user.IP,
-			Addr:            user.Addr,
-			Role:            user.Role,
-			UserConfigModel: conv.Json().Marshal(user.UserConfigModel),
-			CreatedAt:       user.CreatedAt.String(),
-		}
+	resp.InfoList = make(map[uint64]*user_rpc.UserInfo)
+	for i, u := range userList {
+		var user user_rpc.UserInfo
+		method.Struct().To(u, &user)
 		if i == 0 {
-			resp.Info = info
+			resp.Info = &user
 		}
-		resp.InfoList[uint32(user.ID)] = info
+		resp.InfoList[u.ID] = &user
 	}
 	resp.Total = int64(len(resp.InfoList))
 	if resp.Total == 0 {

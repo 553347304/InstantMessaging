@@ -25,7 +25,7 @@ func (l *UserCurtailLogic) UserCurtail(req *types.UserCurtailRequest) (resp *typ
 	// todo: add your logic here and delete this line
 
 	var user user_models.UserModel
-	err = l.svcCtx.DB.Preload("UserConfigModel").Take(&user, req.UserID).Error
+	err = l.svcCtx.DB.Preload("UserConfigModel").Take(&user, req.UserId).Error
 	if err != nil {
 		return nil, logs.Error("用户不存在")
 	}

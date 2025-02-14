@@ -31,7 +31,7 @@ func (l *IsInGroupMemberLogic) IsInGroupMember(in *group_rpc.IsInGroupMemberRequ
 	resp = new(group_rpc.EmptyResponse)
 	// 判断用户是否在群里
 	var groupModel group_models.GroupMemberModel
-	err = l.svcCtx.DB.Take(&groupModel, "group_id = ? and user_id = ?", in.GroupId, in.UserID).Error
+	err = l.svcCtx.DB.Take(&groupModel, "group_id = ? and user_id = ?", in.GroupId, in.UserId).Error
 	if err != nil {
 		return nil, logs.Error("不在群里面")
 	}

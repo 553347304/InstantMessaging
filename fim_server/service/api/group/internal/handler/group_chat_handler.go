@@ -23,20 +23,20 @@ type UserInfoWebsocket struct {
 	ConnMap  map[string]*websocket.Conn
 }
 
-var UserOnlineMapWebsocket = make(map[uint]*UserInfoWebsocket)
+var UserOnlineMapWebsocket = make(map[uint64]*UserInfoWebsocket)
 
 type ChatRequest struct {
-	GroupId uint          `json:"group_id"`
+	GroupId uint64          `json:"group_id"`
 	Type    mtype.Int8    `json:"type"`
 	Message mtype.Message `json:"message"`
 }
 type ChatResponse struct {
-	UserID    uint          `json:"user_id"`
+	UserId    uint64          `json:"user_id"`
 	Name      string        `json:"name"`
 	Avatar    string        `json:"avatar"`
 	Type      mtype.Int8    `json:"type"`
 	Message   mtype.Message `json:"message"`
-	Id        uint          `json:"id"`
+	Id        uint64          `json:"id"`
 	CreatedAt time.Time     `json:"created_at"`
 	IsMe      bool          `json:"is_me"`
 }
@@ -54,10 +54,10 @@ func (m *Message) Error(err string) error {
 	m.Err = conv.Type(err).Error()
 	return m.Err
 }
-func (m *Message) InsertDatabase() (uint, error) {
+func (m *Message) InsertDatabase() (uint64, error) {
 	groupModel := group_models.GroupMessageModel{
 		GroupId:    m.Request.GroupId,
-		SendUserID: m.Req.UserID,
+		SendUserId: m.Req.UserId,
 		Message:    m.Request.Message,
 		MemberId:   m.Member.ID,
 		Type:       m.Request.Type,
@@ -85,21 +85,21 @@ func (m *Message) SendALLMember() error {
 	}
 	
 	// 用户在线列表
-	var userOnlineIdList []uint
+	var userOnlineIdList []uint64
 	for u, _ := range UserOnlineMapWebsocket {
 		userOnlineIdList = append(userOnlineIdList, u)
 	}
 	
 	// 群成员在线列表
-	var groupMemberOnlineIdList []uint
+	var groupMemberOnlineIdList []uint64
 	m.svcCtx.DB.Model(&group_models.GroupMemberModel{}).
 		Where("group_id = ? and user_id in ?", m.Request.GroupId, userOnlineIdList).
 		Select("user_id").Scan(&groupMemberOnlineIdList)
 	
-	info, _ := UserOnlineMapWebsocket[m.Req.UserID]
+	info, _ := UserOnlineMapWebsocket[m.Req.UserId]
 	var chatResponse = ChatResponse{
-		UserID:    m.Req.UserID,
-		Name:      info.UserInfo.Name,
+		UserId:    m.Req.UserId,
+		Name:      info.UserInfo.Username,
 		Avatar:    info.UserInfo.Avatar,
 		Type:      m.Request.Type,
 		Message:   m.Request.Message,
@@ -112,7 +112,7 @@ func (m *Message) SendALLMember() error {
 		if !ok {
 			continue
 		}
-		chatResponse.IsMe = wsUserInfo.UserInfo.ID == m.Req.UserID
+		chatResponse.IsMe = wsUserInfo.UserInfo.UserId == m.Req.UserId
 		
 		for _, w2 := range wsUserInfo.ConnMap {
 			w2.WriteMessage(websocket.TextMessage, conv.Json().Marshal(chatResponse))
@@ -152,15 +152,15 @@ func (m *Message) isMessageWithdraw() error {
 	if m.Member.Role == 1 || m.Member.Role == 2 {
 		var messageUserRole int8 = 3
 		m.svcCtx.DB.Model(group_models.GroupMemberModel{}).
-			Where("group_id = ? and user_id = ?", m.Request.GroupId, groupMessage.SendUserID).
+			Where("group_id = ? and user_id = ?", m.Request.GroupId, groupMessage.SendUserId).
 			Select("role").Scan(&messageUserRole)
-		if messageUserRole == 1 || (messageUserRole == 2 && groupMessage.SendUserID != m.Req.UserID) {
+		if messageUserRole == 1 || (messageUserRole == 2 && groupMessage.SendUserId != m.Req.UserId) {
 			return m.Error("管理员只能撤回自己或普通用户的消息")
 		}
 	}
 	
 	// 自己撤回
-	if m.Req.UserID == groupMessage.SendUserID {
+	if m.Req.UserId == groupMessage.SendUserId {
 		now := time.Now()
 		if now.Sub(groupMessage.CreatedAt) > 2*time.Minute {
 			return m.Error("撤回消息时间超过两分钟")
@@ -219,7 +219,7 @@ func (m *Message) Init(p []byte) error {
 	
 	// 检查用户是否在群聊中
 	var member group_models.GroupMemberModel
-	err := m.svcCtx.DB.Preload("GroupModel").Take(&member, "group_id = ? and user_id = ?", m.Request.GroupId, m.Req.UserID).Error
+	err := m.svcCtx.DB.Preload("GroupModel").Take(&member, "group_id = ? and user_id = ?", m.Request.GroupId, m.Req.UserId).Error
 	if err != nil {
 		return m.Error("用户不在群")
 	}
@@ -230,15 +230,15 @@ func (m *Message) Init(p []byte) error {
 	}
 	
 	// 获取用户信息
-	userRpc, err := m.svcCtx.UserRpc.User.UserInfo(m.ctx, &user_rpc.IdList{Id: []uint32{uint32(m.Req.UserID)}})
+	userRpc, err := m.svcCtx.UserRpc.User.UserInfo(m.ctx, &user_rpc.IdList{Id: []uint64{m.Req.UserId}})
 	if err != nil {
 		return m.Error(err.Error())
 	}
 	
-	UserOnlineMapWebsocket[m.Req.UserID] = &UserInfoWebsocket{
+	UserOnlineMapWebsocket[m.Req.UserId] = &UserInfoWebsocket{
 		UserInfo: mtype.UserInfo{
-			ID:     m.Req.UserID,
-			Name:   userRpc.Info.Name,
+			UserId:     m.Req.UserId,
+			Username:   userRpc.Info.Username,
 			Avatar: userRpc.Info.Avatar,
 		},
 		ConnMap: map[string]*websocket.Conn{

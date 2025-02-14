@@ -2,9 +2,6 @@ package logic
 
 import (
 	"context"
-	"fim_server/utils/stores/valid"
-	"fmt"
-	"time"
 	
 	"fim_server/service/api/auth/internal/svc"
 	"github.com/zeromicro/go-zero/core/logx"
@@ -28,16 +25,16 @@ func (l *LogoutLogic) Logout(token string) (resp string, err error) {
 	// todo: add your logic here and delete this line
 
 	
-	claims := valid.Jwt().Parse(token)
-	if claims == nil {
-		return
-	}
-	now := time.Now()
-	expiration := claims.ExpiresAt.Time.Sub(now)
-
-	key := fmt.Sprintf("logout_%s", token)
-	l.svcCtx.Redis.SetNX(key, "", expiration)
-
-	resp = "注销成功"
+	// claims := valid.Jwt().Parse(token)
+	// if claims == nil {
+	// 	return
+	// }
+	// now := time.Now()
+	// expiration := claims.ExpiresAt.Time.Sub(now)
+	// 
+	// key := fmt.Sprintf("logout_%s", token)
+	// l.svcCtx.Redis.SetNX(key, "", expiration)
+	// 
+	// resp = "注销成功"
 	return
 }

@@ -39,7 +39,7 @@ func (l *ChatDeleteLogic) ChatDelete(req *types.ChatDeleteRequest) (resp *types.
 	// var deleteChatIdList []chat_models.UserChatDeleteModels
 	// if len(chatList) > 0 {
 	// 	for _, model := range chatList {
-	// 		if !(model.SendUserID == req.UserID || model.ReceiveUserID == req.UserID) {
+	// 		if !(model.SendUserId == req.UserId || model.ReceiveUserId == req.UserId) {
 	// 			logs.Info("不是好友")
 	// 			continue
 	// 		}
@@ -49,7 +49,7 @@ func (l *ChatDeleteLogic) ChatDelete(req *types.ChatDeleteRequest) (resp *types.
 	// 			continue
 	// 		}
 	// 		deleteChatIdList = append(deleteChatIdList, chat_models.UserChatDeleteModels{
-	// 			UserID: req.UserID,
+	// 			UserId: req.UserId,
 	// 			ChatId: model.ID,
 	// 		})
 	// 	}

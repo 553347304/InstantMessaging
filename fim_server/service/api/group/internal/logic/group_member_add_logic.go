@@ -29,7 +29,7 @@ func (l *GroupMemberAddLogic) GroupMemberAdd(req *types.GroupMemberAddRequest) (
 	// todo: add your logic here and delete this line
 
 	var member group_models.GroupMemberModel
-	err = l.svcCtx.DB.Preload("GroupModel").Take(&member, "group_id = ? and user_id = ?", req.Id, req.UserID).Error
+	err = l.svcCtx.DB.Preload("GroupModel").Take(&member, "group_id = ? and user_id = ?", req.Id, req.UserId).Error
 	if err != nil {
 		return nil, logs.Error("违规调用")
 	}
@@ -47,7 +47,7 @@ func (l *GroupMemberAddLogic) GroupMemberAdd(req *types.GroupMemberAddRequest) (
 	for _, memberId := range req.MemberIdList {
 		memberList = append(memberList, group_models.GroupMemberModel{
 			GroupId: req.Id,
-			UserID:  memberId,
+			UserId:  memberId,
 			Role:    3,
 		})
 	}

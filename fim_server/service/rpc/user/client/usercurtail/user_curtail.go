@@ -20,11 +20,14 @@ type (
 	ID                     = user_rpc.ID
 	IdList                 = user_rpc.IdList
 	IsFriendRequest        = user_rpc.IsFriendRequest
+	Top                    = user_rpc.Top
+	UserConfig             = user_rpc.UserConfig
 	UserCreateRequest      = user_rpc.UserCreateRequest
 	UserCreateResponse     = user_rpc.UserCreateResponse
 	UserInfo               = user_rpc.UserInfo
 	UserInfoResponse       = user_rpc.UserInfoResponse
 	UserOnlineListResponse = user_rpc.UserOnlineListResponse
+	ValidInfo              = user_rpc.ValidInfo
 
 	UserCurtail interface {
 		IsCurtail(ctx context.Context, in *ID, opts ...grpc.CallOption) (*CurtailResponse, error)

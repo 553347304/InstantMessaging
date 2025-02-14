@@ -1,5 +1,5 @@
 type LoginRequest {
-	Name     string `json:"name"`
+	Username string `json:"username"`
 	Password string `json:"password"`
 }
 
@@ -8,15 +8,15 @@ type LoginResponse {
 }
 
 type OpenLoginRequest {
-	Code string `json:"code"`
-	Flag string `json:"flag"`
-	UserID string `json:"user_id"`
+	Code   string `json:"code"`
+	Flag   string `json:"flag"`
+	UserId string `json:"user_id"`
 }
 
 type OpenLoginInfoResponse {
-	Name string `json:"name"`
-	Icon string `json:"icon"`
-	Href string `json:"href"` // 跳转地址
+	Username string `json:"username"`
+	Icon     string `json:"icon"`
+	Href     string `json:"href"` // 跳转地址
 }
 
 type AuthenticationRequest {
@@ -25,8 +25,8 @@ type AuthenticationRequest {
 }
 
 type AuthenticationResponse {
-	UserID uint `json:"user_id"`
-	Role   int32 `json:"role"`
+	UserId uint64 `json:"user_id"`
+	Role   int32  `json:"role"`
 }
 
 service auth {

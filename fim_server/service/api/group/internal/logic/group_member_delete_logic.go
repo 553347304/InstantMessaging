@@ -29,13 +29,13 @@ func (l *GroupMemberDeleteLogic) GroupMemberDelete(req *types.GroupMemberDeleteR
 	// todo: add your logic here and delete this line
 
 	var member group_models.GroupMemberModel
-	err = l.svcCtx.DB.Take(&member, "group_id = ? and user_id = ?", req.Id, req.UserID).Error
+	err = l.svcCtx.DB.Take(&member, "group_id = ? and user_id = ?", req.Id, req.UserId).Error
 	if err != nil || !(member.Role == 1 || member.Role == 2) {
 		return nil, logs.Error("违规调用")
 	}
 
 	// 用户自己退群
-	if req.UserID == req.MemberId {
+	if req.UserId == req.MemberId {
 		if member.Role == 1 {
 			return nil, logs.Error("群主不能退群")
 		}
@@ -43,7 +43,7 @@ func (l *GroupMemberDeleteLogic) GroupMemberDelete(req *types.GroupMemberDeleteR
 		// 删除验证表记录
 		l.svcCtx.DB.Create(&group_models.GroupValidModel{
 			GroupId: member.GroupId,
-			UserID:  req.UserID,
+			UserId:  req.UserId,
 			Type:    2,
 		})
 		return

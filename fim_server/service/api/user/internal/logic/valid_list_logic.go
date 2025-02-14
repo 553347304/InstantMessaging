@@ -6,8 +6,8 @@ import (
 	"fim_server/service/api/user/internal/svc"
 	"fim_server/service/api/user/internal/types"
 	"fim_server/utils/src"
-	"fim_server/utils/stores/conv"
-
+	"fim_server/utils/stores/method"
+	
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -27,47 +27,51 @@ func NewValidListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *ValidLi
 
 func (l *ValidListLogic) ValidList(req *types.FriendValidListRequest) (resp *types.FriendValidListResponse, err error) {
 	// todo: add your logic here and delete this line
-
+	
 	fvs := src.Mysql(src.ServiceMysql[user_models.FriendValidModel]{
-		DB:      l.svcCtx.DB.Where("send_user_id = ? or receive_user_id = ?", req.UserID, req.UserID),
+		DB:      l.svcCtx.DB.Where("send_user_id = ? or receive_user_id = ?", req.UserId, req.UserId),
 		Preload: []string{"ReceiveUserModel.UserConfigModel", "SendUserModel.UserConfigModel"},
 		PageInfo: src.PageInfo{
 			Page:  req.Page,
 			Limit: req.Limit,
 		},
 	}).GetList()
-
+	
 	var list []types.FriendValidInfo
 	for _, fv := range fvs.List {
+		
+		var validInfo types.ValidInfo
+		method.Struct().To(fv.ValidInfo, &validInfo)
+		
 		info := types.FriendValidInfo{
 			ValidMessage: fv.ValidMessage,
-			ValidInfo:    conv.Struct(types.ValidInfo{}).Type(fv.ValidInfo),
+			ValidInfo:    validInfo,
 			Status:       fv.Status,
 			Id:           fv.ID,
 			CreatedAt:    fv.CreatedAt.String(),
 		}
-
-		if fv.SendUserID == req.UserID {
+		
+		if fv.SendUserId == req.UserId {
 			// 发起方
-			info.UserID = fv.SendUserID
-			info.Name = fv.SendUserModel.Name
+			info.UserId = fv.SendUserId
+			info.Username = fv.SendUserModel.Username
 			info.Avatar = fv.SendUserModel.Avatar
 			info.Auth = fv.SendUserModel.UserConfigModel.Valid
 			info.Status = fv.SendStatus
 			info.Flag = "send"
 		}
-		if fv.ReceiveUserID == req.UserID {
+		if fv.ReceiveUserId == req.UserId {
 			// 接收方
-			info.UserID = fv.ReceiveUserID
-			info.Name = fv.ReceiveUserModel.Name
+			info.UserId = fv.ReceiveUserId
+			info.Username = fv.ReceiveUserModel.Username
 			info.Avatar = fv.ReceiveUserModel.Avatar
 			info.Auth = fv.ReceiveUserModel.UserConfigModel.Valid
 			info.Status = fv.ReceiveStatus
 			info.Flag = "receive"
 		}
-
+		
 		list = append(list, info)
 	}
-
+	
 	return &types.FriendValidListResponse{List: list, Total: fvs.Total}, nil
 }

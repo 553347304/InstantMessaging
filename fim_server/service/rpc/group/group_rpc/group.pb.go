@@ -63,7 +63,7 @@ type IsInGroupMemberRequest struct {
 	sizeCache     protoimpl.SizeCache
 	unknownFields protoimpl.UnknownFields
 
-	UserID  uint32 `protobuf:"varint,1,opt,name=user_id,json=UserID,proto3" json:"user_id,omitempty"`
+	UserId  uint32 `protobuf:"varint,1,opt,name=user_id,json=UserId,proto3" json:"user_id,omitempty"`
 	GroupId uint32 `protobuf:"varint,2,opt,name=group_id,json=groupId,proto3" json:"group_id,omitempty"`
 }
 
@@ -101,7 +101,7 @@ func (*IsInGroupMemberRequest) Descriptor() ([]byte, []int) {
 
 func (x *IsInGroupMemberRequest) GetUserID() uint32 {
 	if x != nil {
-		return x.UserID
+		return x.UserId
 	}
 	return 0
 }

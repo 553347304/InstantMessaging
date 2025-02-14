@@ -29,7 +29,7 @@ func (l *GroupMemberNameLogic) GroupMemberName(req *types.GroupMemberNameRequest
 	// todo: add your logic here and delete this line
 
 	var member group_models.GroupMemberModel
-	err = l.svcCtx.DB.Take(&member, "group_id = ? and user_id = ?", req.Id, req.UserID).Error
+	err = l.svcCtx.DB.Take(&member, "group_id = ? and user_id = ?", req.Id, req.UserId).Error
 	if err != nil || !(member.Role == 1 || member.Role == 2) {
 		return nil, logs.Error("违规调用")
 	}
@@ -39,7 +39,7 @@ func (l *GroupMemberNameLogic) GroupMemberName(req *types.GroupMemberNameRequest
 		return nil, logs.Error("用户不是群成员", err.Error())
 	}
 
-	if member.Role >= member1.Role && req.UserID != req.MemberId {
+	if member.Role >= member1.Role && req.UserId != req.MemberId {
 		return nil, logs.Error("权限不足")
 	}
 	logs.Info(member1)

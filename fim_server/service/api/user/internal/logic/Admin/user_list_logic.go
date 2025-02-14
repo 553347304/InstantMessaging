@@ -26,19 +26,19 @@ func NewUserListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *UserList
 	}
 }
 
-func (l *UserListLogic) UserOnlineList() map[uint]bool {
-	var userOnlineMap = map[uint]bool{}
+func (l *UserListLogic) UserOnlineList() map[uint64]bool {
+	var userOnlineMap = map[uint64]bool{}
 	userOnlineResponse, err1 := l.svcCtx.UserRpc.User.UserOnlineList(l.ctx, &user_rpc.Empty{})
 	if err1 == nil {
-		for _, u := range userOnlineResponse.UserIDList {
-			userOnlineMap[uint(u)] = true
+		for _, u := range userOnlineResponse.UserIdList {
+			userOnlineMap[u] = true
 		}
 	} else {
 		logx.Error(err1)
 	}
 	return userOnlineMap
 }
-func (l *UserListLogic) UserList(req *types.RequestPageInfo) (resp *response.List[types.UserListInfoResponse], err error) {
+func (l *UserListLogic) UserList(req *types.PageInfo) (resp *response.List[types.UserListInfoResponse], err error) {
 	// todo: add your logic here and delete this line
 
 	result := src.Mysql(src.ServiceMysql[user_models.UserModel]{
@@ -67,9 +67,9 @@ func (l *UserListLogic) UserList(req *types.RequestPageInfo) (resp *response.Lis
 		info := types.UserListInfoResponse{
 			ID:                 model.ID,
 			CreatedAt:          model.CreatedAt.String(),
-			Name:               model.Name,
+			Name:               model.Username,
 			Avatar:             model.Avatar,
-			IP:                 model.IP,
+			IP:                 model.Ip,
 			Addr:               model.Addr,
 			IsOnline:           userOnlineMap[model.ID],
 			GroupAdminCount:    int(userGroupCreateTotal.Result[uint32(model.ID)]),

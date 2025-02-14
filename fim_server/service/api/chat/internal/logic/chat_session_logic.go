@@ -30,8 +30,8 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 	// todo: add your logic here and delete this line
 
 	type Data struct {
-		SU         uint   `gorm:"column:s_u"`
-		RU         uint   `gorm:"column:r_u"`
+		SU         uint64   `gorm:"column:s_u"`
+		RU         uint64   `gorm:"column:r_u"`
 		MaxDate    string `gorm:"column:max_date"`
 		MaxPreview string `gorm:"column:max_preview"`
 		IsTop      bool   `gorm:"column:is_top"`
@@ -50,9 +50,9 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 				"order by created_at desc limit 1) as max_preview,"+
 				"if((select 1 from top_user_models where user_id = ? "+
 				"and (top_user_id = s_u or top_user_id = r_u)), 1, 0) as is_top",
-				req.UserID, req.UserID).
+				req.UserId, req.UserId).
 			Where("send_user_id = ? or receive_user_id = ? and id not in (select chat_id from user_chat_delete_models where user_id = ?)",
-				req.UserID, req.UserID, req.UserID).
+				req.UserId, req.UserId, req.UserId).
 			Group("least(send_user_id, receive_user_id)").
 			Group("greatest(send_user_id, receive_user_id)"),
 		PageInfo: src.PageInfo{
@@ -62,17 +62,17 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 		},
 	}).GetListGroup()
 
-	var UserIDList []uint32
+	var UserIDList []uint64
 	for _, data := range chatResponse.List {
-		if data.RU != req.UserID {
-			UserIDList = append(UserIDList, uint32(data.RU))
+		if data.RU != req.UserId {
+			UserIDList = append(UserIDList, data.RU)
 		}
-		if data.SU != req.UserID {
-			UserIDList = append(UserIDList, uint32(data.SU))
+		if data.SU != req.UserId {
+			UserIDList = append(UserIDList, data.SU)
 		}
 		// 自己和自己聊
-		if data.SU == req.UserID && req.UserID == data.RU {
-			UserIDList = append(UserIDList, uint32(req.UserID))
+		if data.SU == req.UserId && req.UserId == data.RU {
+			UserIDList = append(UserIDList, req.UserId)
 		}
 	}
 
@@ -90,17 +90,17 @@ func (l *ChatSessionLogic) ChatSession(req *types.ChatSessionRequest) (resp *typ
 			MessagePreview: data.MaxPreview,
 			IsTop:          data.IsTop,
 		}
-		if data.RU != req.UserID {
-			s.UserID = data.RU
+		if data.RU != req.UserId {
+			s.UserId = data.RU
 		}
-		if data.SU != req.UserID {
-			s.UserID = data.SU
+		if data.SU != req.UserId {
+			s.UserId = data.SU
 		}
-		if data.SU == req.UserID && req.UserID == data.RU {
-			s.UserID = data.SU
+		if data.SU == req.UserId && req.UserId == data.RU {
+			s.UserId = data.SU
 		}
-		s.Avatar = userResponse.InfoList[uint32(s.UserID)].Avatar
-		s.Name = userResponse.InfoList[uint32(s.UserID)].Name
+		s.Avatar = userResponse.InfoList[s.UserId].Avatar
+		s.Username = userResponse.InfoList[s.UserId].Username
 		list = append(list, s)
 	}
 	return &types.ChatSessionResponse{List: list, Total: chatResponse.Total}, nil

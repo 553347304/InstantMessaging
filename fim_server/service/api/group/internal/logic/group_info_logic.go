@@ -29,12 +29,12 @@ func NewGroupInfoLogic(ctx context.Context, svcCtx *svc.ServiceContext) *GroupIn
 func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.GroupInfoResponse, err error) {
 	// todo: add your logic here and delete this line
 	var member group_models.GroupMemberModel
-	err = l.svcCtx.DB.Take(&member, "group_id = ? and user_id = ?", req.Id, req.UserID).Error
+	err = l.svcCtx.DB.Take(&member, "group_id = ? and user_id = ?", req.Id, req.UserId).Error
 	if err != nil {
 		return nil, logs.Error("该用户不是群成员")
 	}
 	_, err = l.svcCtx.GroupRpc.IsInGroupMember(l.ctx, &group_rpc.IsInGroupMemberRequest{
-		UserID:  uint32(req.UserID),
+		UserId:  uint32(req.UserId),
 		GroupId: uint32(req.Id),
 	})
 	if err != nil {
@@ -58,13 +58,13 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 	}
 
 	// 查用户列表信息
-	var UserIDList []uint32
-	var userAllIdList []uint32
+	var UserIDList []uint64
+	var userAllIdList []uint64
 	for _, model := range groupModel.MemberList {
 		if model.Role == 1 || model.Role == 2 {
-			UserIDList = append(UserIDList, uint32(model.UserID))
+			UserIDList = append(UserIDList, model.UserId)
 		}
-		userAllIdList = append(userAllIdList, uint32(model.UserID))
+		userAllIdList = append(userAllIdList, model.UserId)
 	}
 
 	userResponse, err := l.svcCtx.UserRpc.User.UserInfo(l.ctx, &user_rpc.IdList{Id: UserIDList})
@@ -78,9 +78,9 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 			continue
 		}
 		userInfo := types.UserInfo{
-			UserID: model.UserID,
-			Avatar: userResponse.InfoList[uint32(model.UserID)].Avatar,
-			Name:   userResponse.InfoList[uint32(model.UserID)].Name,
+			UserId: model.UserId,
+			Avatar: userResponse.InfoList[model.UserId].Avatar,
+			Username:   userResponse.InfoList[model.UserId].Username,
 		}
 		if model.Role == 1 {
 			leader = userInfo
@@ -97,7 +97,7 @@ func (l *GroupInfoLogic) GroupInfo(req *types.GroupInfoRequest) (resp *types.Gro
 	// 用户在线总数
 	userOnlineResponse, err := l.svcCtx.UserRpc.User.UserOnlineList(l.ctx, &user_rpc.Empty{})
 	if err == nil {
-		slice := method.List(userOnlineResponse.UserIDList).Intersect(userAllIdList)
+		slice := method.List(userOnlineResponse.UserIdList).Intersect(userAllIdList)
 		resp.MemberOnlinCount = len(slice)
 	}
 

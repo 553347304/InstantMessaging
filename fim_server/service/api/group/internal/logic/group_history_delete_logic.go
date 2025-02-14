@@ -2,12 +2,12 @@ package logic
 
 import (
 	"context"
+	"fim_server/common/sqls"
 	"fim_server/models/group_models"
 	"fim_server/service/api/group/internal/svc"
 	"fim_server/service/api/group/internal/types"
 	"fim_server/utils/stores/logs"
 	"fim_server/utils/stores/method"
-	"fmt"
 	"github.com/zeromicro/go-zero/core/logx"
 )
 
@@ -29,20 +29,19 @@ func (l *GroupHistoryDeleteLogic) GroupHistoryDelete(req *types.GroupHistoryDele
 	// todo: add your logic here and delete this line
 
 	var member1 group_models.GroupMemberModel
-	err = l.svcCtx.DB.Take(&member1, "group_id = ? and user_id = ?", req.Id, req.UserID).Error
+	err = l.svcCtx.DB.Take(&member1, "group_id = ? and user_id = ?", req.Id, req.UserId).Error
 	if err != nil {
 		return nil, logs.Error("用户不是群成员", err.Error())
 	}
 
 	for _, id := range req.IdList {
-		var deleteUserID group_models.GroupMessageModel
-		is := l.svcCtx.DB.Take(&deleteUserID, "id = ? and delete_user_id not like ?",
-			id, fmt.Sprintf("%%\"%d\"%%", req.UserID)).Error
+		var deleteUserId group_models.GroupMessageModel
+		is := l.svcCtx.DB.Take(&deleteUserId, "id = ? and %s", id, sqls.InNumber("delete_user_id", req.UserId)).Error
 		// 用户删除列表中没找到就添加
 		if is == nil {
-			deleteUserID.DeleteUserID = append(deleteUserID.DeleteUserID, fmt.Sprint(req.UserID))
-			deleteUserID.DeleteUserID = method.List(deleteUserID.DeleteUserID).Sort(true)
-			l.svcCtx.DB.Updates(&deleteUserID)
+			deleteUserId.DeleteUserId = append(deleteUserId.DeleteUserId, req.UserId)
+			deleteUserId.DeleteUserId = method.List(deleteUserId.DeleteUserId).Sort(true)
+			l.svcCtx.DB.Updates(&deleteUserId)
 		}
 		logs.Info("删除消息ID", id, is == nil)
 	}

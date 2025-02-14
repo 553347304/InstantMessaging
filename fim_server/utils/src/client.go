@@ -49,7 +49,7 @@ func (clientService) Mysql(c string) *gorm.DB {
 	}
 	dsn := fmt.Sprintf("root:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", conf[1], conf[0], conf[2])
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		DisableForeignKeyConstraintWhenMigrating: false,                                // 禁止生成实体外键约束
+		DisableForeignKeyConstraintWhenMigrating: true,                                // 禁止生成实体外键约束
 		Logger:                                   logger.Default.LogMode(logger.Error), // 日志等级
 	})
 	if err != nil {

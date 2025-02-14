@@ -31,7 +31,7 @@ func (l *GroupBanUpdateLogic) GroupBanUpdate(req *types.GroupBanUpdateRequest) (
 	// todo: add your logic here and delete this line
 
 	var member group_models.GroupMemberModel
-	l.svcCtx.DB.Take(&member, "group_id = ? and user_id = ?", req.GroupId, req.UserID)
+	l.svcCtx.DB.Take(&member, "group_id = ? and user_id = ?", req.GroupId, req.UserId)
 	if !(member.Role == 1 || member.Role == 2) {
 		return nil, logs.Error("权限不足")
 	}
