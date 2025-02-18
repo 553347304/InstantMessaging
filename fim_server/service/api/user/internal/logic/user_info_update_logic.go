@@ -29,41 +29,31 @@ func NewUserInfoUpdateLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Us
 func (l *UserInfoUpdateLogic) UserInfoUpdate(req *types.UserUpdateRequest) (resp *types.UserUpdateResponse, err error) {
 	// todo: add your logic here and delete this line
 	
-	userMap := conv.Struct(*req).StructMap()
-	logs.Info(userMap)
-	if len(userMap) != 0 {
+	if req.UserInfo != nil {
+		userInfoMap := method.Struct().ToMap(req.UserInfo)
 		var user user_models.UserModel
 		err = l.svcCtx.DB.Take(&user, req.UserId).Error
 		if err != nil {
 			return nil, logs.Error("用户不存在", req.UserId)
 		}
-		err = l.svcCtx.DB.Model(&user).Updates(userMap).Error
+		err = l.svcCtx.DB.Model(&user).Updates(userInfoMap).Error
 		if err != nil {
 			return nil, logs.Error("用户信息更新失败", err)
 		}
 	}
 	
-	userConfigMaps := conv.Struct(*req).StructMap()
-	logs.Info(userConfigMaps)
-	if len(userConfigMaps) != 0 {
-		delete(userConfigMaps, "name")
-		delete(userConfigMaps, "sign")
-		delete(userConfigMaps, "avatar")
-		delete(userConfigMaps, "auth_question")
+	if req.UserConfig != nil {
+		userConfigMap := method.Struct().ToMap(req.UserConfig)
+		userConfigMap["valid_info"] = conv.Json().Marshal(req.UserConfig.ValidInfo)
+		if req.UserConfig.ValidInfo.Issue == nil || req.UserConfig.ValidInfo.Answer == nil {
+			delete(userConfigMap, "valid_info")
+		}
 		var userConfig user_models.UserConfigModel
 		err = l.svcCtx.DB.Take(&userConfig, "user_id = ?", req.UserId).Error
 		if err != nil {
-			return nil, logs.Error("用户配置不存在")
+			return nil, logs.Error("用户配置不存在", req.UserId)
 		}
-		
-		userModel := user_models.UserConfigModel{}
-		method.Struct().To(req.ValidInfo, &userModel.ValidInfo)
-		err = l.svcCtx.DB.Model(&userConfig).Updates(&userModel).Error
-		
-		if err != nil {
-			return nil, logs.Error("用户配置验证问题更新失败", err)
-		}
-		err = l.svcCtx.DB.Model(&userConfig).Updates(userConfigMaps).Error
+		err = l.svcCtx.DB.Model(&userConfig).Updates(userConfigMap).Error
 		if err != nil {
 			return nil, logs.Error("用户配置更新失败", err)
 		}

@@ -2,9 +2,9 @@
     font-family: "iconfont"; /* Project id 4824631 */
     /* Color fonts */
     src:
-            url('//at.alicdn.com/t/c/font_4824631_y4xv8krx68g.woff2?t=1739284863833') format('woff2'),
-            url('//at.alicdn.com/t/c/font_4824631_y4xv8krx68g.woff?t=1739284863833') format('woff'),
-            url('//at.alicdn.com/t/c/font_4824631_y4xv8krx68g.ttf?t=1739284863833') format('truetype');
+            url('//at.alicdn.com/t/c/font_4824631_z1b8rt09cx9.woff2?t=1739831611841') format('woff2'),
+            url('//at.alicdn.com/t/c/font_4824631_z1b8rt09cx9.woff?t=1739831611841') format('woff'),
+            url('//at.alicdn.com/t/c/font_4824631_z1b8rt09cx9.ttf?t=1739831611841') format('truetype');
 }
 
 .iconfont {
@@ -13,6 +13,54 @@
     font-style: normal;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-email-pc-on:before {
+    content: "\e602";
+}
+
+.icon-youjian:before {
+    content: "\ecb3";
+}
+
+.icon-mail:before {
+    content: "\e603";
+}
+
+.icon-tongzhi1:before {
+    content: "\ecb1";
+}
+
+.icon-yonghu1:before {
+    content: "\e601";
+}
+
+.icon-yonghu:before {
+    content: "\e600";
+}
+
+.icon-shezhi:before {
+    content: "\e625";
+}
+
+.icon-shezhi1:before {
+    content: "\e67b";
+}
+
+.icon-jiaose:before {
+    content: "\e64d";
+}
+
+.icon-liaotian:before {
+    content: "\e624";
+}
+
+.icon-yonghuguanli_huaban:before {
+    content: "\e60a";
+}
+
+.icon-qitalei:before {
+    content: "\e69b";
 }
 
 .icon-yonghuming:before {

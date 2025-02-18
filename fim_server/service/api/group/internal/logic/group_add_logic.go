@@ -73,7 +73,7 @@ func (l *GroupAddLogic) GroupAdd(req *types.GroupAddRequest) (resp *types.GroupA
 	case 3:
 		verifyModel.Status = 0 // 需要验证
 	case 4:
-		if !group.ValidInfo.Valid(req.ValidInfo.Answer) {
+		if !group.ValidInfo.Valid(*req.ValidInfo.Answer) {
 			return nil, logs.Error("答案错误")
 		}
 		verifyModel.Status = 1 // 直接加群

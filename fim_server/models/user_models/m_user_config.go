@@ -4,6 +4,9 @@ import (
 	"fim_server/models"
 )
 
+
+
+
 // UserConfigModel 用户配置表
 type UserConfigModel struct {
 	models.Model
@@ -17,7 +20,7 @@ type UserConfigModel struct {
 	
 	// 防骚扰
 	SearchUser int32            `json:"search_user"` // 别人查找到你的方式
-	Valid      int32            `json:"valid"`       // 好友验证
+	Valid      int32            `json:"valid"`       // 好友验证  0:禁止加我为好友 | 1:允许任何人添加 | 2:需要验证 | 3:需要正确回答问题 | 4:需要回答问题并由我确认
 	ValidInfo  models.ValidInfo `json:"valid_info"`  // 验证问题
 	Online     bool             `json:"online"`      // 是否在线
 	

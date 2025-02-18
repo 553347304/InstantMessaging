@@ -4,16 +4,37 @@ import (
 	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/https"
 	"fim_server/utils/stores/logs"
-	"fmt"
 	"net/url"
 )
 
 type qqResponse struct {
-	Name   string `json:"name"`
-	Gender string `json:"gender"`
-	Avatar string `json:"avatar"`
-	OpenID string `json:"open_id"`
-	Error  error
+	Nickname string `json:"nickname"`
+	Gender   string `json:"gender"`
+	Avatar   string `json:"avatar"`
+	OpenID   string `json:"open_id"`
+	Error    error
+}
+type qqOpenLoginResponse struct {
+	Ret             int    `json:"ret"`
+	Msg             string `json:"msg"`
+	IsLost          int    `json:"is_lost"`
+	Nickname        string `json:"nickname"`
+	Gender          string `json:"gender"`
+	GenderType      int    `json:"gender_type"`
+	Province        string `json:"province"`
+	City            string `json:"city"`
+	Year            string `json:"year"`
+	Figureurl       string `json:"figureurl"`
+	Figureurl1      string `json:"figureurl_1"`
+	Figureurl2      string `json:"figureurl_2"`
+	FigureurlQq1    string `json:"figureurl_qq_1"`
+	FigureurlQq2    string `json:"figureurl_qq_2"`
+	FigureurlQq     string `json:"figureurl_qq"`
+	IsYellowVip     string `json:"is_yellow_vip"`
+	Vip             string `json:"vip"`
+	YellowVipLevel  string `json:"yellow_vip_level"`
+	Level           string `json:"level"`
+	IsYellowYearVip string `json:"is_yellow_year_vip"`
 }
 
 func Login(qq LoginConfig) qqResponse {
@@ -32,7 +53,7 @@ func Login(qq LoginConfig) qqResponse {
 	v, _ := url.ParseQuery(string(r.Body))
 	accessToken := v.Get("access_token")
 	openID := v.Get("openid")
-
+	
 	// 获取用户信息
 	info := https.Get("https://graph.qq.com/user/get_user_info", nil, map[string]any{
 		"oauth_consumer_key": qq.AppID,
@@ -42,14 +63,19 @@ func Login(qq LoginConfig) qqResponse {
 	if info.Error != nil {
 		return qqResponse{Error: logs.Error(info.Error)}
 	}
-
-	var user = make(map[string]any)
-	conv.Json().Unmarshal(info.Body, &user)
+	
+	var user qqOpenLoginResponse
+	if !conv.Json().Unmarshal(info.Body, &user) {
+		return qqResponse{Error: logs.Error("参数错误")}
+	}
+	if user.Ret != 0 {
+		return qqResponse{Error: logs.Error(user.Msg)}
+	}
 	return qqResponse{
-		Error:  nil,
-		Name:   fmt.Sprint(user["nickname"]),
-		Gender: fmt.Sprint(user["gender"]),
-		Avatar: fmt.Sprint(user["figureurl_qq_1"]),
-		OpenID: openID,
+		Error:    nil,
+		Nickname: user.Nickname,
+		Gender:   user.Gender,
+		Avatar:   user.FigureurlQq1,
+		OpenID:   openID,
 	}
 }

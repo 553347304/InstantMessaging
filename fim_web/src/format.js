@@ -3,7 +3,7 @@ import path from 'path'
 
 let state = true;
 
-const MAX_SIZE = 300;
+const MAX_SIZE = 200;
 const Tab = {
     form: "el-form-item",
 }
@@ -24,7 +24,7 @@ function vueConfig(filePath) {
     fs.readFile(filePath, 'utf8', (err, data) => {
         let v = data;
         if (v !== null) v = Trim(Tab.form, v);
-        
+
         if (v !== null) {
             console.warn(filePath);
             fs.writeFile(filePath, v, err => {if (err) throw err;});

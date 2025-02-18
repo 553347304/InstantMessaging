@@ -10,12 +10,9 @@ import (
 	"fim_server/utils/stores/conv"
 	"fim_server/utils/stores/logs"
 	"fim_server/utils/stores/valid"
-	"fmt"
 	
 	"fim_server/service/api/auth/internal/svc"
 	"fim_server/service/api/auth/internal/types"
-	
-	"github.com/zeromicro/go-zero/core/logx"
 )
 
 type Open_loginLogic struct {
@@ -31,9 +28,9 @@ func NewOpen_loginLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Open_l
 }
 
 type OpenInfo struct {
-	OpenId string
-	Username   string
-	Avatar string
+	OpenId   string
+	Username string
+	Avatar   string
 }
 
 func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.LoginResponse, err error) {
@@ -56,28 +53,20 @@ func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.L
 		if r.Error != nil {
 			return nil, r.Error
 		}
-		logs.Info(r)
-		return
-		// info = OpenInfo{
-		// 	OpenID: qqInfo.OpenID,
-		// 	Name:   qqInfo.Name,
-		// 	Avatar: qqInfo.Avatar,
-		// }
-		// err = openError
+		info.Username = r.Nickname
+		info.OpenId = r.OpenID
+		info.Avatar = r.Avatar
 	default:
-		err = logs.Error("不支持的第三方登录")
+		return nil, logs.Error("不支持的第三方登录")
 	}
 	
-	if err != nil {
-		logs.Error("登录失败", err)
-		return nil, logs.Error("登录失败")
-	}
+	
+	// 注册用户
 	var user user_models.UserModel
 	err = l.svcCtx.DB.Take(&user, "open_id = ?", info.OpenId).Error
 	if err != nil {
-		fmt.Println("注册服务")
 		result, errs := l.svcCtx.UserRpc.User.UserCreate(l.ctx, &user_rpc.UserCreateRequest{
-			Username:           info.Username,
+			Username:       info.Username,
 			Password:       "",
 			Role:           2,
 			Avatar:         info.Avatar,
@@ -85,12 +74,13 @@ func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.L
 			RegisterSource: "qq",
 		})
 		if errs != nil {
-			return nil, logs.Error("登录失败")
+			return nil, logs.Error("注册失败")
 		}
-		user.Model.ID = result.UserId
+		user.ID = result.UserId
 		user.Role = 2
 		user.Username = info.Username
 	}
+	
 	// 登录
 	token := valid.Jwt().Hash(valid.PayLoad{
 		UserId:   user.ID,
@@ -98,7 +88,6 @@ func (l *Open_loginLogic) Open_login(req *types.OpenLoginRequest) (resp *types.L
 		Role:     user.Role,
 	})
 	if token == "" {
-		logx.Error(err)
 		return nil, logs.Error("服务器内部错误")
 	}
 	return &types.LoginResponse{Token: token}, nil

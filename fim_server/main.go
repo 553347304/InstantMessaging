@@ -6,6 +6,15 @@ import (
 	"fim_server/utils/stores/logs"
 )
 
+type UserInfo struct {
+	Username string `json:"username"`
+	Sign     string `json:"sign"`
+	Avatar   string `json:"avatar"`
+}
+type T struct {
+	UserInfo []UserInfo `json:"user_info"`
+}
+
 func main() {
 	config.Init()
 	

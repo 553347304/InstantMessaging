@@ -19,7 +19,7 @@ var SystemSetting = ConfigModel{
 			AppID:    "102550927",
 			Key:      "rdEbkhT2RgovviQ0",
 			Redirect: "http://tcbyj.cn/login/qq",
-			WebPath:  "",
+			WebPath:  "https://graph.qq.com/oauth2.0/show?which=Login&display=pc&response_type=code&client_id=102550927&redirect_uri=http://tcbyj.cn/login/qq?flag=qq",
 		},
 	},
 }

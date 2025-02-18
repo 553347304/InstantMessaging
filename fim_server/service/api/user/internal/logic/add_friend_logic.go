@@ -69,7 +69,7 @@ func (l *AddFriendLogic) AddFriend(req *types.AddFriendRequest) (resp *types.Add
 		return
 	case 4:
 		// 需要正确回答问题
-		if !userConfig.ValidInfo.Valid(req.ValidInfo.Answer) {
+		if !userConfig.ValidInfo.Valid(*req.ValidInfo.Answer) {
 			return nil, logs.Error("答案错误")
 		}
 		validModel.ReceiveStatus = 1 // 直接加好友

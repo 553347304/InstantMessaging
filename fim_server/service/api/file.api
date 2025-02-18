@@ -7,9 +7,10 @@ type (
 	}
 	FileRequest {
 		UserId uint64 `header:"User-ID"`
+		Type   string `form:"type"`
 	}
 	FileResponse {
-		Src string `json:"src"`
+		Url string `json:"url"`
 	}
 )
 

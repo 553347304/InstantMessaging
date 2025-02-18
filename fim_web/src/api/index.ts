@@ -1,6 +1,6 @@
 import axios from "axios";
 import {ElMessage} from "element-plus";
-import {useStore} from "@/stores/stores.ts";
+import {useStore} from "@/stores";
 
 export const useAxios = axios.create({
     baseURL: "",
@@ -10,7 +10,7 @@ export const useAxios = axios.create({
 // 请求拦截器
 useAxios.interceptors.request.use((config) => {
     const store = useStore()
-    config.headers["token"] = store.userInfo.token
+    config.headers["token"] = store.auth.token
     return config
 })
 

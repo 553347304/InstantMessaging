@@ -19,7 +19,7 @@ var c = struct {
 	Error: "#F75464",
 }
 
-func Info(s ...interface{}) string{
+func Info(s ...interface{}) string {
 	fmt.Println(l.time(), l.line()[0], l.color(l.ip(l.string(s...)), c.Info))
 	return l.string(s...)
 }
@@ -40,13 +40,17 @@ func Fatal(s ...interface{}) {
 	l.error(l.line(), s...)
 	os.Exit(0)
 }
+
+func Struct(s interface{}) {
+	fmt.Println(l.time(), l.line()[0], l.color(s, c.Info))
+}
 func Json(s interface{}) {
 	marshal, err := json.MarshalIndent(s, "", "\t") // 转格式化后json
 	if err != nil {
 		l.error(l.line(), s)
 		return
 	}
-	Info(string(marshal))
+	Info("\n" + string(marshal))
 }
 func Progress(min int64, max int64, char string) {
 	percentage := int(float64(min) / float64(max) * 100)
@@ -55,7 +59,7 @@ func Progress(min int64, max int64, char string) {
 		_char += char
 	}
 	fmt.Printf("\r进度: [%-50s] %d%%   %d/%d", _char, percentage, min, max)
-
+	
 	if percentage == 100 {
 		fmt.Println()
 	}

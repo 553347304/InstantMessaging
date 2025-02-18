@@ -26,7 +26,7 @@ func (l *logServer) line() []string {
 	pc := make([]uintptr, 32)
 	n := runtime.Callers(3, pc)
 	cf := runtime.CallersFrames(pc[:n])
-
+	
 	for {
 		frame, more := cf.Next()
 		if !more {
@@ -40,10 +40,10 @@ func (l *logServer) line() []string {
 				pathLine = strings.Replace(pathLine[index:], dir, "", 1)
 				pathList = append(pathList, pathLine)
 			}
-
+			
 		}
 	}
-
+	
 	return pathList
 }
 func (l *logServer) hexToRgb(hex string) (int, int, int) {
@@ -59,7 +59,7 @@ func (l *logServer) hexToRgb(hex string) (int, int, int) {
 	return int(r), int(g), int(b)
 }
 func (l *logServer) color(s any, hex ...string) string {
-	s = fmt.Sprint(s)
+	s = fmt.Sprintf("%+v",s)
 	if len(hex) >= 3 {
 		if hex[2] == "斜体" {
 			s = fmt.Sprintf("\033[3m%s", s) // 斜体
@@ -85,19 +85,22 @@ func (l *logServer) string(s ...interface{}) string {
 }
 func (l *logServer) ip(source string) string {
 	// 是否为IP地址
-	isIP := regexp.MustCompile(`.(\d{1,3}\.){3}\d{1,3}(:\d+)?`).FindAllString(source, -1)
-	for _, ip := range isIP {
+	regex := regexp.MustCompile(`.(\d{1,3}\.){3}\d{1,3}(:\d+)?`).FindAllString(source, -1)
+	for _, ip := range regex {
 		if strings.Index(ip, "/") == -1 {
-			source = strings.ReplaceAll(source, ip[1:], l.color(ip[1:], "#FFFFFF", "#288F6A", "斜体"))
+			isIp := regexp.MustCompile(`(\d{1,3}\.){3}\d{1,3}(:\d+)?`).FindString(ip)
+			if isIp != "" {
+				source = strings.ReplaceAll(source, isIp, l.color(isIp, "#FFFFFF", "#288F6A", "斜体"))
+			}
 		}
 	}
-
+	
 	return source
 }
 
 func (l *logServer) error(line []string, s ...interface{}) {
 	fmt.Println(l.time(), l.color(l.string(s...), c.Error))
-
+	
 	for i := 0; i < len(line); i++ {
 		fmt.Println(line[i])
 	}

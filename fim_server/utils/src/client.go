@@ -49,7 +49,7 @@ func (clientService) Mysql(c string) *gorm.DB {
 	}
 	dsn := fmt.Sprintf("root:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local", conf[1], conf[0], conf[2])
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
-		DisableForeignKeyConstraintWhenMigrating: true,                                // 禁止生成实体外键约束
+		DisableForeignKeyConstraintWhenMigrating: true,                                 // 禁止生成实体外键约束
 		Logger:                                   logger.Default.LogMode(logger.Error), // 日志等级
 	})
 	if err != nil {
@@ -57,10 +57,10 @@ func (clientService) Mysql(c string) *gorm.DB {
 		return db
 	}
 	sqlDB, _ := db.DB()
-	sqlDB.SetMaxIdleConns(10)               // 最大空闲连接数
-	sqlDB.SetMaxOpenConns(100)              // 最多可容纳
-	sqlDB.SetConnMaxLifetime(time.Hour * 4) // 连接最大复用时间，不能超过mysql的wait_timeout
-
+	sqlDB.SetMaxIdleConns(10)                // 最大空闲连接数
+	sqlDB.SetMaxOpenConns(100)               // 最多可容纳
+	sqlDB.SetConnMaxLifetime(time.Hour * 24) // 最大空闲时间
+	
 	return db
 }
 func (clientService) Redis(c string) *redis.Client {

@@ -1,19 +1,21 @@
 type (
 	PageInfo {
-		Key   string `form:"key"`
+		Key   string `form:"key,optional"`
 		Page  int    `form:"page,optional"`
 		Limit int    `form:"limit,optional"`
+	}
+	User {
+		UserId uint64 `header:"User-ID"`
+	}
+	ValidInfo {
+		Issue  *string `json:"issue,optional"`
+		Answer *string `json:"answer,optional"`
 	}
 )
 
 type UserInfoRequest {
 	UserId uint64 `header:"User-ID"`
 	Role   int32  `header:"Role"`
-}
-
-type ValidInfo {
-	Issue  []string `json:"issue,optional"`
-	Answer []string `json:"answer,optional"`
 }
 
 type UserInfoResponse {
@@ -27,26 +29,34 @@ type UserInfoResponse {
 	SecureLink    bool    `json:"secure_link"` // 安全链接
 	SavePassword  bool    `json:"save_password"` // 保存密码
 	// 防骚扰
-	SearchUser int32     `json:"search_user"` // 别人查找到你的方式
-	Valid      int32     `json:"valid,optional"`
-	ValidInfo  ValidInfo `json:"valid_info,optional"`
+	SearchUser int32      `json:"search_user"` // 别人查找到你的方式
+	Valid      *int32     `json:"valid,optional"`
+	ValidInfo  *ValidInfo `json:"valid_info,optional"`
 }
 
-type UserUpdateRequest {
-	UserId        uint64  `json:"user_id"`
-	Username      *string `json:"username,optional"`
-	Sign          *string `json:"sign,optional"`
-	Avatar        *string `json:"avatar,optional"`
-	RecallMessage *string `json:"recall_message,optional"` // 撤回消息内容
-	FriendOnline  *bool   `json:"friend_online,optional"` // 好友上线
-	Sound         *bool   `json:"sound,optional"` // 好友上线声音
-	SecureLink    *bool   `json:"secure_link,optional"` // 安全链接
-	SavePassword  *bool   `json:"save_password,optional"` // 保存密码
-	// 防骚扰
-	SearchUser *int32    `json:"search_user,optional"` // 别人查找到你的方式
-	Valid      int32     `json:"valid，optional"`
-	ValidInfo  ValidInfo `json:"valid_info,optional"`
-}
+type (
+	UserInfo {
+		Username *string `json:"username,optional"`
+		Sign     *string `json:"sign,optional"`
+		Avatar   *string `json:"avatar,optional"`
+	}
+	UserConfig {
+		RecallMessage *string `json:"recall_message,optional"` // 撤回消息内容
+		FriendOnline  *bool   `json:"friend_online,optional"` // 好友上线
+		Sound         *bool   `json:"sound,optional"` // 好友上线声音
+		SecureLink    *bool   `json:"secure_link,optional"` // 安全链接
+		SavePassword  *bool   `json:"save_password,optional"` // 保存密码
+		// 防骚扰
+		SearchUser *int32     `json:"search_user,optional"` // 别人查找到你的方式
+		Valid      *int32     `json:"valid,optional"`
+		ValidInfo  *ValidInfo `json:"valid_info,optional"`
+	}
+	UserUpdateRequest {
+		User
+		UserInfo   *UserInfo   `json:"user_info,optional"`
+		UserConfig *UserConfig `json:"user_config,optional"`
+	}
+)
 
 type UserUpdateResponse {}
 

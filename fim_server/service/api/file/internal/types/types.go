@@ -21,10 +21,11 @@ type FileListResponse struct {
 
 type FileRequest struct {
 	UserId uint64 `header:"User-ID"`
+	Type   string `form:"type"`
 }
 
 type FileResponse struct {
-	Src string `json:"src"`
+	Url string `json:"url"`
 }
 
 type PageInfo struct {

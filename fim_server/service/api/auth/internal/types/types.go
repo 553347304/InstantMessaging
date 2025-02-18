@@ -29,7 +29,6 @@ type OpenLoginInfoResponse struct {
 }
 
 type OpenLoginRequest struct {
-	Code   string `json:"code"`
-	Flag   string `json:"flag"`
-	UserId string `json:"user_id"`
+	Code string `json:"code"`
+	Flag string `json:"flag"`
 }

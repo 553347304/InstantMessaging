@@ -1,7 +1,6 @@
 package handler
 
 import (
-	"context"
 	"fim_server/models/file_models"
 	"fim_server/service/api/file/internal/logic"
 	"fim_server/service/api/file/internal/svc"
@@ -21,7 +20,7 @@ import (
 func FileHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req types.FileRequest
-		if err := httpx.ParseHeaders(r, &req); err != nil {
+		if err := httpx.Parse(r, &req); err != nil {
 			response.Response(r, w, nil, err)
 			return
 		}
@@ -45,13 +44,13 @@ func FileHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		err = svcCtx.DB.Take(&fileModel, "hash = ?", f.Md5).Error
 		if err == nil {
 			logs.Info("文件Hash重复", f.Name)
-			resp.Src = fileModel.WebPath()
+			resp.Url = fileModel.WebPath()
 			response.Response(r, w, resp, err)
 			return
 		}
 		
 		// 用户信息
-		userResponse, err := svcCtx.UserRpc.User.UserInfo(context.Background(), &user_rpc.IdList{Id: []uint64{req.UserId}})
+		userResponse, err := svcCtx.UserRpc.User.UserInfo(r.Context(), &user_rpc.IdList{Id: []uint64{req.UserId}})
 		if err != nil {
 			response.Response(r, w, nil, err)
 			return
@@ -67,10 +66,10 @@ func FileHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 		
 		newFileModel.Path = path.Join(svcCtx.Config.File.Path, "user",
 			fmt.Sprintf("%d_%s", req.UserId, userResponse.InfoList[req.UserId].Username),
+			req.Type,
 			fmt.Sprint(newFileModel.Uid, f.Ext))
 		
 		// 写入文件
-		
 		err = files.Write(f.Byte, newFileModel.Path)
 		if err != nil {
 			response.Response(r, w, nil, err)
@@ -84,7 +83,7 @@ func FileHandler(svcCtx *svc.ServiceContext) http.HandlerFunc {
 			return
 		}
 		
-		resp.Src = newFileModel.WebPath()
+		resp.Url = newFileModel.WebPath()
 		response.Response(r, w, resp, err)
 	}
 }

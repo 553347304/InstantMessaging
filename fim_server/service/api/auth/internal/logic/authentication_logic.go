@@ -49,6 +49,7 @@ func (l *AuthenticationLogic) Authentication(req *types.AuthenticationRequest) (
 		UserId: claims.PayLoad.UserId,
 		Role:   claims.PayLoad.Role,
 	}
-	logs.Info("认证成功", resp)
+	
+	logs.Struct(resp)
 	return resp, nil
 }

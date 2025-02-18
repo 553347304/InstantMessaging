@@ -30,6 +30,7 @@ export default defineConfig({
     },
 
     server: {
+        allowedHosts: ['tcbyj.cn'], // 允许的主机
         host: "0.0.0.0",
         port: 80,
         proxy: {

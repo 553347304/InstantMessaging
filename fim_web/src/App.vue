@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import {useStore} from "@/stores/stores.ts";
+import {useStore} from "@/stores";
 const store = useStore()
-store.getToken()
-
+store.init()
 </script>
 
 <template>

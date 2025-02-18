@@ -23,7 +23,6 @@ func (j jwtService) Hash(payload PayLoad) string {
 		logs.Warn("生成 token 失败", err.Error())
 		return ""
 	}
-	logs.Warn(sign)
 	return sign
 }
 
